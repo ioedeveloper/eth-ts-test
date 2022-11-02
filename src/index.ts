@@ -23,6 +23,9 @@ async function execute () {
 async function main (filePath: string) {
   try {
     const testFileContent = await fs.readFile(filePath, 'utf8')
+    const importIndex = testFileContent.search(/import\s+['"]ethers['"]/)
+
+    console.log('importIndex: ', importIndex)
 
     console.log(testFileContent)
   } catch (error) {

@@ -108,7 +108,7 @@ function execute() {
 }
 function main(filePath) {
     return __awaiter(this, void 0, void 0, function () {
-        var testFileContent, error_1;
+        var testFileContent, importIndex, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -116,6 +116,8 @@ function main(filePath) {
                     return [4 /*yield*/, fs.readFile(filePath, 'utf8')];
                 case 1:
                     testFileContent = _a.sent();
+                    importIndex = testFileContent.search(/import\s+['"]ethers['"]/);
+                    console.log('importIndex: ', importIndex);
                     console.log(testFileContent);
                     return [3 /*break*/, 3];
                 case 2:
