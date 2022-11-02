@@ -14,6 +14,6 @@ jobs:
         with:
           node-version: 14.17.6
       - name: Run SUT Action
-        uses: ioedeveloper/eth-ts-test@v0.1.0-dev
+        uses: ioedeveloper/eth-ts-test@v0.2.0-dev
         with:
           test-path: 'sample/tests'
