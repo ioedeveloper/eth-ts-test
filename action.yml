@@ -4,6 +4,8 @@ inputs:
   test-path:
     description: 'Path to file or directory containing all test files'
     required: true
+  artifact-path:
+    description: 'Path to compiled contract's artifact'
   compiler-version:
     description: 'set compiler version (e.g: 0.6.1, 0.7.1 etc)'
   

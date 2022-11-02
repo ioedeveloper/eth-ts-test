@@ -5,12 +5,29 @@ import * as fs from 'fs/promises'
 async function execute () {
   const testPath = core.getInput('test-path')
   const artifactPath = core.getInput('artifact-path')
+  const isTestPathDirectory = (await fs.stat(testPath)).isDirectory()
 
   await core.group("Run tests", async () => {
-    const testFileContent = await fs.readFile(testPath, 'utf8')
+    if (isTestPathDirectory) {
+      const testFiles = await fs.readdir(testPath)
 
-    console.log('testFileContent: ', testFileContent)
+      for (const testFile of testFiles) {
+        await main(`${testPath}/${testFile}`)
+      }
+    } else {
+      await main(testPath)
+    }
   })
+}
+
+async function main (filePath: string) {
+  try {
+    const testFileContent = await fs.readFile(filePath, 'utf8')
+
+    console.log(testFileContent)
+  } catch (error) {
+    core.setFailed(error.message)
+  }
 }
 
 execute().catch(error => {
