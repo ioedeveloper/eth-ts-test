@@ -1,0 +1,16 @@
+{
+  "name": "eth-ts-test",
+  "version": "0.0.1-dev",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": "https://github.com/ioedeveloper/eth-ts-test.git",
+  "author": "David Disu <daviddisu8@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@remix-project/remix-simulator": "^0.2.17",
+    "ethers": "^5.7.1"
+  }
+}
