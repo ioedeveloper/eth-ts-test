@@ -17,4 +17,3 @@ jobs:
         uses: ioedeveloper/eth-ts-test@v0.1.0-dev
         with:
           test-path: 'sample/tests'
-          compiler-version: '0.8.15'

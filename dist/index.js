@@ -59,28 +59,70 @@ var core = __importStar(require("@actions/core"));
 var fs = __importStar(require("fs/promises"));
 function execute() {
     return __awaiter(this, void 0, void 0, function () {
-        var testPath, artifactPath;
+        var testPath, artifactPath, isTestPathDirectory;
         var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     testPath = core.getInput('test-path');
                     artifactPath = core.getInput('artifact-path');
+                    return [4 /*yield*/, fs.stat(testPath)];
+                case 1:
+                    isTestPathDirectory = (_a.sent()).isDirectory();
                     return [4 /*yield*/, core.group("Run tests", function () { return __awaiter(_this, void 0, void 0, function () {
-                            var testFileContent;
+                            var testFiles, _i, testFiles_1, testFile;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
-                                    case 0: return [4 /*yield*/, fs.readFile(testPath, 'utf8')];
+                                    case 0:
+                                        if (!isTestPathDirectory) return [3 /*break*/, 6];
+                                        return [4 /*yield*/, fs.readdir(testPath)];
                                     case 1:
-                                        testFileContent = _a.sent();
-                                        console.log('testFileContent: ', testFileContent);
-                                        return [2 /*return*/];
+                                        testFiles = _a.sent();
+                                        _i = 0, testFiles_1 = testFiles;
+                                        _a.label = 2;
+                                    case 2:
+                                        if (!(_i < testFiles_1.length)) return [3 /*break*/, 5];
+                                        testFile = testFiles_1[_i];
+                                        return [4 /*yield*/, main(testPath + "/" + testFile)];
+                                    case 3:
+                                        _a.sent();
+                                        _a.label = 4;
+                                    case 4:
+                                        _i++;
+                                        return [3 /*break*/, 2];
+                                    case 5: return [3 /*break*/, 8];
+                                    case 6: return [4 /*yield*/, main(testPath)];
+                                    case 7:
+                                        _a.sent();
+                                        _a.label = 8;
+                                    case 8: return [2 /*return*/];
                                 }
                             });
                         }); })];
-                case 1:
+                case 2:
                     _a.sent();
                     return [2 /*return*/];
+            }
+        });
+    });
+}
+function main(filePath) {
+    return __awaiter(this, void 0, void 0, function () {
+        var testFileContent, error_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, fs.readFile(filePath, 'utf8')];
+                case 1:
+                    testFileContent = _a.sent();
+                    console.log(testFileContent);
+                    return [3 /*break*/, 3];
+                case 2:
+                    error_1 = _a.sent();
+                    core.setFailed(error_1.message);
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
             }
         });
     });
