@@ -1,5 +1,4 @@
 import * as core from '@actions/core'
-import { ethers } from './ethers'
 import * as fs from 'fs/promises'
 
 async function execute () {
@@ -22,8 +21,10 @@ async function execute () {
 
 async function main (filePath: string) {
   try {
-    const testFileContent = await fs.readFile(filePath, 'utf8')
-    const importIndex = testFileContent.search(/import\s+['"]ethers['"]/)
+    let testFileContent = await fs.readFile(filePath, 'utf8')
+
+    testFileContent = `import { ethersRemix } from './ethers_remix' \n${testFileContent}`
+    const importIndex = testFileContent.search('describe')
 
     console.log('importIndex: ', importIndex)
 

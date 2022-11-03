@@ -116,7 +116,8 @@ function main(filePath) {
                     return [4 /*yield*/, fs.readFile(filePath, 'utf8')];
                 case 1:
                     testFileContent = _a.sent();
-                    importIndex = testFileContent.search(/import\s+['"]ethers['"]/);
+                    testFileContent = "import { ethersRemix } from './ethers_remix' \n" + testFileContent;
+                    importIndex = testFileContent.search('describe');
                     console.log('importIndex: ', importIndex);
                     console.log(testFileContent);
                     return [3 /*break*/, 3];
