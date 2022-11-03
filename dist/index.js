@@ -112,20 +112,30 @@ function main(filePath) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 2, , 3]);
+                    _a.trys.push([0, 5, , 6]);
                     return [4 /*yield*/, fs.readFile(filePath, 'utf8')];
                 case 1:
                     testFileContent = _a.sent();
                     testFileContent = "import { ethersRemix } from './ethers_remix' \n" + testFileContent;
                     importIndex = testFileContent.search('describe');
+                    if (!(importIndex === -1)) return [3 /*break*/, 2];
+                    core.setFailed("No describe function found in " + filePath);
+                    return [3 /*break*/, 4];
+                case 2:
+                    testFileContent = testFileContent.slice(0, importIndex) + "\n ethers = ethersRemix; \n" + testFileContent.slice(importIndex);
+                    return [4 /*yield*/, fs.writeFile(filePath, testFileContent)];
+                case 3:
+                    _a.sent();
+                    _a.label = 4;
+                case 4:
                     console.log('importIndex: ', importIndex);
                     console.log(testFileContent);
-                    return [3 /*break*/, 3];
-                case 2:
+                    return [3 /*break*/, 6];
+                case 5:
                     error_1 = _a.sent();
                     core.setFailed(error_1.message);
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
+                    return [3 /*break*/, 6];
+                case 6: return [2 /*return*/];
             }
         });
     });

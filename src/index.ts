@@ -26,6 +26,13 @@ async function main (filePath: string) {
     testFileContent = `import { ethersRemix } from './ethers_remix' \n${testFileContent}`
     const importIndex = testFileContent.search('describe')
 
+    if (importIndex === -1) {
+      core.setFailed(`No describe function found in ${filePath}`)
+    } else {
+      testFileContent = `${testFileContent.slice(0, importIndex)}\n ethers = ethersRemix; \n${testFileContent.slice(importIndex)}`
+      await fs.writeFile(filePath, testFileContent)
+    }
+
     console.log('importIndex: ', importIndex)
 
     console.log(testFileContent)
