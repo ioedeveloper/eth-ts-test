@@ -35,10 +35,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getContractFactory = exports.getContractAt = exports.getSigner = exports.getSigners = exports.getContractFactoryFromArtifact = exports.getContractAtFromArtifact = void 0;
@@ -87,43 +91,43 @@ var collectLibrariesAndLink = function (artifact, libraries) { return __awaiter(
         linksToApply = new Map();
         _loop_1 = function (linkedLibraryName, linkedLibraryAddress) {
             if (!ethers.utils.isAddress(linkedLibraryAddress)) {
-                throw new Error("You tried to link the contract " + artifact.contractName + " with the library " + linkedLibraryName + ", but provided this invalid address: " + linkedLibraryAddress);
+                throw new Error("You tried to link the contract ".concat(artifact.contractName, " with the library ").concat(linkedLibraryName, ", but provided this invalid address: ").concat(linkedLibraryAddress));
             }
             var matchingNeededLibraries = neededLibraries.filter(function (lib) {
                 return (lib.libName === linkedLibraryName ||
-                    lib.sourceName + ":" + lib.libName === linkedLibraryName);
+                    "".concat(lib.sourceName, ":").concat(lib.libName) === linkedLibraryName);
             });
             if (matchingNeededLibraries.length === 0) {
                 var detailedMessage = void 0;
                 if (neededLibraries.length > 0) {
                     var libraryFQNames = neededLibraries
-                        .map(function (lib) { return lib.sourceName + ":" + lib.libName; })
-                        .map(function (x) { return "* " + x; })
+                        .map(function (lib) { return "".concat(lib.sourceName, ":").concat(lib.libName); })
+                        .map(function (x) { return "* ".concat(x); })
                         .join("\n");
-                    detailedMessage = "The libraries needed are:\n      " + libraryFQNames;
+                    detailedMessage = "The libraries needed are:\n      ".concat(libraryFQNames);
                 }
                 else {
                     detailedMessage = "This contract doesn't need linking any libraries.";
                 }
-                throw new Error("You tried to link the contract " + artifact.contractName + " with " + linkedLibraryName + ", which is not one of its libraries.\n      " + detailedMessage);
+                throw new Error("You tried to link the contract ".concat(artifact.contractName, " with ").concat(linkedLibraryName, ", which is not one of its libraries.\n      ").concat(detailedMessage));
             }
             if (matchingNeededLibraries.length > 1) {
                 var matchingNeededLibrariesFQNs = matchingNeededLibraries
                     .map(function (_a) {
                     var sourceName = _a.sourceName, libName = _a.libName;
-                    return sourceName + ":" + libName;
+                    return "".concat(sourceName, ":").concat(libName);
                 })
-                    .map(function (x) { return "* " + x; })
+                    .map(function (x) { return "* ".concat(x); })
                     .join("\n");
-                throw new Error("The library name " + linkedLibraryName + " is ambiguous for the contract " + artifact.contractName + ".\n        It may resolve to one of the following libraries:\n        " + matchingNeededLibrariesFQNs + "\n        To fix this, choose one of these fully qualified library names and replace where appropriate.");
+                throw new Error("The library name ".concat(linkedLibraryName, " is ambiguous for the contract ").concat(artifact.contractName, ".\n        It may resolve to one of the following libraries:\n        ").concat(matchingNeededLibrariesFQNs, "\n        To fix this, choose one of these fully qualified library names and replace where appropriate."));
             }
             var neededLibrary = matchingNeededLibraries[0];
-            var neededLibraryFQN = neededLibrary.sourceName + ":" + neededLibrary.libName;
+            var neededLibraryFQN = "".concat(neededLibrary.sourceName, ":").concat(neededLibrary.libName);
             // The only way for this library to be already mapped is
             // for it to be given twice in the libraries user input:
             // once as a library name and another as a fully qualified library name.
             if (linksToApply.has(neededLibraryFQN)) {
-                throw new Error("The library names " + neededLibrary.libName + " and " + neededLibraryFQN + " refer to the same library and were given as two separate library links.\n        Remove one of them and review your library links before proceeding.");
+                throw new Error("The library names ".concat(neededLibrary.libName, " and ").concat(neededLibraryFQN, " refer to the same library and were given as two separate library links.\n        Remove one of them and review your library links before proceeding."));
             }
             linksToApply.set(neededLibraryFQN, {
                 sourceName: neededLibrary.sourceName,
@@ -137,13 +141,13 @@ var collectLibrariesAndLink = function (artifact, libraries) { return __awaiter(
         }
         if (linksToApply.size < neededLibraries.length) {
             missingLibraries = neededLibraries
-                .map(function (lib) { return lib.sourceName + ":" + lib.libName; })
+                .map(function (lib) { return "".concat(lib.sourceName, ":").concat(lib.libName); })
                 .filter(function (libFQName) { return !linksToApply.has(libFQName); })
-                .map(function (x) { return "* " + x; })
+                .map(function (x) { return "* ".concat(x); })
                 .join("\n");
-            throw new Error("The contract " + artifact.contractName + " is missing links for the following libraries:\n      " + missingLibraries);
+            throw new Error("The contract ".concat(artifact.contractName, " is missing links for the following libraries:\n      ").concat(missingLibraries));
         }
-        return [2 /*return*/, linkBytecode(artifact, __spreadArray([], linksToApply.values()))];
+        return [2 /*return*/, linkBytecode(artifact, __spreadArray([], linksToApply.values(), true))];
     });
 }); };
 // Convert output.contracts.<filename>.<contractName> in Artifact object compatible form
@@ -260,7 +264,7 @@ var getContractFactoryFromArtifact = function (artifact, signerOrOptions) {
                         signer = signerOrOptions;
                     }
                     if (artifact.bytecode === "0x") {
-                        throw new Error("You are trying to create a contract factory for the contract " + artifact.contractName + ", which is abstract and can't be deployed.\nIf you want to call a contract using " + artifact.contractName + " as its interface use the \"getContractAt\" function instead.");
+                        throw new Error("You are trying to create a contract factory for the contract ".concat(artifact.contractName, ", which is abstract and can't be deployed.\nIf you want to call a contract using ").concat(artifact.contractName, " as its interface use the \"getContractAt\" function instead."));
                     }
                     return [4 /*yield*/, collectLibrariesAndLink(artifact, libraries)];
                 case 1:

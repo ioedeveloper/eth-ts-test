@@ -103,7 +103,7 @@ var SignerWithAddress = /** @class */ (function (_super) {
         return (_a = this._signer)._signTypedData.apply(_a, params);
     };
     SignerWithAddress.prototype.toJSON = function () {
-        return "<SignerWithAddress " + this.address + ">";
+        return "<SignerWithAddress ".concat(this.address, ">");
     };
     return SignerWithAddress;
 }(ethers_1.ethers.Signer));
