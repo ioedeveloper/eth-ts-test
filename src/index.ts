@@ -16,11 +16,13 @@ async function execute () {
 
       if (testFiles.length > 0) {
         await cli.exec('ls')
-        const remixEthers = await fs.readFile(path.resolve('', 'ethers_remix.ts'), 'utf8')
-        const remixEthersScript = transpileScript(remixEthers)
+        await fs.cp('dist', testPath + '/.deps')
+        await cli.exec('ls', [path.resolve(testPath)])
+        // const remixEthers = await fs.readFile(path.resolve('', 'ethers_remix.ts'), 'utf8')
+        // const remixEthersScript = transpileScript(remixEthers)
 
-        console.log('remixEthersScript.outputText: ', remixEthersScript.outputText)
-        await fs.writeFile('ethers_remix.js', remixEthersScript.outputText)
+        // console.log('remixEthersScript.outputText: ', remixEthersScript.outputText)
+        // await fs.writeFile('ethers_remix.js', remixEthersScript.outputText)
         for (const testFile of testFiles) {
           await main(`${testPath}/${testFile}`)
         }
@@ -35,7 +37,7 @@ async function main (filePath: string): Promise<void> {
   try {
     let testFileContent = await fs.readFile(filePath, 'utf8')
 
-    testFileContent = `import { ethersRemix } from './ethers_remix' \n${testFileContent}`
+    testFileContent = `import { ethersRemix } from './deps/ethers_remix' \n${testFileContent}`
     const importIndex = testFileContent.search('describe')
 
     if (importIndex === -1) {

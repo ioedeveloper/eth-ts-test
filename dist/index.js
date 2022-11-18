@@ -78,7 +78,7 @@ function execute() {
                 case 1:
                     isTestPathDirectory = (_a.sent()).isDirectory();
                     return [4 /*yield*/, core.group("Run tests", function () { return __awaiter(_this, void 0, void 0, function () {
-                            var testFiles, remixEthers, remixEthersScript, _i, testFiles_1, testFile;
+                            var testFiles, _i, testFiles_1, testFile;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
@@ -90,12 +90,15 @@ function execute() {
                                         return [4 /*yield*/, cli.exec('ls')];
                                     case 2:
                                         _a.sent();
-                                        return [4 /*yield*/, fs.readFile(path.resolve('', 'ethers_remix.ts'), 'utf8')];
+                                        return [4 /*yield*/, fs.cp('dist', testPath + '/.deps')];
                                     case 3:
-                                        remixEthers = _a.sent();
-                                        remixEthersScript = transpileScript(remixEthers);
-                                        console.log('remixEthersScript.outputText: ', remixEthersScript.outputText);
-                                        return [4 /*yield*/, fs.writeFile('ethers_remix.js', remixEthersScript.outputText)];
+                                        _a.sent();
+                                        return [4 /*yield*/, cli.exec('ls', [path.resolve(testPath)])
+                                            // const remixEthers = await fs.readFile(path.resolve('', 'ethers_remix.ts'), 'utf8')
+                                            // const remixEthersScript = transpileScript(remixEthers)
+                                            // console.log('remixEthersScript.outputText: ', remixEthersScript.outputText)
+                                            // await fs.writeFile('ethers_remix.js', remixEthersScript.outputText)
+                                        ];
                                     case 4:
                                         _a.sent();
                                         _i = 0, testFiles_1 = testFiles;
@@ -136,7 +139,7 @@ function main(filePath) {
                     return [4 /*yield*/, fs.readFile(filePath, 'utf8')];
                 case 1:
                     testFileContent = _a.sent();
-                    testFileContent = "import { ethersRemix } from './ethers_remix' \n".concat(testFileContent);
+                    testFileContent = "import { ethersRemix } from './deps/ethers_remix' \n".concat(testFileContent);
                     importIndex = testFileContent.search('describe');
                     if (!(importIndex === -1)) return [3 /*break*/, 2];
                     throw new Error("No describe function found in ".concat(filePath, ". Please wrap your tests in a describe function."));
