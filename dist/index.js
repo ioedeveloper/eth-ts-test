@@ -37,7 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -64,6 +64,7 @@ var fs = __importStar(require("fs/promises"));
 var fs_1 = require("fs");
 var path = __importStar(require("path"));
 var cli = __importStar(require("@actions/exec"));
+var ts = __importStar(require("typescript"));
 function execute() {
     return __awaiter(this, void 0, void 0, function () {
         var testPath, artifactPath, isTestPathDirectory;
@@ -77,32 +78,41 @@ function execute() {
                 case 1:
                     isTestPathDirectory = (_a.sent()).isDirectory();
                     return [4 /*yield*/, core.group("Run tests", function () { return __awaiter(_this, void 0, void 0, function () {
-                            var testFiles, _i, testFiles_1, testFile;
+                            var testFiles, remixEthers, remixEthersScript, _i, testFiles_1, testFile;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
-                                        if (!isTestPathDirectory) return [3 /*break*/, 6];
+                                        if (!isTestPathDirectory) return [3 /*break*/, 8];
                                         return [4 /*yield*/, fs.readdir(testPath)];
                                     case 1:
                                         testFiles = _a.sent();
-                                        _i = 0, testFiles_1 = testFiles;
-                                        _a.label = 2;
+                                        if (!(testFiles.length > 0)) return [3 /*break*/, 7];
+                                        return [4 /*yield*/, fs.readFile(path.join(__dirname, 'ethers_remix.ts'), 'utf8')];
                                     case 2:
-                                        if (!(_i < testFiles_1.length)) return [3 /*break*/, 5];
-                                        testFile = testFiles_1[_i];
-                                        return [4 /*yield*/, main("".concat(testPath, "/").concat(testFile))];
+                                        remixEthers = _a.sent();
+                                        remixEthersScript = transpileScript(remixEthers);
+                                        console.log('remixEthersScript.outputText: ', remixEthersScript.outputText);
+                                        return [4 /*yield*/, fs.writeFile(path.join(testPath, 'ethers_remix.js'), remixEthersScript.outputText)];
                                     case 3:
                                         _a.sent();
+                                        _i = 0, testFiles_1 = testFiles;
                                         _a.label = 4;
                                     case 4:
-                                        _i++;
-                                        return [3 /*break*/, 2];
-                                    case 5: return [3 /*break*/, 8];
-                                    case 6: return [4 /*yield*/, main(testPath)];
-                                    case 7:
+                                        if (!(_i < testFiles_1.length)) return [3 /*break*/, 7];
+                                        testFile = testFiles_1[_i];
+                                        return [4 /*yield*/, main("".concat(testPath, "/").concat(testFile))];
+                                    case 5:
                                         _a.sent();
-                                        _a.label = 8;
-                                    case 8: return [2 /*return*/];
+                                        _a.label = 6;
+                                    case 6:
+                                        _i++;
+                                        return [3 /*break*/, 4];
+                                    case 7: return [3 /*break*/, 10];
+                                    case 8: return [4 /*yield*/, main(testPath)];
+                                    case 9:
+                                        _a.sent();
+                                        _a.label = 10;
+                                    case 10: return [2 /*return*/];
                                 }
                             });
                         }); })];
@@ -115,7 +125,7 @@ function execute() {
 }
 function main(filePath) {
     return __awaiter(this, void 0, void 0, function () {
-        var testFileContent, importIndex, error_1;
+        var testFileContent, importIndex, testFile, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -129,7 +139,9 @@ function main(filePath) {
                     throw new Error("No describe function found in ".concat(filePath, ". Please wrap your tests in a describe function."));
                 case 2:
                     testFileContent = "".concat(testFileContent.slice(0, importIndex), "\n ethers = ethersRemix; \n").concat(testFileContent.slice(importIndex));
-                    return [4 /*yield*/, fs.writeFile(filePath, testFileContent)];
+                    testFile = transpileScript(testFileContent);
+                    filePath = filePath.replace('.ts', '.js');
+                    return [4 /*yield*/, fs.writeFile(filePath, testFile.outputText)];
                 case 3:
                     _a.sent();
                     return [4 /*yield*/, setupRunEnv()];
@@ -197,6 +209,14 @@ function runTest(filePath) {
             }
         });
     });
+}
+function transpileScript(script) {
+    var output = ts.transpileModule(script, { compilerOptions: {
+            target: ts.ScriptTarget.ES2015,
+            module: ts.ModuleKind.CommonJS,
+            esModuleInterop: true,
+        } });
+    return output;
 }
 execute().catch(function (error) {
     if (typeof (error) !== 'string') {

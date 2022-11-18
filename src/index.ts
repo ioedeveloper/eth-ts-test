@@ -3,6 +3,7 @@ import * as fs from 'fs/promises'
 import { existsSync } from 'fs'
 import * as path from 'path'
 import * as cli from '@actions/exec'
+import * as ts from 'typescript'
 
 async function execute () {
   const testPath = core.getInput('test-path')
@@ -13,8 +14,16 @@ async function execute () {
     if (isTestPathDirectory) {
       const testFiles = await fs.readdir(testPath)
 
-      for (const testFile of testFiles) {
-        await main(`${testPath}/${testFile}`)
+      if (testFiles.length > 0) {
+        const remixEthers = await fs.readFile(path.join(__dirname, 'ethers_remix.ts'), 'utf8')
+        const remixEthersScript = transpileScript(remixEthers)
+
+        console.log('remixEthersScript.outputText: ', remixEthersScript.outputText)
+
+        await fs.writeFile(path.join(testPath, 'ethers_remix.js'), remixEthersScript.outputText)
+        for (const testFile of testFiles) {
+          await main(`${testPath}/${testFile}`)
+        }
       }
     } else {
       await main(testPath)
@@ -22,7 +31,7 @@ async function execute () {
   })
 }
 
-async function main (filePath: string) {
+async function main (filePath: string): Promise<void> {
   try {
     let testFileContent = await fs.readFile(filePath, 'utf8')
 
@@ -33,7 +42,10 @@ async function main (filePath: string) {
       throw new Error(`No describe function found in ${filePath}. Please wrap your tests in a describe function.`)
     } else {
       testFileContent = `${testFileContent.slice(0, importIndex)}\n ethers = ethersRemix; \n${testFileContent.slice(importIndex)}`
-      await fs.writeFile(filePath, testFileContent)
+      const testFile = transpileScript(testFileContent)
+
+      filePath = filePath.replace('.ts', '.js')
+      await fs.writeFile(filePath, testFile.outputText)
       await setupRunEnv()
       runTest(filePath)
     }
@@ -46,7 +58,7 @@ async function main (filePath: string) {
   }
 }
 
-async function setupRunEnv () {
+async function setupRunEnv (): Promise<void> {
   const workingDirectory = process.cwd()
   const yarnLock = path.join(workingDirectory, 'yarn.lock')
   const isYarnRepo = await existsSync(yarnLock)
@@ -63,8 +75,18 @@ async function setupRunEnv () {
   }
 }
 
-async function runTest (filePath: string) {
+async function runTest (filePath: string): Promise<void> {
   await cli.exec('npx', ['mocha', filePath])
+}
+
+function transpileScript (script: string): ts.TranspileOutput {
+  const output = ts.transpileModule(script, { compilerOptions: {
+    target: ts.ScriptTarget.ES2015,
+    module: ts.ModuleKind.CommonJS,
+    esModuleInterop: true,  
+  }})
+
+  return output
 }
 
 execute().catch(error => {
