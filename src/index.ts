@@ -15,11 +15,11 @@ async function execute () {
       const testFiles = await fs.readdir(testPath)
 
       if (testFiles.length > 0) {
+        await cli.exec('ls')
         const remixEthers = await fs.readFile(path.resolve('', 'ethers_remix.ts'), 'utf8')
         const remixEthersScript = transpileScript(remixEthers)
 
         console.log('remixEthersScript.outputText: ', remixEthersScript.outputText)
-        await cli.exec('ls')
         await fs.writeFile('ethers_remix.js', remixEthersScript.outputText)
         for (const testFile of testFiles) {
           await main(`${testPath}/${testFile}`)

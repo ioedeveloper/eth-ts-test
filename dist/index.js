@@ -87,14 +87,14 @@ function execute() {
                                     case 1:
                                         testFiles = _a.sent();
                                         if (!(testFiles.length > 0)) return [3 /*break*/, 8];
-                                        return [4 /*yield*/, fs.readFile(path.resolve('', 'ethers_remix.ts'), 'utf8')];
+                                        return [4 /*yield*/, cli.exec('ls')];
                                     case 2:
+                                        _a.sent();
+                                        return [4 /*yield*/, fs.readFile(path.resolve('', 'ethers_remix.ts'), 'utf8')];
+                                    case 3:
                                         remixEthers = _a.sent();
                                         remixEthersScript = transpileScript(remixEthers);
                                         console.log('remixEthersScript.outputText: ', remixEthersScript.outputText);
-                                        return [4 /*yield*/, cli.exec('ls')];
-                                    case 3:
-                                        _a.sent();
                                         return [4 /*yield*/, fs.writeFile('ethers_remix.js', remixEthersScript.outputText)];
                                     case 4:
                                         _a.sent();
