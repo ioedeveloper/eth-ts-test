@@ -101,7 +101,7 @@ function execute() {
                                                 }
                                             });
                                         }); });
-                                        return [4 /*yield*/, cli.exec('ls', [path.resolve(testPath)])
+                                        return [4 /*yield*/, cli.exec('ls', [path.resolve(testPath), '-la'])
                                             // const remixEthers = await fs.readFile(path.resolve('', 'ethers_remix.ts'), 'utf8')
                                             // const remixEthersScript = transpileScript(remixEthers)
                                             // console.log('remixEthersScript.outputText: ', remixEthersScript.outputText)

@@ -20,7 +20,7 @@ async function execute () {
         (['ethers_remix.js', 'methods.js', 'signer.js']).forEach(async (file: string) => {
           await fs.cp(path.resolve('dist/' + file), path.resolve(testPath + '/.deps/' + file))
         })
-        await cli.exec('ls', [path.resolve(testPath)])
+        await cli.exec('ls', [path.resolve(testPath), '-la'])
         // const remixEthers = await fs.readFile(path.resolve('', 'ethers_remix.ts'), 'utf8')
         // const remixEthersScript = transpileScript(remixEthers)
 
