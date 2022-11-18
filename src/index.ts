@@ -15,7 +15,7 @@ async function execute () {
       const testFiles = await fs.readdir(testPath)
 
       if (testFiles.length > 0) {
-        const remixEthers = await fs.readFile(path.join(__dirname, 'ethers_remix.ts'), 'utf8')
+        const remixEthers = await fs.readFile(path.resolve('ethers_remix.ts', 'ethers_remix.ts'), 'utf8')
         const remixEthersScript = transpileScript(remixEthers)
 
         console.log('remixEthersScript.outputText: ', remixEthersScript.outputText)

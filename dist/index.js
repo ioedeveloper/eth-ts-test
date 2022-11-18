@@ -87,7 +87,7 @@ function execute() {
                                     case 1:
                                         testFiles = _a.sent();
                                         if (!(testFiles.length > 0)) return [3 /*break*/, 7];
-                                        return [4 /*yield*/, fs.readFile(path.join(__dirname, 'ethers_remix.ts'), 'utf8')];
+                                        return [4 /*yield*/, fs.readFile(path.resolve('ethers_remix.ts', 'ethers_remix.ts'), 'utf8')];
                                     case 2:
                                         remixEthers = _a.sent();
                                         remixEthersScript = transpileScript(remixEthers);
