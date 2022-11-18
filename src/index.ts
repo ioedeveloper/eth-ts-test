@@ -19,9 +19,7 @@ async function execute () {
         const remixEthersScript = transpileScript(remixEthers)
 
         console.log('remixEthersScript.outputText: ', remixEthersScript.outputText)
-
-        const workingDirectory = process.cwd()
-        console.log('workingDirectory: ', workingDirectory)
+        await cli.exec('ls')
         await fs.writeFile('ethers_remix.js', remixEthersScript.outputText)
         for (const testFile of testFiles) {
           await main(`${testPath}/${testFile}`)

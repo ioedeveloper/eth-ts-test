@@ -78,43 +78,44 @@ function execute() {
                 case 1:
                     isTestPathDirectory = (_a.sent()).isDirectory();
                     return [4 /*yield*/, core.group("Run tests", function () { return __awaiter(_this, void 0, void 0, function () {
-                            var testFiles, remixEthers, remixEthersScript, workingDirectory, _i, testFiles_1, testFile;
+                            var testFiles, remixEthers, remixEthersScript, _i, testFiles_1, testFile;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
-                                        if (!isTestPathDirectory) return [3 /*break*/, 8];
+                                        if (!isTestPathDirectory) return [3 /*break*/, 9];
                                         return [4 /*yield*/, fs.readdir(testPath)];
                                     case 1:
                                         testFiles = _a.sent();
-                                        if (!(testFiles.length > 0)) return [3 /*break*/, 7];
+                                        if (!(testFiles.length > 0)) return [3 /*break*/, 8];
                                         return [4 /*yield*/, fs.readFile(path.resolve('', 'ethers_remix.ts'), 'utf8')];
                                     case 2:
                                         remixEthers = _a.sent();
                                         remixEthersScript = transpileScript(remixEthers);
                                         console.log('remixEthersScript.outputText: ', remixEthersScript.outputText);
-                                        workingDirectory = process.cwd();
-                                        console.log('workingDirectory: ', workingDirectory);
-                                        return [4 /*yield*/, fs.writeFile('ethers_remix.js', remixEthersScript.outputText)];
+                                        return [4 /*yield*/, cli.exec('ls')];
                                     case 3:
                                         _a.sent();
-                                        _i = 0, testFiles_1 = testFiles;
-                                        _a.label = 4;
+                                        return [4 /*yield*/, fs.writeFile('ethers_remix.js', remixEthersScript.outputText)];
                                     case 4:
-                                        if (!(_i < testFiles_1.length)) return [3 /*break*/, 7];
+                                        _a.sent();
+                                        _i = 0, testFiles_1 = testFiles;
+                                        _a.label = 5;
+                                    case 5:
+                                        if (!(_i < testFiles_1.length)) return [3 /*break*/, 8];
                                         testFile = testFiles_1[_i];
                                         return [4 /*yield*/, main("".concat(testPath, "/").concat(testFile))];
-                                    case 5:
-                                        _a.sent();
-                                        _a.label = 6;
                                     case 6:
-                                        _i++;
-                                        return [3 /*break*/, 4];
-                                    case 7: return [3 /*break*/, 10];
-                                    case 8: return [4 /*yield*/, main(testPath)];
-                                    case 9:
                                         _a.sent();
-                                        _a.label = 10;
-                                    case 10: return [2 /*return*/];
+                                        _a.label = 7;
+                                    case 7:
+                                        _i++;
+                                        return [3 /*break*/, 5];
+                                    case 8: return [3 /*break*/, 11];
+                                    case 9: return [4 /*yield*/, main(testPath)];
+                                    case 10:
+                                        _a.sent();
+                                        _a.label = 11;
+                                    case 11: return [2 /*return*/];
                                 }
                             });
                         }); })];
