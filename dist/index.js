@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -33,7 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -57,6 +61,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var core = __importStar(require("@actions/core"));
 var fs = __importStar(require("fs/promises"));
+var fs_1 = require("fs");
+var path = __importStar(require("path"));
+var cli = __importStar(require("@actions/exec"));
+var ts = __importStar(require("typescript"));
 function execute() {
     return __awaiter(this, void 0, void 0, function () {
         var testPath, artifactPath, isTestPathDirectory;
@@ -71,6 +79,7 @@ function execute() {
                     isTestPathDirectory = (_a.sent()).isDirectory();
                     return [4 /*yield*/, core.group("Run tests", function () { return __awaiter(_this, void 0, void 0, function () {
                             var testFiles, _i, testFiles_1, testFile;
+                            var _this = this;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
@@ -78,12 +87,23 @@ function execute() {
                                         return [4 /*yield*/, fs.readdir(testPath)];
                                     case 1:
                                         testFiles = _a.sent();
+                                        if (!(testFiles.length > 0)) return [3 /*break*/, 5];
+                                        (['ethers.js', 'methods.js', 'signer.js']).forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
+                                            return __generator(this, function (_a) {
+                                                switch (_a.label) {
+                                                    case 0: return [4 /*yield*/, fs.cp(path.resolve('dist/' + file), path.resolve(testPath + '/remix_deps/' + file))];
+                                                    case 1:
+                                                        _a.sent();
+                                                        return [2 /*return*/];
+                                                }
+                                            });
+                                        }); });
                                         _i = 0, testFiles_1 = testFiles;
                                         _a.label = 2;
                                     case 2:
                                         if (!(_i < testFiles_1.length)) return [3 /*break*/, 5];
                                         testFile = testFiles_1[_i];
-                                        return [4 /*yield*/, main(testPath + "/" + testFile)];
+                                        return [4 /*yield*/, main("".concat(testPath, "/").concat(testFile))];
                                     case 3:
                                         _a.sent();
                                         _a.label = 4;
@@ -108,24 +128,95 @@ function execute() {
 }
 function main(filePath) {
     return __awaiter(this, void 0, void 0, function () {
-        var testFileContent, error_1;
+        var testFileContent, importIndex, testFile, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 2, , 3]);
+                    _a.trys.push([0, 6, , 7]);
                     return [4 /*yield*/, fs.readFile(filePath, 'utf8')];
                 case 1:
                     testFileContent = _a.sent();
-                    console.log(testFileContent);
-                    return [3 /*break*/, 3];
+                    testFileContent = "import { ethersRemix } from './remix_deps/ethers' \n".concat(testFileContent);
+                    importIndex = testFileContent.search('describe');
+                    if (!(importIndex === -1)) return [3 /*break*/, 2];
+                    throw new Error("No describe function found in ".concat(filePath, ". Please wrap your tests in a describe function."));
                 case 2:
+                    testFileContent = "".concat(testFileContent.slice(0, importIndex), "\n ethers = ethersRemix; \n").concat(testFileContent.slice(importIndex));
+                    testFile = transpileScript(testFileContent);
+                    filePath = filePath.replace('.ts', '.js');
+                    return [4 /*yield*/, fs.writeFile(filePath, testFile.outputText)];
+                case 3:
+                    _a.sent();
+                    return [4 /*yield*/, setupRunEnv()];
+                case 4:
+                    _a.sent();
+                    runTest(filePath);
+                    _a.label = 5;
+                case 5: return [3 /*break*/, 7];
+                case 6:
                     error_1 = _a.sent();
                     core.setFailed(error_1.message);
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
             }
         });
     });
+}
+function setupRunEnv() {
+    return __awaiter(this, void 0, void 0, function () {
+        var workingDirectory, yarnLock, isYarnRepo, packageLock, isNPMrepo;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    workingDirectory = process.cwd();
+                    yarnLock = path.join(workingDirectory, 'yarn.lock');
+                    return [4 /*yield*/, (0, fs_1.existsSync)(yarnLock)];
+                case 1:
+                    isYarnRepo = _a.sent();
+                    packageLock = path.join(workingDirectory, 'package-lock.json');
+                    isNPMrepo = (0, fs_1.existsSync)(packageLock);
+                    if (!isYarnRepo) return [3 /*break*/, 3];
+                    return [4 /*yield*/, cli.exec('yarn', ['add', 'chai', 'mocha', '--dev'])];
+                case 2:
+                    _a.sent();
+                    return [3 /*break*/, 8];
+                case 3:
+                    if (!isNPMrepo) return [3 /*break*/, 5];
+                    return [4 /*yield*/, cli.exec('npm', ['install', 'chai', 'mocha', '--save-dev'])];
+                case 4:
+                    _a.sent();
+                    return [3 /*break*/, 8];
+                case 5: return [4 /*yield*/, cli.exec('npm', ['init', '-y'])];
+                case 6:
+                    _a.sent();
+                    return [4 /*yield*/, cli.exec('npm', ['install', 'chai', 'mocha', '--save-dev'])];
+                case 7:
+                    _a.sent();
+                    _a.label = 8;
+                case 8: return [2 /*return*/];
+            }
+        });
+    });
+}
+function runTest(filePath) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, cli.exec('npx', ['mocha', filePath])];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function transpileScript(script) {
+    var output = ts.transpileModule(script, { compilerOptions: {
+            target: ts.ScriptTarget.ES2015,
+            module: ts.ModuleKind.CommonJS,
+            esModuleInterop: true,
+        } });
+    return output;
 }
 execute().catch(function (error) {
     if (typeof (error) !== 'string') {

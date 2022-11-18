@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -19,11 +23,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ethers = void 0;
+exports.ethersRemix = void 0;
 var ethers_1 = require("ethers");
-Object.defineProperty(exports, "ethers", { enumerable: true, get: function () { return ethers_1.ethers; } });
 var remix_simulator_1 = require("@remix-project/remix-simulator");
 var hhEtherMethods = __importStar(require("./methods"));
-ethers_1.ethers.provider = new ethers_1.ethers.providers.Web3Provider(new remix_simulator_1.Provider());
+var ethersRemix = ethers_1.ethers;
+exports.ethersRemix = ethersRemix;
+ethersRemix.provider = new ethersRemix.providers.Web3Provider(new remix_simulator_1.Provider());
 for (var method in hhEtherMethods)
-    Object.defineProperty(ethers_1.ethers, method, { value: hhEtherMethods[method] });
+    Object.defineProperty(ethersRemix, method, { value: hhEtherMethods[method] });

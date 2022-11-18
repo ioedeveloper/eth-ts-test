@@ -10,7 +10,11 @@
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.10.0",
+    "@actions/exec": "^1.1.1",
     "@remix-project/remix-simulator": "^0.2.17",
-    "ethers": "^5.7.1"
+    "ethers": "^5.7.1",
+    "hardhat": "^2.12.2",
+    "tslib": "^2.4.1",
+    "typescript": "^4.9.3"
   }
 }
