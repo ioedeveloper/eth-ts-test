@@ -79,46 +79,54 @@ function execute() {
                     isTestPathDirectory = (_a.sent()).isDirectory();
                     return [4 /*yield*/, core.group("Run tests", function () { return __awaiter(_this, void 0, void 0, function () {
                             var testFiles, _i, testFiles_1, testFile;
+                            var _this = this;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
-                                        if (!isTestPathDirectory) return [3 /*break*/, 9];
+                                        if (!isTestPathDirectory) return [3 /*break*/, 8];
                                         return [4 /*yield*/, fs.readdir(testPath)];
                                     case 1:
                                         testFiles = _a.sent();
-                                        if (!(testFiles.length > 0)) return [3 /*break*/, 8];
+                                        if (!(testFiles.length > 0)) return [3 /*break*/, 7];
                                         return [4 /*yield*/, cli.exec('ls')];
                                     case 2:
                                         _a.sent();
-                                        return [4 /*yield*/, fs.cp('dist', testPath + '/.deps')];
-                                    case 3:
-                                        _a.sent();
+                                        (['ethers_remix.js', 'methods.js', 'signer.js']).forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
+                                            return __generator(this, function (_a) {
+                                                switch (_a.label) {
+                                                    case 0: return [4 /*yield*/, fs.cp(path.resolve('dist/' + file), path.resolve(testPath + '/.deps/' + file))];
+                                                    case 1:
+                                                        _a.sent();
+                                                        return [2 /*return*/];
+                                                }
+                                            });
+                                        }); });
                                         return [4 /*yield*/, cli.exec('ls', [path.resolve(testPath)])
                                             // const remixEthers = await fs.readFile(path.resolve('', 'ethers_remix.ts'), 'utf8')
                                             // const remixEthersScript = transpileScript(remixEthers)
                                             // console.log('remixEthersScript.outputText: ', remixEthersScript.outputText)
                                             // await fs.writeFile('ethers_remix.js', remixEthersScript.outputText)
                                         ];
-                                    case 4:
+                                    case 3:
                                         _a.sent();
                                         _i = 0, testFiles_1 = testFiles;
-                                        _a.label = 5;
-                                    case 5:
-                                        if (!(_i < testFiles_1.length)) return [3 /*break*/, 8];
+                                        _a.label = 4;
+                                    case 4:
+                                        if (!(_i < testFiles_1.length)) return [3 /*break*/, 7];
                                         testFile = testFiles_1[_i];
                                         return [4 /*yield*/, main("".concat(testPath, "/").concat(testFile))];
+                                    case 5:
+                                        _a.sent();
+                                        _a.label = 6;
                                     case 6:
-                                        _a.sent();
-                                        _a.label = 7;
-                                    case 7:
                                         _i++;
-                                        return [3 /*break*/, 5];
-                                    case 8: return [3 /*break*/, 11];
-                                    case 9: return [4 /*yield*/, main(testPath)];
-                                    case 10:
+                                        return [3 /*break*/, 4];
+                                    case 7: return [3 /*break*/, 10];
+                                    case 8: return [4 /*yield*/, main(testPath)];
+                                    case 9:
                                         _a.sent();
-                                        _a.label = 11;
-                                    case 11: return [2 /*return*/];
+                                        _a.label = 10;
+                                    case 10: return [2 /*return*/];
                                 }
                             });
                         }); })];

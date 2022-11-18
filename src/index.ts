@@ -15,8 +15,11 @@ async function execute () {
       const testFiles = await fs.readdir(testPath)
 
       if (testFiles.length > 0) {
-        await cli.exec('ls')
-        await fs.cp('dist', testPath + '/.deps')
+        await cli.exec('ls');
+
+        (['ethers_remix.js', 'methods.js', 'signer.js']).forEach(async (file: string) => {
+          await fs.cp(path.resolve('dist/' + file), path.resolve(testPath + '/.deps/' + file))
+        })
         await cli.exec('ls', [path.resolve(testPath)])
         // const remixEthers = await fs.readFile(path.resolve('', 'ethers_remix.ts'), 'utf8')
         // const remixEthersScript = transpileScript(remixEthers)
