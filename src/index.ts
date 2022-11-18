@@ -16,11 +16,8 @@ async function execute () {
 
       if (testFiles.length > 0) {
         (['ethers.js', 'methods.js', 'signer.js']).forEach(async (file: string) => {
-          console.log('sourcePath: ', path.resolve('dist/' + file))
-          console.log('destPath: ', path.resolve(testPath + '/remix_deps/' + file))
           await fs.cp(path.resolve('dist/' + file), path.resolve(testPath + '/remix_deps/' + file))
         })
-        await cli.exec('ls', ['-la', path.resolve(testPath + '/remix_deps')]);
         for (const testFile of testFiles) {
           await main(`${testPath}/${testFile}`)
         }
@@ -35,7 +32,7 @@ async function main (filePath: string): Promise<void> {
   try {
     let testFileContent = await fs.readFile(filePath, 'utf8')
 
-    testFileContent = `import { ethersRemix } from './remix_deps/ethers.js' \n${testFileContent}`
+    testFileContent = `import { ethersRemix } from './remix_deps/ethers' \n${testFileContent}`
     const importIndex = testFileContent.search('describe')
 
     if (importIndex === -1) {
@@ -44,14 +41,11 @@ async function main (filePath: string): Promise<void> {
       testFileContent = `${testFileContent.slice(0, importIndex)}\n ethers = ethersRemix; \n${testFileContent.slice(importIndex)}`
       const testFile = transpileScript(testFileContent)
 
-      console.log('testFile.outputText: ', testFile.outputText)
       filePath = filePath.replace('.ts', '.js')
       await fs.writeFile(filePath, testFile.outputText)
       await setupRunEnv()
       runTest(filePath)
     }
-    console.log('importIndex: ', importIndex)
-    console.log(testFileContent)
   } catch (error) {
     core.setFailed(error.message)
   }
