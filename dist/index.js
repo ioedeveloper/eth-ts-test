@@ -83,14 +83,11 @@ function execute() {
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
-                                        if (!isTestPathDirectory) return [3 /*break*/, 8];
+                                        if (!isTestPathDirectory) return [3 /*break*/, 6];
                                         return [4 /*yield*/, fs.readdir(testPath)];
                                     case 1:
                                         testFiles = _a.sent();
-                                        if (!(testFiles.length > 0)) return [3 /*break*/, 7];
-                                        return [4 /*yield*/, cli.exec('ls')];
-                                    case 2:
-                                        _a.sent();
+                                        if (!(testFiles.length > 0)) return [3 /*break*/, 5];
                                         (['ethers.js', 'methods.js', 'signer.js']).forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
                                             return __generator(this, function (_a) {
                                                 switch (_a.label) {
@@ -101,32 +98,24 @@ function execute() {
                                                 }
                                             });
                                         }); });
-                                        return [4 /*yield*/, cli.exec('ls', [path.resolve(testPath), '-la'])
-                                            // const remixEthers = await fs.readFile(path.resolve('', 'ethers.ts'), 'utf8')
-                                            // const remixEthersScript = transpileScript(remixEthers)
-                                            // console.log('remixEthersScript.outputText: ', remixEthersScript.outputText)
-                                            // await fs.writeFile('ethers.js', remixEthersScript.outputText)
-                                        ];
-                                    case 3:
-                                        _a.sent();
                                         _i = 0, testFiles_1 = testFiles;
-                                        _a.label = 4;
-                                    case 4:
-                                        if (!(_i < testFiles_1.length)) return [3 /*break*/, 7];
+                                        _a.label = 2;
+                                    case 2:
+                                        if (!(_i < testFiles_1.length)) return [3 /*break*/, 5];
                                         testFile = testFiles_1[_i];
                                         return [4 /*yield*/, main("".concat(testPath, "/").concat(testFile))];
-                                    case 5:
+                                    case 3:
                                         _a.sent();
-                                        _a.label = 6;
-                                    case 6:
+                                        _a.label = 4;
+                                    case 4:
                                         _i++;
-                                        return [3 /*break*/, 4];
-                                    case 7: return [3 /*break*/, 10];
-                                    case 8: return [4 /*yield*/, main(testPath)];
-                                    case 9:
+                                        return [3 /*break*/, 2];
+                                    case 5: return [3 /*break*/, 8];
+                                    case 6: return [4 /*yield*/, main(testPath)];
+                                    case 7:
                                         _a.sent();
-                                        _a.label = 10;
-                                    case 10: return [2 /*return*/];
+                                        _a.label = 8;
+                                    case 8: return [2 /*return*/];
                                 }
                             });
                         }); })];
@@ -147,7 +136,7 @@ function main(filePath) {
                     return [4 /*yield*/, fs.readFile(filePath, 'utf8')];
                 case 1:
                     testFileContent = _a.sent();
-                    testFileContent = "import { ethersRemix } from 'remix_deps/ethers' \n".concat(testFileContent);
+                    testFileContent = "import { ethersRemix } from 'remix_deps/ethers.js' \n".concat(testFileContent);
                     importIndex = testFileContent.search('describe');
                     if (!(importIndex === -1)) return [3 /*break*/, 2];
                     throw new Error("No describe function found in ".concat(filePath, ". Please wrap your tests in a describe function."));

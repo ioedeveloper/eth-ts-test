@@ -15,17 +15,9 @@ async function execute () {
       const testFiles = await fs.readdir(testPath)
 
       if (testFiles.length > 0) {
-        await cli.exec('ls');
-
         (['ethers.js', 'methods.js', 'signer.js']).forEach(async (file: string) => {
           await fs.cp(path.resolve('dist/' + file), path.resolve(testPath + '/remix_deps/' + file))
         })
-        await cli.exec('ls', [path.resolve(testPath), '-la'])
-        // const remixEthers = await fs.readFile(path.resolve('', 'ethers.ts'), 'utf8')
-        // const remixEthersScript = transpileScript(remixEthers)
-
-        // console.log('remixEthersScript.outputText: ', remixEthersScript.outputText)
-        // await fs.writeFile('ethers.js', remixEthersScript.outputText)
         for (const testFile of testFiles) {
           await main(`${testPath}/${testFile}`)
         }
@@ -40,7 +32,7 @@ async function main (filePath: string): Promise<void> {
   try {
     let testFileContent = await fs.readFile(filePath, 'utf8')
 
-    testFileContent = `import { ethersRemix } from 'remix_deps/ethers' \n${testFileContent}`
+    testFileContent = `import { ethersRemix } from 'remix_deps/ethers.js' \n${testFileContent}`
     const importIndex = testFileContent.search('describe')
 
     if (importIndex === -1) {
@@ -54,9 +46,7 @@ async function main (filePath: string): Promise<void> {
       await setupRunEnv()
       runTest(filePath)
     }
-
     console.log('importIndex: ', importIndex)
-
     console.log(testFileContent)
   } catch (error) {
     core.setFailed(error.message)
