@@ -147,7 +147,7 @@ function main(filePath) {
                     return [4 /*yield*/, fs.readFile(filePath, 'utf8')];
                 case 1:
                     testFileContent = _a.sent();
-                    testFileContent = "import { ethersRemix } from './deps/ethers_remix' \n".concat(testFileContent);
+                    testFileContent = "import { ethersRemix } from '.deps/ethers_remix' \n".concat(testFileContent);
                     importIndex = testFileContent.search('describe');
                     if (!(importIndex === -1)) return [3 /*break*/, 2];
                     throw new Error("No describe function found in ".concat(filePath, ". Please wrap your tests in a describe function."));

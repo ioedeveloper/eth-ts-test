@@ -40,7 +40,7 @@ async function main (filePath: string): Promise<void> {
   try {
     let testFileContent = await fs.readFile(filePath, 'utf8')
 
-    testFileContent = `import { ethersRemix } from './deps/ethers_remix' \n${testFileContent}`
+    testFileContent = `import { ethersRemix } from '.deps/ethers_remix' \n${testFileContent}`
     const importIndex = testFileContent.search('describe')
 
     if (importIndex === -1) {
