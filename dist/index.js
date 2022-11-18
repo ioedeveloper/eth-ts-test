@@ -78,7 +78,7 @@ function execute() {
                 case 1:
                     isTestPathDirectory = (_a.sent()).isDirectory();
                     return [4 /*yield*/, core.group("Run tests", function () { return __awaiter(_this, void 0, void 0, function () {
-                            var testFiles, remixEthers, remixEthersScript, _i, testFiles_1, testFile;
+                            var testFiles, remixEthers, remixEthersScript, workingDirectory, _i, testFiles_1, testFile;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
@@ -87,12 +87,14 @@ function execute() {
                                     case 1:
                                         testFiles = _a.sent();
                                         if (!(testFiles.length > 0)) return [3 /*break*/, 7];
-                                        return [4 /*yield*/, fs.readFile(path.resolve('ethers_remix.ts'), 'utf8')];
+                                        return [4 /*yield*/, fs.readFile(path.resolve('', 'ethers_remix.ts'), 'utf8')];
                                     case 2:
                                         remixEthers = _a.sent();
                                         remixEthersScript = transpileScript(remixEthers);
                                         console.log('remixEthersScript.outputText: ', remixEthersScript.outputText);
-                                        return [4 /*yield*/, fs.writeFile(path.join(testPath, 'ethers_remix.js'), remixEthersScript.outputText)];
+                                        workingDirectory = process.cwd();
+                                        console.log('workingDirectory: ', workingDirectory);
+                                        return [4 /*yield*/, fs.writeFile('ethers_remix.js', remixEthersScript.outputText)];
                                     case 3:
                                         _a.sent();
                                         _i = 0, testFiles_1 = testFiles;
