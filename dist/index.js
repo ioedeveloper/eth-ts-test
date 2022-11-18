@@ -88,9 +88,6 @@ function execute() {
                                     case 1:
                                         testFiles = _a.sent();
                                         if (!(testFiles.length > 0)) return [3 /*break*/, 6];
-                                        return [4 /*yield*/, cli.exec('ls', ['-la', path.resolve(testPath + '/remix_deps')])];
-                                    case 2:
-                                        _a.sent();
                                         (['ethers.js', 'methods.js', 'signer.js']).forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
                                             return __generator(this, function (_a) {
                                                 switch (_a.label) {
@@ -104,6 +101,9 @@ function execute() {
                                                 }
                                             });
                                         }); });
+                                        return [4 /*yield*/, cli.exec('ls', ['-la', path.resolve(testPath + '/remix_deps')])];
+                                    case 2:
+                                        _a.sent();
                                         _i = 0, testFiles_1 = testFiles;
                                         _a.label = 3;
                                     case 3:
