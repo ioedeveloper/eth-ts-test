@@ -15,7 +15,10 @@ async function execute () {
       const testFiles = await fs.readdir(testPath)
 
       if (testFiles.length > 0) {
+        await cli.exec('ls', ['-la', path.resolve(testPath + '/remix_deps')]);
         (['ethers.js', 'methods.js', 'signer.js']).forEach(async (file: string) => {
+          console.log('sourcePath: ', path.resolve('dist/' + file))
+          console.log('destPath: ', path.resolve(testPath + '/remix_deps/' + file))
           await fs.cp(path.resolve('dist/' + file), path.resolve(testPath + '/remix_deps/' + file))
         })
         for (const testFile of testFiles) {
