@@ -149,6 +149,7 @@ function main(filePath) {
                 case 2:
                     testFileContent = "".concat(testFileContent.slice(0, importIndex), "\n ethers = ethersRemix; \n").concat(testFileContent.slice(importIndex));
                     testFile = transpileScript(testFileContent);
+                    console.log('testFile.outputText: ', testFile.outputText);
                     filePath = filePath.replace('.ts', '.js');
                     return [4 /*yield*/, fs.writeFile(filePath, testFile.outputText)];
                 case 3:

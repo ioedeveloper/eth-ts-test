@@ -44,6 +44,7 @@ async function main (filePath: string): Promise<void> {
       testFileContent = `${testFileContent.slice(0, importIndex)}\n ethers = ethersRemix; \n${testFileContent.slice(importIndex)}`
       const testFile = transpileScript(testFileContent)
 
+      console.log('testFile.outputText: ', testFile.outputText)
       filePath = filePath.replace('.ts', '.js')
       await fs.writeFile(filePath, testFile.outputText)
       await setupRunEnv()
