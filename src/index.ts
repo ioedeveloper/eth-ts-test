@@ -31,32 +31,26 @@ async function execute () {
 async function main (filePath: string): Promise<void> {
   try {
     let testFileContent = await fs.readFile(filePath, 'utf8')
-    const hardhatEthersImportRegex = /import\s+{?\s*ethers\s*}?(\s+as\s+\w+)?\s+from\s+['"]hardhat['"]/g
-    const hardhatEthersRequireRegex = /const|let\s+{?\s*ethers\s*}?=\s*require\(['"]hardhat['"]\)\.ethers/g
+    const hardhatEthersImportRegex = /import\s+{ ethers }\s+from\s+['"]hardhat['"]|import { * as ethers } from 'hardhat\/ethers'|import\s+ethers\s+from\s+['"]hardhat\/ethers['"]/
+    const hardhatEthersRequireRegex = /const\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|let\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|const\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers|let\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers/g
     const hardhatImportIndex = testFileContent.search(hardhatEthersImportRegex)
     const hardhatRequireIndex = testFileContent.search(hardhatEthersRequireRegex)
     console.log('hardhatImportIndex', hardhatImportIndex)
     console.log('hardhatRequireIndex', hardhatRequireIndex)
-    const describeImportIndex = testFileContent.search('describe')
 
     if (hardhatImportIndex > -1) {
-      testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'import { ethers as ethersRemix } from \'./remix_deps/ethers\'')
-      console.log('hardhatImportIndex', hardhatImportIndex)
+      testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'import { ethers } from \'./remix_deps/ethers\'')
+      console.log('testFileContent', testFileContent)
     } else if (hardhatRequireIndex > -1) {
-      testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'const { ethers: ethersRemix } = require(\'./remix_deps/ethers\')')
+      testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'const { ethers } = require(\'./remix_deps/ethers\')')
       console.log('testFileContent', testFileContent)
     }
-    if (describeImportIndex === -1) {
-      throw new Error(`No describe function found in ${filePath}. Please wrap your tests in a describe function.`)
-    } else {
-      testFileContent = `${testFileContent.slice(0, describeImportIndex)}\n ethers = ethersRemix; \n${testFileContent.slice(describeImportIndex)}`
-      const testFile = transpileScript(testFileContent)
+    const testFile = transpileScript(testFileContent)
 
-      filePath = filePath.replace('.ts', '.js')
-      await fs.writeFile(filePath, testFile.outputText)
-      await setupRunEnv()
-      runTest(filePath)
-    }
+    filePath = filePath.replace('.ts', '.js')
+    await fs.writeFile(filePath, testFile.outputText)
+    await setupRunEnv()
+    runTest(filePath)
   } catch (error) {
     core.setFailed(error.message)
   }

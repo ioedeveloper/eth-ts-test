@@ -2,9 +2,7 @@ import { ethers } from 'ethers'
 import { Provider } from '@remix-project/remix-simulator'
 import * as hhEtherMethods from './methods'
 
-const ethersRemix: any = ethers
+ethers.provider = new ethers.providers.Web3Provider(new Provider())
+for(const method in hhEtherMethods) Object.defineProperty(ethers, method, { value: hhEtherMethods[method]})
 
-ethersRemix.provider = new ethersRemix.providers.Web3Provider(new Provider())
-for(const method in hhEtherMethods) Object.defineProperty(ethersRemix, method, { value: hhEtherMethods[method]})
-
-export { ethersRemix }
+export { ethers }

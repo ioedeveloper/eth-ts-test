@@ -128,49 +128,43 @@ function execute() {
 }
 function main(filePath) {
     return __awaiter(this, void 0, void 0, function () {
-        var testFileContent, hardhatEthersImportRegex, hardhatEthersRequireRegex, hardhatImportIndex, hardhatRequireIndex, describeImportIndex, testFile, error_1;
+        var testFileContent, hardhatEthersImportRegex, hardhatEthersRequireRegex, hardhatImportIndex, hardhatRequireIndex, testFile, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 6, , 7]);
+                    _a.trys.push([0, 4, , 5]);
                     return [4 /*yield*/, fs.readFile(filePath, 'utf8')];
                 case 1:
                     testFileContent = _a.sent();
-                    hardhatEthersImportRegex = /import\s+{?\s*ethers\s*}?(\s+as\s+\w+)?\s+from\s+['"]hardhat['"]/g;
-                    hardhatEthersRequireRegex = /const|let\s+{?\s*ethers\s*}?=\s*require\(['"]hardhat['"]\)\.ethers/g;
+                    hardhatEthersImportRegex = /import\s+{ ethers }\s+from\s+['"]hardhat['"]|import { * as ethers } from 'hardhat\/ethers'|import\s+ethers\s+from\s+['"]hardhat\/ethers['"]/;
+                    hardhatEthersRequireRegex = /const\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|let\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|const\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers|let\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers/g;
                     hardhatImportIndex = testFileContent.search(hardhatEthersImportRegex);
                     hardhatRequireIndex = testFileContent.search(hardhatEthersRequireRegex);
                     console.log('hardhatImportIndex', hardhatImportIndex);
                     console.log('hardhatRequireIndex', hardhatRequireIndex);
-                    describeImportIndex = testFileContent.search('describe');
                     if (hardhatImportIndex > -1) {
-                        testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'import { ethers as ethersRemix } from \'./remix_deps/ethers\'');
-                        console.log('hardhatImportIndex', hardhatImportIndex);
-                    }
-                    else if (hardhatRequireIndex > -1) {
-                        testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'const { ethers: ethersRemix } = require(\'./remix_deps/ethers\')');
+                        testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'import { ethers } from \'./remix_deps/ethers\'');
                         console.log('testFileContent', testFileContent);
                     }
-                    if (!(describeImportIndex === -1)) return [3 /*break*/, 2];
-                    throw new Error("No describe function found in ".concat(filePath, ". Please wrap your tests in a describe function."));
-                case 2:
-                    testFileContent = "".concat(testFileContent.slice(0, describeImportIndex), "\n ethers = ethersRemix; \n").concat(testFileContent.slice(describeImportIndex));
+                    else if (hardhatRequireIndex > -1) {
+                        testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'const { ethers } = require(\'./remix_deps/ethers\')');
+                        console.log('testFileContent', testFileContent);
+                    }
                     testFile = transpileScript(testFileContent);
                     filePath = filePath.replace('.ts', '.js');
                     return [4 /*yield*/, fs.writeFile(filePath, testFile.outputText)];
-                case 3:
+                case 2:
                     _a.sent();
                     return [4 /*yield*/, setupRunEnv()];
-                case 4:
+                case 3:
                     _a.sent();
                     runTest(filePath);
-                    _a.label = 5;
-                case 5: return [3 /*break*/, 7];
-                case 6:
+                    return [3 /*break*/, 5];
+                case 4:
                     error_1 = _a.sent();
                     core.setFailed(error_1.message);
-                    return [3 /*break*/, 7];
-                case 7: return [2 /*return*/];
+                    return [3 /*break*/, 5];
+                case 5: return [2 /*return*/];
             }
         });
     });

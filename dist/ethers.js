@@ -23,12 +23,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ethersRemix = void 0;
+exports.ethers = void 0;
 var ethers_1 = require("ethers");
+Object.defineProperty(exports, "ethers", { enumerable: true, get: function () { return ethers_1.ethers; } });
 var remix_simulator_1 = require("@remix-project/remix-simulator");
 var hhEtherMethods = __importStar(require("./methods"));
-var ethersRemix = ethers_1.ethers;
-exports.ethersRemix = ethersRemix;
-ethersRemix.provider = new ethersRemix.providers.Web3Provider(new remix_simulator_1.Provider());
+ethers_1.ethers.provider = new ethers_1.ethers.providers.Web3Provider(new remix_simulator_1.Provider());
 for (var method in hhEtherMethods)
-    Object.defineProperty(ethersRemix, method, { value: hhEtherMethods[method] });
+    Object.defineProperty(ethers_1.ethers, method, { value: hhEtherMethods[method] });
