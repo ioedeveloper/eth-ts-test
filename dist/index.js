@@ -144,6 +144,14 @@ function main(filePath) {
                     console.log('hardhatImportIndex', hardhatImportIndex);
                     console.log('hardhatRequireIndex', hardhatRequireIndex);
                     describeImportIndex = testFileContent.search('describe');
+                    if (hardhatImportIndex > -1) {
+                        testFileContent = testFileContent.replace(hardhatImportRegex, 'import { ethersRemix as ethers } from \'./remix_deps/ethers\'');
+                        console.log('hardhatImportIndex', hardhatImportIndex);
+                    }
+                    else if (hardhatRequireIndex > -1) {
+                        testFileContent = testFileContent.replace(hardhatRequireRegex, 'const { ethersRemix: ethers } = require(\'./remix_deps/ethers\')');
+                        console.log('testFileContent', testFileContent);
+                    }
                     if (!(describeImportIndex === -1)) return [3 /*break*/, 2];
                     throw new Error("No describe function found in ".concat(filePath, ". Please wrap your tests in a describe function."));
                 case 2:

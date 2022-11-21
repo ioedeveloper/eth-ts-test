@@ -41,7 +41,13 @@ async function main (filePath: string): Promise<void> {
     console.log('hardhatRequireIndex', hardhatRequireIndex)
     const describeImportIndex = testFileContent.search('describe')
 
-    if (describeImportIndex === -1) {
+    if (hardhatImportIndex > -1) {
+      testFileContent = testFileContent.replace(hardhatImportRegex, 'import { ethersRemix as ethers } from \'./remix_deps/ethers\'')
+      console.log('hardhatImportIndex', hardhatImportIndex)
+    } else if (hardhatRequireIndex > -1) {
+      testFileContent = testFileContent.replace(hardhatRequireRegex, 'const { ethersRemix: ethers } = require(\'./remix_deps/ethers\')')
+      console.log('testFileContent', testFileContent)
+    } if (describeImportIndex === -1) {
       throw new Error(`No describe function found in ${filePath}. Please wrap your tests in a describe function.`)
     } else {
       testFileContent = `${testFileContent.slice(0, describeImportIndex)}\n ethers = ethersRemix; \n${testFileContent.slice(describeImportIndex)}`
