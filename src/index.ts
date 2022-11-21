@@ -33,12 +33,18 @@ async function main (filePath: string): Promise<void> {
     let testFileContent = await fs.readFile(filePath, 'utf8')
 
     testFileContent = `import { ethersRemix } from './remix_deps/ethers' \n${testFileContent}`
-    const importIndex = testFileContent.search('describe')
+    const hardhatImportRegex = /import\s+{.*}\s+from\s+['"]hardhat['"]/g
+    const hardhatRequireRegex = /require\(['"]hardhat['"]\)/g
+    const hardhatImportIndex = testFileContent.search(hardhatImportRegex)
+    const hardhatRequireIndex = testFileContent.search(hardhatRequireRegex)
+    console.log('hardhatImportIndex', hardhatImportIndex)
+    console.log('hardhatRequireIndex', hardhatRequireIndex)
+    const describeImportIndex = testFileContent.search('describe')
 
-    if (importIndex === -1) {
+    if (describeImportIndex === -1) {
       throw new Error(`No describe function found in ${filePath}. Please wrap your tests in a describe function.`)
     } else {
-      testFileContent = `${testFileContent.slice(0, importIndex)}\n ethers = ethersRemix; \n${testFileContent.slice(importIndex)}`
+      testFileContent = `${testFileContent.slice(0, describeImportIndex)}\n ethers = ethersRemix; \n${testFileContent.slice(describeImportIndex)}`
       const testFile = transpileScript(testFileContent)
 
       filePath = filePath.replace('.ts', '.js')

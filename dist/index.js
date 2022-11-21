@@ -128,7 +128,7 @@ function execute() {
 }
 function main(filePath) {
     return __awaiter(this, void 0, void 0, function () {
-        var testFileContent, importIndex, testFile, error_1;
+        var testFileContent, hardhatImportRegex, hardhatRequireRegex, hardhatImportIndex, hardhatRequireIndex, describeImportIndex, testFile, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -137,11 +137,17 @@ function main(filePath) {
                 case 1:
                     testFileContent = _a.sent();
                     testFileContent = "import { ethersRemix } from './remix_deps/ethers' \n".concat(testFileContent);
-                    importIndex = testFileContent.search('describe');
-                    if (!(importIndex === -1)) return [3 /*break*/, 2];
+                    hardhatImportRegex = /import\s+{.*}\s+from\s+['"]hardhat['"]/g;
+                    hardhatRequireRegex = /require\(['"]hardhat['"]\)/g;
+                    hardhatImportIndex = testFileContent.search(hardhatImportRegex);
+                    hardhatRequireIndex = testFileContent.search(hardhatRequireRegex);
+                    console.log('hardhatImportIndex', hardhatImportIndex);
+                    console.log('hardhatRequireIndex', hardhatRequireIndex);
+                    describeImportIndex = testFileContent.search('describe');
+                    if (!(describeImportIndex === -1)) return [3 /*break*/, 2];
                     throw new Error("No describe function found in ".concat(filePath, ". Please wrap your tests in a describe function."));
                 case 2:
-                    testFileContent = "".concat(testFileContent.slice(0, importIndex), "\n ethers = ethersRemix; \n").concat(testFileContent.slice(importIndex));
+                    testFileContent = "".concat(testFileContent.slice(0, describeImportIndex), "\n ethers = ethersRemix; \n").concat(testFileContent.slice(describeImportIndex));
                     testFile = transpileScript(testFileContent);
                     filePath = filePath.replace('.ts', '.js');
                     return [4 /*yield*/, fs.writeFile(filePath, testFile.outputText)];
