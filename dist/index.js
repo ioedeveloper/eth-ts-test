@@ -128,7 +128,7 @@ function execute() {
 }
 function main(filePath) {
     return __awaiter(this, void 0, void 0, function () {
-        var testFileContent, hardhatImportRegex, hardhatRequireRegex, hardhatImportIndex, hardhatRequireIndex, describeImportIndex, testFile, error_1;
+        var testFileContent, hardhatEthersImportRegex, hardhatEthersRequireRegex, hardhatImportIndex, hardhatRequireIndex, describeImportIndex, testFile, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -136,20 +136,19 @@ function main(filePath) {
                     return [4 /*yield*/, fs.readFile(filePath, 'utf8')];
                 case 1:
                     testFileContent = _a.sent();
-                    testFileContent = "import { ethersRemix } from './remix_deps/ethers' \n".concat(testFileContent);
-                    hardhatImportRegex = /import\s+{.*}\s+from\s+['"]hardhat['"]/g;
-                    hardhatRequireRegex = /require\(['"]hardhat['"]\)/g;
-                    hardhatImportIndex = testFileContent.search(hardhatImportRegex);
-                    hardhatRequireIndex = testFileContent.search(hardhatRequireRegex);
+                    hardhatEthersImportRegex = /import\s+{?\s*ethers\s*}?(\s+as\s+\w+)?\s+from\s+['"]hardhat['"]/g;
+                    hardhatEthersRequireRegex = /const|let\s+{?\s*ethers\s*}?=\s*require\(['"]hardhat['"]\)\.ethers/g;
+                    hardhatImportIndex = testFileContent.search(hardhatEthersImportRegex);
+                    hardhatRequireIndex = testFileContent.search(hardhatEthersRequireRegex);
                     console.log('hardhatImportIndex', hardhatImportIndex);
                     console.log('hardhatRequireIndex', hardhatRequireIndex);
                     describeImportIndex = testFileContent.search('describe');
                     if (hardhatImportIndex > -1) {
-                        testFileContent = testFileContent.replace(hardhatImportRegex, 'import { ethersRemix as ethers } from \'./remix_deps/ethers\'');
+                        testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'import { ethers as ethersRemix } from \'./remix_deps/ethers\'');
                         console.log('hardhatImportIndex', hardhatImportIndex);
                     }
                     else if (hardhatRequireIndex > -1) {
-                        testFileContent = testFileContent.replace(hardhatRequireRegex, 'const { ethersRemix: ethers } = require(\'./remix_deps/ethers\')');
+                        testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'const { ethers: ethersRemix } = require(\'./remix_deps/ethers\')');
                         console.log('testFileContent', testFileContent);
                     }
                     if (!(describeImportIndex === -1)) return [3 /*break*/, 2];

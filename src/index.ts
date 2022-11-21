@@ -31,23 +31,22 @@ async function execute () {
 async function main (filePath: string): Promise<void> {
   try {
     let testFileContent = await fs.readFile(filePath, 'utf8')
-
-    testFileContent = `import { ethersRemix } from './remix_deps/ethers' \n${testFileContent}`
-    const hardhatImportRegex = /import\s+{.*}\s+from\s+['"]hardhat['"]/g
-    const hardhatRequireRegex = /require\(['"]hardhat['"]\)/g
-    const hardhatImportIndex = testFileContent.search(hardhatImportRegex)
-    const hardhatRequireIndex = testFileContent.search(hardhatRequireRegex)
+    const hardhatEthersImportRegex = /import\s+{?\s*ethers\s*}?(\s+as\s+\w+)?\s+from\s+['"]hardhat['"]/g
+    const hardhatEthersRequireRegex = /const|let\s+{?\s*ethers\s*}?=\s*require\(['"]hardhat['"]\)\.ethers/g
+    const hardhatImportIndex = testFileContent.search(hardhatEthersImportRegex)
+    const hardhatRequireIndex = testFileContent.search(hardhatEthersRequireRegex)
     console.log('hardhatImportIndex', hardhatImportIndex)
     console.log('hardhatRequireIndex', hardhatRequireIndex)
     const describeImportIndex = testFileContent.search('describe')
 
     if (hardhatImportIndex > -1) {
-      testFileContent = testFileContent.replace(hardhatImportRegex, 'import { ethersRemix as ethers } from \'./remix_deps/ethers\'')
+      testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'import { ethers as ethersRemix } from \'./remix_deps/ethers\'')
       console.log('hardhatImportIndex', hardhatImportIndex)
     } else if (hardhatRequireIndex > -1) {
-      testFileContent = testFileContent.replace(hardhatRequireRegex, 'const { ethersRemix: ethers } = require(\'./remix_deps/ethers\')')
+      testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'const { ethers: ethersRemix } = require(\'./remix_deps/ethers\')')
       console.log('testFileContent', testFileContent)
-    } if (describeImportIndex === -1) {
+    }
+    if (describeImportIndex === -1) {
       throw new Error(`No describe function found in ${filePath}. Please wrap your tests in a describe function.`)
     } else {
       testFileContent = `${testFileContent.slice(0, describeImportIndex)}\n ethers = ethersRemix; \n${testFileContent.slice(describeImportIndex)}`
