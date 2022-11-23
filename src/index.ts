@@ -66,6 +66,7 @@ async function execute () {
 
 async function compileContract (contractPath: string, settings: CompileSettings): Promise<void> {
   const contract = await fs.readFile(contractPath, 'utf8')
+  console.log('contract: ', contract)
   const compilationTargets = { [contractPath]: { content: contract } }
   
   compile(compilationTargets, settings, async (url: string, cb: (error: string | null, result: Imported) => void) => {

@@ -191,6 +191,7 @@ function compileContract(contractPath, settings) {
                 case 0: return [4 /*yield*/, fs.readFile(contractPath, 'utf8')];
                 case 1:
                     contract = _b.sent();
+                    console.log('contract: ', contract);
                     compilationTargets = (_a = {}, _a[contractPath] = { content: contract }, _a);
                     (0, remix_solidity_1.compile)(compilationTargets, settings, function (url, cb) { return __awaiter(_this, void 0, void 0, function () {
                         var resolver, result;
