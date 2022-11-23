@@ -65,18 +65,73 @@ var fs_1 = require("fs");
 var path = __importStar(require("path"));
 var cli = __importStar(require("@actions/exec"));
 var ts = __importStar(require("typescript"));
+var remix_solidity_1 = require("@remix-project/remix-solidity");
+var remix_url_resolver_1 = require("@remix-project/remix-url-resolver");
 function execute() {
     return __awaiter(this, void 0, void 0, function () {
-        var testPath, artifactPath, isTestPathDirectory;
+        var testPath, contractPath, compilerVersion, isTestPathDirectory, isContractPathDirectory, compileSettings;
         var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     testPath = core.getInput('test-path');
-                    artifactPath = core.getInput('artifact-path');
+                    contractPath = core.getInput('contract-path');
+                    compilerVersion = core.getInput('compiler-version');
                     return [4 /*yield*/, fs.stat(testPath)];
                 case 1:
                     isTestPathDirectory = (_a.sent()).isDirectory();
+                    return [4 /*yield*/, fs.stat(contractPath)];
+                case 2:
+                    isContractPathDirectory = (_a.sent()).isDirectory();
+                    compileSettings = {
+                        optimize: true,
+                        evmVersion: null,
+                        language: 'Solidity',
+                        version: compilerVersion
+                    };
+                    return [4 /*yield*/, core.group("Compile contracts", function () { return __awaiter(_this, void 0, void 0, function () {
+                            var contractFiles, _i, contractFiles_1, file;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        if (!isContractPathDirectory) return [3 /*break*/, 10];
+                                        return [4 /*yield*/, fs.readdir(contractPath)];
+                                    case 1:
+                                        contractFiles = _a.sent();
+                                        if (!(contractFiles.length > 0)) return [3 /*break*/, 8];
+                                        _i = 0, contractFiles_1 = contractFiles;
+                                        _a.label = 2;
+                                    case 2:
+                                        if (!(_i < contractFiles_1.length)) return [3 /*break*/, 5];
+                                        file = contractFiles_1[_i];
+                                        return [4 /*yield*/, compileContract("".concat(contractPath, "/").concat(file), compileSettings)];
+                                    case 3:
+                                        _a.sent();
+                                        _a.label = 4;
+                                    case 4:
+                                        _i++;
+                                        return [3 /*break*/, 2];
+                                    case 5: return [4 /*yield*/, cli.exec('ls', ['-l', contractPath])];
+                                    case 6:
+                                        _a.sent();
+                                        return [4 /*yield*/, cli.exec('ls', ['-l', "".concat(contractPath, "/artifacts")])];
+                                    case 7:
+                                        _a.sent();
+                                        return [3 /*break*/, 9];
+                                    case 8:
+                                        core.setFailed('No contract files found');
+                                        _a.label = 9;
+                                    case 9: return [3 /*break*/, 12];
+                                    case 10: return [4 /*yield*/, compileContract(contractPath, compileSettings)];
+                                    case 11:
+                                        _a.sent();
+                                        _a.label = 12;
+                                    case 12: return [2 /*return*/];
+                                }
+                            });
+                        }); })];
+                case 3:
+                    _a.sent();
                     return [4 /*yield*/, core.group("Run tests", function () { return __awaiter(_this, void 0, void 0, function () {
                             var testFiles, _i, testFiles_1, testFile;
                             var _this = this;
@@ -91,7 +146,7 @@ function execute() {
                                         (['ethers.js', 'methods.js', 'signer.js']).forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
                                             return __generator(this, function (_a) {
                                                 switch (_a.label) {
-                                                    case 0: return [4 /*yield*/, fs.cp(path.resolve('dist/' + file), path.resolve(testPath + '/remix_deps/' + file))];
+                                                    case 0: return [4 /*yield*/, fs.cp('dist/' + file, testPath + '/remix_deps/' + file)];
                                                     case 1:
                                                         _a.sent();
                                                         return [2 /*return*/];
@@ -119,8 +174,38 @@ function execute() {
                                 }
                             });
                         }); })];
-                case 2:
+                case 4:
                     _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function compileContract(contractPath, settings) {
+    return __awaiter(this, void 0, void 0, function () {
+        var contract, compilationTargets;
+        var _a;
+        var _this = this;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, fs.readFile(contractPath, 'utf8')];
+                case 1:
+                    contract = _b.sent();
+                    compilationTargets = (_a = {}, _a[contractPath] = { content: contract }, _a);
+                    (0, remix_solidity_1.compile)(compilationTargets, settings, function (url, cb) { return __awaiter(_this, void 0, void 0, function () {
+                        var resolver, result;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    resolver = new remix_url_resolver_1.RemixURLResolver();
+                                    return [4 /*yield*/, resolver.resolve(url)];
+                                case 1:
+                                    result = _a.sent();
+                                    cb(null, result);
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); });
                     return [2 /*return*/];
             }
         });

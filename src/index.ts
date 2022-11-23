@@ -4,11 +4,47 @@ import { existsSync } from 'fs'
 import * as path from 'path'
 import * as cli from '@actions/exec'
 import * as ts from 'typescript'
+import { compile } from '@remix-project/remix-solidity'
+import { RemixURLResolver } from '@remix-project/remix-url-resolver'
+import { Imported } from '@remix-project/remix-url-resolver/src/resolve'
+
+interface CompileSettings {
+  optimize: boolean,
+  evmVersion: string | null,
+  language: string,
+  version: string
+}
 
 async function execute () {
   const testPath = core.getInput('test-path')
-  const artifactPath = core.getInput('artifact-path')
+  const contractPath = core.getInput('contract-path')
+  const compilerVersion = core.getInput('compiler-version')
   const isTestPathDirectory = (await fs.stat(testPath)).isDirectory()
+  const isContractPathDirectory = (await fs.stat(contractPath)).isDirectory()
+  const compileSettings = {
+    optimize: true,
+    evmVersion: null,
+    language: 'Solidity',
+    version: compilerVersion
+  }
+
+  await core.group ("Compile contracts", async () => {
+    if (isContractPathDirectory) {
+      const contractFiles = await fs.readdir(contractPath)
+
+      if (contractFiles.length > 0)  {
+        for (const file of contractFiles) {
+          await compileContract(`${contractPath}/${file}`, compileSettings)
+        }
+        await cli.exec('ls', ['-l', contractPath])
+        await cli.exec('ls', ['-l', `${contractPath}/artifacts`])
+      } else {
+        core.setFailed('No contract files found')
+      }
+    } else {
+      await compileContract(contractPath, compileSettings)
+    }
+  })
 
   await core.group("Run tests", async () => {
     if (isTestPathDirectory) {
@@ -16,7 +52,7 @@ async function execute () {
 
       if (testFiles.length > 0) {
         (['ethers.js', 'methods.js', 'signer.js']).forEach(async (file: string) => {
-          await fs.cp(path.resolve('dist/' + file), path.resolve(testPath + '/remix_deps/' + file))
+          await fs.cp('dist/' + file, testPath + '/remix_deps/' + file)
         })
         for (const testFile of testFiles) {
           await main(`${testPath}/${testFile}`)
@@ -25,6 +61,18 @@ async function execute () {
     } else {
       await main(testPath)
     }
+  })
+}
+
+async function compileContract (contractPath: string, settings: CompileSettings): Promise<void> {
+  const contract = await fs.readFile(contractPath, 'utf8')
+  const compilationTargets = { [contractPath]: { content: contract } }
+  
+  compile(compilationTargets, settings, async (url: string, cb: (error: string | null, result: Imported) => void) => {
+    const resolver = new RemixURLResolver()
+    const result = await resolver.resolve(url)
+
+    cb(null, result)
   })
 }
 
