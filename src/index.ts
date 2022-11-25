@@ -87,7 +87,7 @@ async function compileContract (contractPath: string, settings: CompileSettings)
     }
   })
   const compilerList = await axios.get('https://raw.githubusercontent.com/ethereum/solc-bin/gh-pages/bin/list.json')
-  const releases = compilerList.data
+  const releases = compilerList.data.releases
 
   if (releases[settings.version]) {
     const compilerUrl = releases[settings.version].path
