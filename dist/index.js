@@ -238,7 +238,7 @@ function compileContract(contractPath, settings) {
                     compilerList = _b.sent();
                     releases = compilerList.data.releases;
                     if (releases[settings.version]) {
-                        compilerUrl = releases[settings.version].path;
+                        compilerUrl = "https://binaries.soliditylang.org/bin/".concat(releases[settings.version].path);
                         remixCompiler.set('evmVersion', settings.evmVersion);
                         remixCompiler.set('optimize', settings.optimize);
                         remixCompiler.set('runs', 200);
