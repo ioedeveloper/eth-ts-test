@@ -238,8 +238,8 @@ function compileContract(contractPath, settings) {
                     compilerList = _b.sent();
                     releases = compilerList.data.releases;
                     if (releases[settings.version]) {
-                        compilerUrl = "https://binaries.soliditylang.org/bin/".concat(releases[settings.version]);
-                        console.log('path: ', "https://binaries.soliditylang.org/bin/".concat(releases[settings.version]));
+                        compilerUrl = "https://binaries.soliditylang.org/wasm/".concat(releases[settings.version]);
+                        console.log('path: ', "https://binaries.soliditylang.org/wasm/".concat(releases[settings.version]));
                         remixCompiler.set('evmVersion', settings.evmVersion);
                         remixCompiler.set('optimize', settings.optimize);
                         remixCompiler.set('runs', 200);
