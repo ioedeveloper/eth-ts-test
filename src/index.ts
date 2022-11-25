@@ -6,7 +6,6 @@ import * as cli from '@actions/exec'
 import * as ts from 'typescript'
 import { Compiler as RemixCompiler, EVMVersion } from '@remix-project/remix-solidity'
 import { RemixURLResolver } from '@remix-project/remix-url-resolver'
-import { Imported } from '@remix-project/remix-url-resolver/src/resolve'
 import axios from 'axios'
 
 interface CompileSettings {
@@ -88,6 +87,7 @@ async function compileContract (contractPath: string, settings: CompileSettings)
     }
   })
   const compilerList = await axios.get('https://binaries.soliditylang.org/bin/list.json')
+  console.log('logResult: ', compilerList.data)
   const releases = compilerList.data.releases
 
   if (releases[settings.version]) {

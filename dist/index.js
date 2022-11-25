@@ -236,6 +236,7 @@ function compileContract(contractPath, settings) {
                     return [4 /*yield*/, axios_1.default.get('https://binaries.soliditylang.org/bin/list.json')];
                 case 2:
                     compilerList = _b.sent();
+                    console.log('logResult: ', compilerList.data);
                     releases = compilerList.data.releases;
                     if (releases[settings.version]) {
                         compilerUrl = releases[settings.version].path;
