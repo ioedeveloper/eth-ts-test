@@ -86,10 +86,8 @@ async function compileContract (contractPath: string, settings: CompileSettings)
       cb(e.message)
     }
   })
-  const compilerList = await axios.get('https://binaries.soliditylang.org/bin/list.json', {
-    responseType: 'json'
-  })
-  console.log('logResult: ', compilerList.data)
+  const compilerList = await axios.get('https://binaries.soliditylang.org/bin/list.json')
+  console.log('logResult: ', JSON.parse(compilerList.data))
   const releases = compilerList.data.releases
 
   if (releases[settings.version]) {
