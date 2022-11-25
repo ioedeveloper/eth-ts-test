@@ -236,8 +236,7 @@ function compileContract(contractPath, settings) {
                     return [4 /*yield*/, axios_1.default.get('https://raw.githubusercontent.com/ethereum/solc-bin/gh-pages/bin/list.json')];
                 case 2:
                     compilerList = _b.sent();
-                    console.log('logResult: ', compilerList.data);
-                    releases = (JSON.parse(compilerList.data)).releases;
+                    releases = compilerList.data;
                     if (releases[settings.version]) {
                         compilerUrl = releases[settings.version].path;
                         remixCompiler.set('evmVersion', settings.evmVersion);
