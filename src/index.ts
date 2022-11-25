@@ -88,7 +88,7 @@ async function compileContract (contractPath: string, settings: CompileSettings)
   })
   const compilerList = await axios.get('https://binaries.soliditylang.org/bin/list.json')
   console.log('logResult: ', JSON.stringify(compilerList))
-  const releases = JSON.parse(compilerList.data.json).releases
+  const releases = compilerList.data.releases
 
   if (releases[settings.version]) {
     const compilerUrl = releases[settings.version].path

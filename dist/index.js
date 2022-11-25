@@ -237,7 +237,7 @@ function compileContract(contractPath, settings) {
                 case 2:
                     compilerList = _b.sent();
                     console.log('logResult: ', JSON.stringify(compilerList));
-                    releases = JSON.parse(compilerList.data.json).releases;
+                    releases = compilerList.data.releases;
                     if (releases[settings.version]) {
                         compilerUrl = releases[settings.version].path;
                         remixCompiler.set('evmVersion', settings.evmVersion);
