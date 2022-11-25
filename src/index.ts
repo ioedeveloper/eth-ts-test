@@ -4,14 +4,15 @@ import { existsSync } from 'fs'
 import * as path from 'path'
 import * as cli from '@actions/exec'
 import * as ts from 'typescript'
-import { compile } from '@remix-project/remix-solidity'
+import { Compiler as RemixCompiler, EVMVersion } from '@remix-project/remix-solidity'
 import { RemixURLResolver } from '@remix-project/remix-url-resolver'
 import { Imported } from '@remix-project/remix-url-resolver/src/resolve'
+import axios from 'axios'
 
 interface CompileSettings {
   optimize: boolean,
-  evmVersion: string | null,
-  language: string,
+  evmVersion: EVMVersion | null,
+  runs: number,
   version: string
 }
 
@@ -24,10 +25,11 @@ async function execute () {
   const compileSettings = {
     optimize: true,
     evmVersion: null,
-    language: 'Solidity',
+    runs: 200,
     version: compilerVersion
   }
 
+  // compile smart contracts to run tests on.
   await core.group ("Compile contracts", async () => {
     if (isContractPathDirectory) {
       const contractFiles = await fs.readdir(contractPath)
@@ -46,6 +48,7 @@ async function execute () {
     }
   })
 
+  // Move remix dependencies to test folder and transpile test files. Then run tests.
   await core.group("Run tests", async () => {
     if (isTestPathDirectory) {
       const testFiles = await fs.readdir(testPath)
@@ -64,19 +67,44 @@ async function execute () {
   })
 }
 
+// Compile single smart contract
 async function compileContract (contractPath: string, settings: CompileSettings): Promise<void> {
   const contract = await fs.readFile(contractPath, 'utf8')
-  console.log('contract: ', contract)
   const compilationTargets = { [contractPath]: { content: contract } }
-  
-  compile(compilationTargets, settings, async (url: string, cb: (error: string | null, result: Imported) => void) => {
-    const resolver = new RemixURLResolver()
-    const result = await resolver.resolve(url)
+  const remixCompiler = new RemixCompiler(async (url: string, cb: (error: string | null, result?: string) => void) => {
+    try {
+      if(await existsSync(url)) {
+        const importContent = await fs.readFile(url, 'utf8')
 
-    cb(null, result)
+        cb(null, importContent)
+      } else {
+        const resolver = new RemixURLResolver()
+        const result = await resolver.resolve(url)
+
+        cb(null, result.content)
+      }
+    } catch (e: any) {
+      cb(e.message)
+    }
   })
+  const compilerList = await axios.get('https://binaries.soliditylang.org/bin/list.json')
+  const releases = compilerList.data.releases
+
+  if (releases[settings.version]) {
+    const compilerUrl = releases[settings.version].path
+
+    remixCompiler.set('evmVersion', settings.evmVersion)
+    remixCompiler.set('optimize', settings.optimize)
+    remixCompiler.set('runs', 200)
+    remixCompiler.loadRemoteVersion(compilerUrl)
+    remixCompiler.compile(compilationTargets, contractPath)
+  } else {
+    throw new Error('Compiler version not found')
+  }
+  // https://binaries.soliditylang.org/bin/list.json
 }
 
+// Transpile and execute test files
 async function main (filePath: string): Promise<void> {
   try {
     let testFileContent = await fs.readFile(filePath, 'utf8')
@@ -105,6 +133,7 @@ async function main (filePath: string): Promise<void> {
   }
 }
 
+// Setup environment for running tests
 async function setupRunEnv (): Promise<void> {
   const workingDirectory = process.cwd()
   const yarnLock = path.join(workingDirectory, 'yarn.lock')
@@ -122,10 +151,12 @@ async function setupRunEnv (): Promise<void> {
   }
 }
 
+// Run tests
 async function runTest (filePath: string): Promise<void> {
   await cli.exec('npx', ['mocha', filePath])
 }
 
+// Transpile test scripts
 function transpileScript (script: string): ts.TranspileOutput {
   const output = ts.transpileModule(script, { compilerOptions: {
     target: ts.ScriptTarget.ES2015,
