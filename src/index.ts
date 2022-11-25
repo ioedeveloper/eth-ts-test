@@ -4,7 +4,7 @@ import { existsSync } from 'fs'
 import * as path from 'path'
 import * as cli from '@actions/exec'
 import * as ts from 'typescript'
-import { Compiler as RemixCompiler, EVMVersion } from '@remix-project/remix-solidity'
+import { Compiler as RemixCompiler, EVMVersion, promisedMiniXhr } from '@remix-project/remix-solidity'
 import { RemixURLResolver } from '@remix-project/remix-url-resolver'
 import axios from 'axios'
 
@@ -86,9 +86,9 @@ async function compileContract (contractPath: string, settings: CompileSettings)
       cb(e.message)
     }
   })
-  const compilerList = await axios.get('https://binaries.soliditylang.org/bin/list.json')
-  console.log('logResult: ', JSON.parse(compilerList.data))
-  const releases = compilerList.data.releases
+  const compilerList: any = await promisedMiniXhr('https://binaries.soliditylang.org/bin/list.json')
+  console.log('logResult: ', JSON.parse(compilerList.json))
+  const releases = compilerList.json
 
   if (releases[settings.version]) {
     const compilerUrl = releases[settings.version].path

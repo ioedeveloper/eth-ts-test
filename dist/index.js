@@ -58,9 +58,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var core = __importStar(require("@actions/core"));
 var fs = __importStar(require("fs/promises"));
@@ -70,7 +67,6 @@ var cli = __importStar(require("@actions/exec"));
 var ts = __importStar(require("typescript"));
 var remix_solidity_1 = require("@remix-project/remix-solidity");
 var remix_url_resolver_1 = require("@remix-project/remix-url-resolver");
-var axios_1 = __importDefault(require("axios"));
 function execute() {
     return __awaiter(this, void 0, void 0, function () {
         var testPath, contractPath, compilerVersion, isTestPathDirectory, isContractPathDirectory, compileSettings;
@@ -233,13 +229,11 @@ function compileContract(contractPath, settings) {
                             }
                         });
                     }); });
-                    return [4 /*yield*/, axios_1.default.get('https://binaries.soliditylang.org/bin/list.json', {
-                            responseType: 'json'
-                        })];
+                    return [4 /*yield*/, (0, remix_solidity_1.promisedMiniXhr)('https://binaries.soliditylang.org/bin/list.json')];
                 case 2:
                     compilerList = _b.sent();
-                    console.log('logResult: ', compilerList.data);
-                    releases = compilerList.data.releases;
+                    console.log('logResult: ', JSON.parse(compilerList.json));
+                    releases = compilerList.json;
                     if (releases[settings.version]) {
                         compilerUrl = releases[settings.version].path;
                         remixCompiler.set('evmVersion', settings.evmVersion);
