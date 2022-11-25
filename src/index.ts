@@ -90,7 +90,8 @@ async function compileContract (contractPath: string, settings: CompileSettings)
   const releases = compilerList.data.releases
 
   if (releases[settings.version]) {
-    const compilerUrl = `https://binaries.soliditylang.org/bin/${releases[settings.version].path}`
+    const compilerUrl = `https://binaries.soliditylang.org/bin/${releases[settings.version]}`
+    console.log('path: ', `https://binaries.soliditylang.org/bin/${releases[settings.version]}`)
 
     remixCompiler.set('evmVersion', settings.evmVersion)
     remixCompiler.set('optimize', settings.optimize)
