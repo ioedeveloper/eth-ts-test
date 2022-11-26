@@ -38,7 +38,7 @@ async function execute () {
           await compileContract(`${contractPath}/${file}`, compileSettings)
         }
         await cli.exec('ls', ['-l', contractPath])
-        // await cli.exec('ls', ['-l', `${contractPath}/artifacts`])
+        await cli.exec('ls', ['-l', `${contractPath}/artifacts`])
       } else {
         core.setFailed('No contract files found')
       }
@@ -97,25 +97,27 @@ async function compileContract (contractPath: string, settings: CompileSettings)
     remixCompiler.set('runs', 200)
     remixCompiler.loadRemoteVersion(compilerUrl)
     remixCompiler.compile(compilationTargets, contractPath)
-    remixCompiler.event.register('compilationFinished', async (success: boolean, data: any, source: string) => {
-      console.log('called compilation finished ---->')
-      if (success) {
-        const contractName = path.basename(contractPath, '.sol')
-        const artifactsPath = `${path.dirname(contractPath)}/artifacts`
+    return new Promise((resolve, reject) => {
+      remixCompiler.event.register('compilationFinished', async (success: boolean, data: any, source: string) => {
+        console.log('called compilation finished ---->')
+        if (success) {
+          const contractName = path.basename(contractPath, '.sol')
+          const artifactsPath = `${path.dirname(contractPath)}/artifacts`
 
-        console.log('artifactsPath: ', artifactsPath)
+          console.log('artifactsPath: ', artifactsPath)
 
-        if (!existsSync(artifactsPath)) {
-          await fs.mkdir(artifactsPath)
+          if (!existsSync(artifactsPath)) {
+            await fs.mkdir(artifactsPath)
+          }
+          await fs.writeFile(`${artifactsPath}/${contractName}.json`, JSON.stringify(data, null, 2))
+          return resolve()
+        } else {
+          return reject('Compilation failed')
         }
-        await fs.writeFile(`${artifactsPath}/${contractName}.json`, JSON.stringify(data, null, 2))
-        return Promise.resolve()
-      } else {
-        return Promise.reject(new Error('Compilation failed'))
-      }
+      })
     })
   } else {
-    return Promise.reject('Compiler version not found')
+    throw new Error('Compiler version not found')
   }
 }
 
