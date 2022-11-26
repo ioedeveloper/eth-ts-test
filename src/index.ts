@@ -38,7 +38,7 @@ async function execute () {
           await compileContract(`${contractPath}/${file}`, compileSettings)
         }
         await cli.exec('ls', ['-l', contractPath])
-        await cli.exec('ls', ['-l', `${contractPath}/artifacts`])
+        // await cli.exec('ls', ['-l', `${contractPath}/artifacts`])
       } else {
         core.setFailed('No contract files found')
       }
@@ -98,9 +98,12 @@ async function compileContract (contractPath: string, settings: CompileSettings)
     remixCompiler.loadRemoteVersion(compilerUrl)
     remixCompiler.compile(compilationTargets, contractPath)
     remixCompiler.event.register('compilationFinished', async (success: boolean, data: any, source: string) => {
+      console.log('called compilation finished ---->')
       if (success) {
         const contractName = path.basename(contractPath, '.sol')
         const artifactsPath = `${path.dirname(contractPath)}/artifacts`
+
+        console.log('artifactsPath: ', artifactsPath)
 
         if (!existsSync(artifactsPath)) {
           await fs.mkdir(artifactsPath)
