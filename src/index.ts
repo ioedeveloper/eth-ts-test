@@ -96,27 +96,34 @@ async function compileContract (contractPath: string, settings: CompileSettings)
     remixCompiler.set('optimize', settings.optimize)
     remixCompiler.set('runs', 200)
     return new Promise((resolve, reject) => {
+      let intervalId: NodeJS.Timer
+
       remixCompiler.loadRemoteVersion(compilerUrl)
       remixCompiler.event.register('compilerLoaded', () => {
-        console.log('Compiler loaded ====>')
         remixCompiler.compile(compilationTargets, contractPath)
-        remixCompiler.event.register('compilationFinished', async (success: boolean, data: any, source: string) => {
-          console.log('called compilation finished ---->')
-          if (success) {
-            const contractName = path.basename(contractPath, '.sol')
-            const artifactsPath = `${path.dirname(contractPath)}/artifacts`
+        process.stdout.write('Compiling')
+        intervalId = setInterval(() => {
+          process.stdout.write('.')
+        }, 1000)
+      })
+      remixCompiler.event.register('compilationFinished', async (success: boolean, data: any, source: string) => {
+        console.log('called compilation finished ---->')
+        if (success) {
+          const contractName = path.basename(contractPath, '.sol')
+          const artifactsPath = `${path.dirname(contractPath)}/artifacts`
 
-            console.log('artifactsPath: ', artifactsPath)
+          console.log('artifactsPath: ', artifactsPath)
 
-            if (!existsSync(artifactsPath)) {
-              await fs.mkdir(artifactsPath)
-            }
-            await fs.writeFile(`${artifactsPath}/${contractName}.json`, JSON.stringify(data, null, 2))
-            return resolve()
-          } else {
-            return reject('Compilation failed')
+          if (!existsSync(artifactsPath)) {
+            await fs.mkdir(artifactsPath)
           }
-        })
+          await fs.writeFile(`${artifactsPath}/${contractName}.json`, JSON.stringify(data, null, 2))
+          clearInterval(intervalId)
+          return resolve()
+        } else {
+          clearInterval(intervalId)
+          return reject('Compilation failed')
+        }
       })
     })
   } else {
