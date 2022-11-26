@@ -243,7 +243,7 @@ function compileContract(contractPath, settings) {
                         remixCompiler.set('evmVersion', settings.evmVersion);
                         remixCompiler.set('optimize', settings.optimize);
                         remixCompiler.set('runs', 200);
-                        remixCompiler.loadRemoteVersion(compilerUrl);
+                        remixCompiler.loadRemoteVersion(settings.version);
                         remixCompiler.compile(compilationTargets, contractPath);
                     }
                     else {
