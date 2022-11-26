@@ -99,11 +99,11 @@ function execute() {
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
-                                        if (!isContractPathDirectory) return [3 /*break*/, 9];
+                                        if (!isContractPathDirectory) return [3 /*break*/, 10];
                                         return [4 /*yield*/, fs.readdir(contractPath)];
                                     case 1:
                                         contractFiles = _a.sent();
-                                        if (!(contractFiles.length > 0)) return [3 /*break*/, 7];
+                                        if (!(contractFiles.length > 0)) return [3 /*break*/, 8];
                                         _i = 0, contractFiles_1 = contractFiles;
                                         _a.label = 2;
                                     case 2:
@@ -116,21 +116,22 @@ function execute() {
                                     case 4:
                                         _i++;
                                         return [3 /*break*/, 2];
-                                    case 5: return [4 /*yield*/, cli.exec('ls', ['-l', contractPath])
-                                        // await cli.exec('ls', ['-l', `${contractPath}/artifacts`])
-                                    ];
+                                    case 5: return [4 /*yield*/, cli.exec('ls', ['-l', contractPath])];
                                     case 6:
                                         _a.sent();
-                                        return [3 /*break*/, 8];
+                                        return [4 /*yield*/, cli.exec('ls', ['-l', "".concat(contractPath, "/artifacts")])];
                                     case 7:
-                                        core.setFailed('No contract files found');
-                                        _a.label = 8;
-                                    case 8: return [3 /*break*/, 11];
-                                    case 9: return [4 /*yield*/, compileContract(contractPath, compileSettings)];
-                                    case 10:
                                         _a.sent();
-                                        _a.label = 11;
-                                    case 11: return [2 /*return*/];
+                                        return [3 /*break*/, 9];
+                                    case 8:
+                                        core.setFailed('No contract files found');
+                                        _a.label = 9;
+                                    case 9: return [3 /*break*/, 12];
+                                    case 10: return [4 /*yield*/, compileContract(contractPath, compileSettings)];
+                                    case 11:
+                                        _a.sent();
+                                        _a.label = 12;
+                                    case 12: return [2 /*return*/];
                                 }
                             });
                         }); })
@@ -242,10 +243,31 @@ function compileContract(contractPath, settings) {
                         remixCompiler.set('optimize', settings.optimize);
                         remixCompiler.set('runs', 200);
                         remixCompiler.loadRemoteVersion(compilerUrl);
-                        // remixCompiler.compile(compilationTargets, contractPath)
+                        remixCompiler.compile(compilationTargets, contractPath);
+                        remixCompiler.event.register('compilationFinished', function (success, data, source) { return __awaiter(_this, void 0, void 0, function () {
+                            var contractName, artifactsPath;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        if (!success) return [3 /*break*/, 4];
+                                        contractName = path.basename(contractPath, '.sol');
+                                        artifactsPath = "".concat(path.dirname(contractPath), "/artifacts");
+                                        if (!!(0, fs_1.existsSync)(artifactsPath)) return [3 /*break*/, 2];
+                                        return [4 /*yield*/, fs.mkdir(artifactsPath)];
+                                    case 1:
+                                        _a.sent();
+                                        _a.label = 2;
+                                    case 2: return [4 /*yield*/, fs.writeFile("".concat(artifactsPath, "/").concat(contractName, ".json"), JSON.stringify(data, null, 2))];
+                                    case 3:
+                                        _a.sent();
+                                        return [2 /*return*/, Promise.resolve()];
+                                    case 4: return [2 /*return*/, Promise.reject(new Error('Compilation failed'))];
+                                }
+                            });
+                        }); });
                     }
                     else {
-                        throw new Error('Compiler version not found');
+                        return [2 /*return*/, Promise.reject('Compiler version not found')];
                     }
                     return [2 /*return*/];
             }
