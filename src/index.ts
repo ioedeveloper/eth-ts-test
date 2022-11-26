@@ -38,7 +38,7 @@ async function execute () {
           await compileContract(`${contractPath}/${file}`, compileSettings)
         }
         await cli.exec('ls', ['-l', contractPath])
-        await cli.exec('ls', ['-l', `${contractPath}/artifacts`])
+        // await cli.exec('ls', ['-l', `${contractPath}/artifacts`])
       } else {
         core.setFailed('No contract files found')
       }
@@ -90,13 +90,12 @@ async function compileContract (contractPath: string, settings: CompileSettings)
   const releases = compilerList.data.releases
 
   if (releases[settings.version]) {
-    const compilerUrl = `https://binaries.soliditylang.org/wasm/${releases[settings.version]}`
-    console.log('path: ', `https://binaries.soliditylang.org/wasm/${releases[settings.version]}`)
+    const compilerUrl = releases[settings.version].replace('soljson-', '').replace('.js', '')
 
     remixCompiler.set('evmVersion', settings.evmVersion)
     remixCompiler.set('optimize', settings.optimize)
     remixCompiler.set('runs', 200)
-    remixCompiler.loadRemoteVersion('latest')
+    remixCompiler.loadRemoteVersion(compilerUrl)
     // remixCompiler.compile(compilationTargets, contractPath)
   } else {
     throw new Error('Compiler version not found')

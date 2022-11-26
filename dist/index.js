@@ -99,11 +99,11 @@ function execute() {
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
-                                        if (!isContractPathDirectory) return [3 /*break*/, 10];
+                                        if (!isContractPathDirectory) return [3 /*break*/, 9];
                                         return [4 /*yield*/, fs.readdir(contractPath)];
                                     case 1:
                                         contractFiles = _a.sent();
-                                        if (!(contractFiles.length > 0)) return [3 /*break*/, 8];
+                                        if (!(contractFiles.length > 0)) return [3 /*break*/, 7];
                                         _i = 0, contractFiles_1 = contractFiles;
                                         _a.label = 2;
                                     case 2:
@@ -116,22 +116,21 @@ function execute() {
                                     case 4:
                                         _i++;
                                         return [3 /*break*/, 2];
-                                    case 5: return [4 /*yield*/, cli.exec('ls', ['-l', contractPath])];
+                                    case 5: return [4 /*yield*/, cli.exec('ls', ['-l', contractPath])
+                                        // await cli.exec('ls', ['-l', `${contractPath}/artifacts`])
+                                    ];
                                     case 6:
                                         _a.sent();
-                                        return [4 /*yield*/, cli.exec('ls', ['-l', "".concat(contractPath, "/artifacts")])];
+                                        return [3 /*break*/, 8];
                                     case 7:
-                                        _a.sent();
-                                        return [3 /*break*/, 9];
-                                    case 8:
                                         core.setFailed('No contract files found');
-                                        _a.label = 9;
-                                    case 9: return [3 /*break*/, 12];
-                                    case 10: return [4 /*yield*/, compileContract(contractPath, compileSettings)];
-                                    case 11:
+                                        _a.label = 8;
+                                    case 8: return [3 /*break*/, 11];
+                                    case 9: return [4 /*yield*/, compileContract(contractPath, compileSettings)];
+                                    case 10:
                                         _a.sent();
-                                        _a.label = 12;
-                                    case 12: return [2 /*return*/];
+                                        _a.label = 11;
+                                    case 11: return [2 /*return*/];
                                 }
                             });
                         }); })
@@ -238,12 +237,11 @@ function compileContract(contractPath, settings) {
                     compilerList = _b.sent();
                     releases = compilerList.data.releases;
                     if (releases[settings.version]) {
-                        compilerUrl = "https://binaries.soliditylang.org/wasm/".concat(releases[settings.version]);
-                        console.log('path: ', "https://binaries.soliditylang.org/wasm/".concat(releases[settings.version]));
+                        compilerUrl = releases[settings.version].replace('soljson-', '').replace('.js', '');
                         remixCompiler.set('evmVersion', settings.evmVersion);
                         remixCompiler.set('optimize', settings.optimize);
                         remixCompiler.set('runs', 200);
-                        remixCompiler.loadRemoteVersion('latest');
+                        remixCompiler.loadRemoteVersion(compilerUrl);
                         // remixCompiler.compile(compilationTargets, contractPath)
                     }
                     else {
