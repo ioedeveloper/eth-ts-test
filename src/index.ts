@@ -96,8 +96,8 @@ async function compileContract (contractPath: string, settings: CompileSettings)
     remixCompiler.set('evmVersion', settings.evmVersion)
     remixCompiler.set('optimize', settings.optimize)
     remixCompiler.set('runs', 200)
-    remixCompiler.loadRemoteVersion(settings.version)
-    remixCompiler.compile(compilationTargets, contractPath)
+    remixCompiler.loadRemoteVersion(releases[settings.version])
+    // remixCompiler.compile(compilationTargets, contractPath)
   } else {
     throw new Error('Compiler version not found')
   }
