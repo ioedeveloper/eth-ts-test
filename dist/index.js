@@ -194,7 +194,7 @@ function execute() {
 // Compile single smart contract
 function compileContract(contractPath, settings) {
     return __awaiter(this, void 0, void 0, function () {
-        var contract, compilationTargets, remixCompiler, compilerList, releases, compilerUrl;
+        var contract, compilationTargets, remixCompiler, compilerList, releases, compilerUrl_1;
         var _a;
         var _this = this;
         return __generator(this, function (_b) {
@@ -238,36 +238,39 @@ function compileContract(contractPath, settings) {
                     compilerList = _b.sent();
                     releases = compilerList.data.releases;
                     if (releases[settings.version]) {
-                        compilerUrl = releases[settings.version].replace('soljson-', '').replace('.js', '');
+                        compilerUrl_1 = releases[settings.version].replace('soljson-', '').replace('.js', '');
                         remixCompiler.set('evmVersion', settings.evmVersion);
                         remixCompiler.set('optimize', settings.optimize);
                         remixCompiler.set('runs', 200);
-                        remixCompiler.loadRemoteVersion(compilerUrl);
                         return [2 /*return*/, new Promise(function (resolve, reject) {
-                                remixCompiler.event.register('compilationFinished', function (success, data, source) { return __awaiter(_this, void 0, void 0, function () {
-                                    var contractName, artifactsPath;
-                                    return __generator(this, function (_a) {
-                                        switch (_a.label) {
-                                            case 0:
-                                                console.log('called compilation finished ---->');
-                                                if (!success) return [3 /*break*/, 4];
-                                                contractName = path.basename(contractPath, '.sol');
-                                                artifactsPath = "".concat(path.dirname(contractPath), "/artifacts");
-                                                console.log('artifactsPath: ', artifactsPath);
-                                                if (!!(0, fs_1.existsSync)(artifactsPath)) return [3 /*break*/, 2];
-                                                return [4 /*yield*/, fs.mkdir(artifactsPath)];
-                                            case 1:
-                                                _a.sent();
-                                                _a.label = 2;
-                                            case 2: return [4 /*yield*/, fs.writeFile("".concat(artifactsPath, "/").concat(contractName, ".json"), JSON.stringify(data, null, 2))];
-                                            case 3:
-                                                _a.sent();
-                                                return [2 /*return*/, resolve()];
-                                            case 4: return [2 /*return*/, reject('Compilation failed')];
-                                        }
-                                    });
-                                }); });
-                                remixCompiler.compile(compilationTargets, contractPath);
+                                remixCompiler.loadRemoteVersion(compilerUrl_1);
+                                remixCompiler.event.register('compilerLoaded', function () {
+                                    console.log('Compiler loaded ====>');
+                                    remixCompiler.compile(compilationTargets, contractPath);
+                                    remixCompiler.event.register('compilationFinished', function (success, data, source) { return __awaiter(_this, void 0, void 0, function () {
+                                        var contractName, artifactsPath;
+                                        return __generator(this, function (_a) {
+                                            switch (_a.label) {
+                                                case 0:
+                                                    console.log('called compilation finished ---->');
+                                                    if (!success) return [3 /*break*/, 4];
+                                                    contractName = path.basename(contractPath, '.sol');
+                                                    artifactsPath = "".concat(path.dirname(contractPath), "/artifacts");
+                                                    console.log('artifactsPath: ', artifactsPath);
+                                                    if (!!(0, fs_1.existsSync)(artifactsPath)) return [3 /*break*/, 2];
+                                                    return [4 /*yield*/, fs.mkdir(artifactsPath)];
+                                                case 1:
+                                                    _a.sent();
+                                                    _a.label = 2;
+                                                case 2: return [4 /*yield*/, fs.writeFile("".concat(artifactsPath, "/").concat(contractName, ".json"), JSON.stringify(data, null, 2))];
+                                                case 3:
+                                                    _a.sent();
+                                                    return [2 /*return*/, resolve()];
+                                                case 4: return [2 /*return*/, reject('Compilation failed')];
+                                            }
+                                        });
+                                    }); });
+                                });
                             })];
                     }
                     else {

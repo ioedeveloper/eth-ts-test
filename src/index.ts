@@ -95,26 +95,29 @@ async function compileContract (contractPath: string, settings: CompileSettings)
     remixCompiler.set('evmVersion', settings.evmVersion)
     remixCompiler.set('optimize', settings.optimize)
     remixCompiler.set('runs', 200)
-    remixCompiler.loadRemoteVersion(compilerUrl)
     return new Promise((resolve, reject) => {
-      remixCompiler.event.register('compilationFinished', async (success: boolean, data: any, source: string) => {
-        console.log('called compilation finished ---->')
-        if (success) {
-          const contractName = path.basename(contractPath, '.sol')
-          const artifactsPath = `${path.dirname(contractPath)}/artifacts`
+      remixCompiler.loadRemoteVersion(compilerUrl)
+      remixCompiler.event.register('compilerLoaded', () => {
+        console.log('Compiler loaded ====>')
+        remixCompiler.compile(compilationTargets, contractPath)
+        remixCompiler.event.register('compilationFinished', async (success: boolean, data: any, source: string) => {
+          console.log('called compilation finished ---->')
+          if (success) {
+            const contractName = path.basename(contractPath, '.sol')
+            const artifactsPath = `${path.dirname(contractPath)}/artifacts`
 
-          console.log('artifactsPath: ', artifactsPath)
+            console.log('artifactsPath: ', artifactsPath)
 
-          if (!existsSync(artifactsPath)) {
-            await fs.mkdir(artifactsPath)
+            if (!existsSync(artifactsPath)) {
+              await fs.mkdir(artifactsPath)
+            }
+            await fs.writeFile(`${artifactsPath}/${contractName}.json`, JSON.stringify(data, null, 2))
+            return resolve()
+          } else {
+            return reject('Compilation failed')
           }
-          await fs.writeFile(`${artifactsPath}/${contractName}.json`, JSON.stringify(data, null, 2))
-          return resolve()
-        } else {
-          return reject('Compilation failed')
-        }
+        })
       })
-      remixCompiler.compile(compilationTargets, contractPath)
     })
   } else {
     throw new Error('Compiler version not found')
