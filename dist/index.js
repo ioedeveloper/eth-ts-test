@@ -243,7 +243,6 @@ function compileContract(contractPath, settings) {
                         remixCompiler.set('optimize', settings.optimize);
                         remixCompiler.set('runs', 200);
                         remixCompiler.loadRemoteVersion(compilerUrl);
-                        remixCompiler.compile(compilationTargets, contractPath);
                         return [2 /*return*/, new Promise(function (resolve, reject) {
                                 remixCompiler.event.register('compilationFinished', function (success, data, source) { return __awaiter(_this, void 0, void 0, function () {
                                     var contractName, artifactsPath;
@@ -268,6 +267,7 @@ function compileContract(contractPath, settings) {
                                         }
                                     });
                                 }); });
+                                remixCompiler.compile(compilationTargets, contractPath);
                             })];
                     }
                     else {

@@ -96,7 +96,6 @@ async function compileContract (contractPath: string, settings: CompileSettings)
     remixCompiler.set('optimize', settings.optimize)
     remixCompiler.set('runs', 200)
     remixCompiler.loadRemoteVersion(compilerUrl)
-    remixCompiler.compile(compilationTargets, contractPath)
     return new Promise((resolve, reject) => {
       remixCompiler.event.register('compilationFinished', async (success: boolean, data: any, source: string) => {
         console.log('called compilation finished ---->')
@@ -115,6 +114,7 @@ async function compileContract (contractPath: string, settings: CompileSettings)
           return reject('Compilation failed')
         }
       })
+      remixCompiler.compile(compilationTargets, contractPath)
     })
   } else {
     throw new Error('Compiler version not found')
