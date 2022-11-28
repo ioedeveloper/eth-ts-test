@@ -215,7 +215,7 @@ var getContractFactory = function (contractNameOrABI, bytecode, signerOrOptions)
                                     if (contract) {
                                         console.log('contract: ', contract);
                                         console.log('contract.abi: ', contract.abi);
-                                        console.log('contract.bytecode: ', contract.bytecode.object);
+                                        console.log('contract.bytecode: ', contract.evm.bytecode.object);
                                         return [2 /*return*/, { value: new ethers_1.ethers.ContractFactory(contract.abi, contract.bytecode.object, signerOrOptions || (new ethers_1.ethers.providers.Web3Provider(web3Provider)).getSigner()) }];
                                     }
                                     return [2 /*return*/];

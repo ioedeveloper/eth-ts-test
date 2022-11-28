@@ -161,11 +161,11 @@ const getContractFactory = async (contractNameOrABI, bytecode=null, signerOrOpti
     const artefactJSON = JSON.parse(artefact)
     const contractFullPath = (Object.keys(artefactJSON.contracts)).find((contractName) => artefactJSON.contracts[contractName][contractNameOrABI])
     const contract = artefactJSON.contracts[contractFullPath!][contractNameOrABI]
-    
+
     if (contract) {
       console.log('contract: ', contract)
       console.log('contract.abi: ', contract.abi)
-      console.log('contract.bytecode: ', contract.bytecode.object)
+      console.log('contract.bytecode: ', contract.evm.bytecode.object)
       return new ethers.ContractFactory(contract.abi, contract.bytecode.object, signerOrOptions || (new ethers.providers.Web3Provider(web3Provider)).getSigner())
     }
   }
