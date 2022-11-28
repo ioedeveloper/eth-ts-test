@@ -116,10 +116,10 @@ function execute() {
                                     case 4:
                                         _i++;
                                         return [3 /*break*/, 2];
-                                    case 5: return [4 /*yield*/, cli.exec('ls', ['-l', contractPath])];
+                                    case 5: return [4 /*yield*/, cli.exec('ls', [contractPath])];
                                     case 6:
                                         _a.sent();
-                                        return [4 /*yield*/, cli.exec('ls', ['-l', "".concat(contractPath, "/artifacts")])];
+                                        return [4 /*yield*/, cli.exec('ls', ["".concat(contractPath, "/artifacts")])];
                                     case 7:
                                         _a.sent();
                                         return [3 /*break*/, 9];
@@ -247,6 +247,7 @@ function compileContract(contractPath, settings) {
                                 remixCompiler.loadRemoteVersion(compilerUrl_1);
                                 remixCompiler.event.register('compilerLoaded', function () {
                                     remixCompiler.compile(compilationTargets, contractPath);
+                                    // use setInterval to keep gh-action process alive in other for compilation to finish
                                     process.stdout.write('Compiling');
                                     intervalId = setInterval(function () {
                                         process.stdout.write('.');
@@ -257,11 +258,9 @@ function compileContract(contractPath, settings) {
                                     return __generator(this, function (_a) {
                                         switch (_a.label) {
                                             case 0:
-                                                console.log('called compilation finished ---->');
                                                 if (!success) return [3 /*break*/, 4];
                                                 contractName = path.basename(contractPath, '.sol');
                                                 artifactsPath = "".concat(path.dirname(contractPath), "/artifacts");
-                                                console.log('artifactsPath: ', artifactsPath);
                                                 if (!!(0, fs_1.existsSync)(artifactsPath)) return [3 /*break*/, 2];
                                                 return [4 /*yield*/, fs.mkdir(artifactsPath)];
                                             case 1:
@@ -270,6 +269,7 @@ function compileContract(contractPath, settings) {
                                             case 2: return [4 /*yield*/, fs.writeFile("".concat(artifactsPath, "/").concat(contractName, ".json"), JSON.stringify(data, null, 2))];
                                             case 3:
                                                 _a.sent();
+                                                console.log('JSON.stringify(data, null, 2): ', JSON.stringify(data, null, 2));
                                                 clearInterval(intervalId);
                                                 return [2 /*return*/, resolve()];
                                             case 4:

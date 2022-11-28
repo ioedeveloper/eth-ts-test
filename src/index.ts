@@ -37,8 +37,8 @@ async function execute () {
         for (const file of contractFiles) {
           await compileContract(`${contractPath}/${file}`, compileSettings)
         }
-        await cli.exec('ls', ['-l', contractPath])
-        await cli.exec('ls', ['-l', `${contractPath}/artifacts`])
+        await cli.exec('ls', [contractPath])
+        await cli.exec('ls', [`${contractPath}/artifacts`])
       } else {
         core.setFailed('No contract files found')
       }
@@ -101,23 +101,22 @@ async function compileContract (contractPath: string, settings: CompileSettings)
       remixCompiler.loadRemoteVersion(compilerUrl)
       remixCompiler.event.register('compilerLoaded', () => {
         remixCompiler.compile(compilationTargets, contractPath)
+        // use setInterval to keep gh-action process alive in other for compilation to finish
         process.stdout.write('Compiling')
         intervalId = setInterval(() => {
           process.stdout.write('.')
         }, 1000)
       })
       remixCompiler.event.register('compilationFinished', async (success: boolean, data: any, source: string) => {
-        console.log('called compilation finished ---->')
         if (success) {
           const contractName = path.basename(contractPath, '.sol')
           const artifactsPath = `${path.dirname(contractPath)}/artifacts`
-
-          console.log('artifactsPath: ', artifactsPath)
 
           if (!existsSync(artifactsPath)) {
             await fs.mkdir(artifactsPath)
           }
           await fs.writeFile(`${artifactsPath}/${contractName}.json`, JSON.stringify(data, null, 2))
+          console.log('JSON.stringify(data, null, 2): ', JSON.stringify(data, null, 2))
           clearInterval(intervalId)
           return resolve()
         } else {
@@ -134,6 +133,7 @@ async function compileContract (contractPath: string, settings: CompileSettings)
 // Transpile and execute test files
 async function main (filePath: string): Promise<void> {
   try {
+    // TODO: replace regex globally
     let testFileContent = await fs.readFile(filePath, 'utf8')
     const hardhatEthersImportRegex = /import\s+{ ethers }\s+from\s+['"]hardhat['"]|import { * as ethers } from 'hardhat\/ethers'|import\s+ethers\s+from\s+['"]hardhat\/ethers['"]/
     const hardhatEthersRequireRegex = /const\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|let\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|const\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers|let\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers/g
