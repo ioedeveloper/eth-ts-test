@@ -5,7 +5,8 @@ import { ethers } from "ethers"
 import { SignerWithAddress } from './signer'
 
 declare global {
-  var remixContractArtefactsPath: string
+  var remixContractArtefactsPath: string;
+  var remixProvider: Provider
 }
 
 const isFactoryOptions = (signerOrOptions) => {
@@ -168,7 +169,7 @@ const getContractFactory = async (contractNameOrABI: string, bytecode?: string, 
     const contract = artefactJSON.contracts[contractFullPath!][contractNameOrABI]
 
     if (contract) {
-      return new ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers.providers.Web3Provider(new Provider())).getSigner())
+      return new ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers.providers.Web3Provider(global.remixProvider)).getSigner())
     }
   }
   throw new Error('Contract artefacts not found')
