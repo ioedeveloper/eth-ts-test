@@ -1,3 +1,6 @@
+import * as fs from 'fs/promises'
+import * as path from 'path'
+import { ethers } from "ethers"
 import { SignerWithAddress } from './signer'
 
 const isFactoryOptions = (signerOrOptions) => {
@@ -149,8 +152,22 @@ const resultToArtifact = (result) => {
 }
 
 const getContractFactory = async (contractNameOrABI, bytecode=null, signerOrOptions = null) => {
-  console.log('global.remixContractArtefactsPath: ', remixContractArtefactsPath)
-  return new ethers.ContractFactory(contractNameOrABI, bytecode, signerOrOptions || (new ethers.providers.Web3Provider(web3Provider)).getSigner())
+  // global.remixContractArtefactsPath is injected into the global scope during test files build. It save the path to the artefacts folder.
+  console.log('global.remixContractArtefactsPath: ', global.remixContractArtefactsPath)
+  const contractArtefacts = await fs.readdir(global.remixContractArtefactsPath)
+
+  for (const artefactFile of contractArtefacts) {
+    const artefact = await fs.readFile(path.join(global.remixContractArtefactsPath, artefactFile), 'utf-8')
+    const artefactJSON = JSON.parse(artefact)
+    const contract = (Object.keys(artefactJSON.contracts)).find((contractName) => artefactJSON.contracts[contractName][contractNameOrABI])
+
+    if (contract) {
+      console.log('contract.abi: ', contract.abi)
+      console.log('contract.bytecode: ', contract.bytecode.object)
+      return new ethers.ContractFactory(contract.abi, contract.bytecode.object, signerOrOptions || (new ethers.providers.Web3Provider(web3Provider)).getSigner())
+    }
+  }
+  throw new Error('Contract artefact not found')
 }
 
 const getContractAt = async (contractNameOrABI, address, signer = null) => {

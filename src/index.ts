@@ -116,7 +116,6 @@ async function compileContract (contractPath: string, settings: CompileSettings)
             await fs.mkdir(artifactsPath)
           }
           await fs.writeFile(`${artifactsPath}/${contractName}.json`, JSON.stringify(data, null, 2))
-          console.log('JSON.stringify(data, null, 2): ', JSON.stringify(data, null, 2))
           clearInterval(intervalId)
           return resolve()
         } else {
@@ -141,19 +140,14 @@ async function main (filePath: string, contractPath: string): Promise<void> {
     const hardhatRequireIndex = testFileContent.search(hardhatEthersRequireRegex)
     const describeIndex = testFileContent.search('describe')
     
-    console.log('hardhatImportIndex', hardhatImportIndex)
-    console.log('hardhatRequireIndex', hardhatRequireIndex)
-    console.log('describeIndex', describeIndex)
     if (describeIndex === -1) {
       throw new Error(`No describe function found in ${filePath}. Please wrap your tests in a describe function.`)
     } else {
       testFileContent = `${testFileContent.slice(0, describeIndex)}\nglobal.remixContractArtefactsPath = "${contractPath}/artifacts"; \n${testFileContent.slice(describeIndex)}`
       if (hardhatImportIndex > -1) {
         testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'import { ethers } from \'./remix_deps/ethers\'')
-        console.log('testFileContent', testFileContent)
       } else if (hardhatRequireIndex > -1) {
         testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'const { ethers } = require(\'./remix_deps/ethers\')')
-        console.log('testFileContent', testFileContent)
       }
       const testFile = transpileScript(testFileContent)
 

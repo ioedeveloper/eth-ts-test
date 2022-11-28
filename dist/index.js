@@ -269,7 +269,6 @@ function compileContract(contractPath, settings) {
                                             case 2: return [4 /*yield*/, fs.writeFile("".concat(artifactsPath, "/").concat(contractName, ".json"), JSON.stringify(data, null, 2))];
                                             case 3:
                                                 _a.sent();
-                                                console.log('JSON.stringify(data, null, 2): ', JSON.stringify(data, null, 2));
                                                 clearInterval(intervalId);
                                                 return [2 /*return*/, resolve()];
                                             case 4:
@@ -304,20 +303,15 @@ function main(filePath, contractPath) {
                     hardhatImportIndex = testFileContent.search(hardhatEthersImportRegex);
                     hardhatRequireIndex = testFileContent.search(hardhatEthersRequireRegex);
                     describeIndex = testFileContent.search('describe');
-                    console.log('hardhatImportIndex', hardhatImportIndex);
-                    console.log('hardhatRequireIndex', hardhatRequireIndex);
-                    console.log('describeIndex', describeIndex);
                     if (!(describeIndex === -1)) return [3 /*break*/, 2];
                     throw new Error("No describe function found in ".concat(filePath, ". Please wrap your tests in a describe function."));
                 case 2:
                     testFileContent = "".concat(testFileContent.slice(0, describeIndex), "\nglobal.remixContractArtefactsPath = \"").concat(contractPath, "/artifacts\"; \n").concat(testFileContent.slice(describeIndex));
                     if (hardhatImportIndex > -1) {
                         testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'import { ethers } from \'./remix_deps/ethers\'');
-                        console.log('testFileContent', testFileContent);
                     }
                     else if (hardhatRequireIndex > -1) {
                         testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'const { ethers } = require(\'./remix_deps/ethers\')');
-                        console.log('testFileContent', testFileContent);
                     }
                     testFile = transpileScript(testFileContent);
                     filePath = filePath.replace('.ts', '.js');
