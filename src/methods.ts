@@ -149,14 +149,8 @@ const resultToArtifact = (result) => {
 }
 
 const getContractFactory = async (contractNameOrABI, bytecode=null, signerOrOptions = null) => {
-  if(typeof contractNameOrABI === 'string') {
-    try {
-      const result = await window.remix.call('compilerArtefacts', 'getArtefactsByContractName', contractNameOrABI)
-      return await getContractFactoryFromArtifact(resultToArtifact(result), signerOrOptions)
-    } catch(e) { throw e }
-  } else {
-    return new ethers.ContractFactory(contractNameOrABI, bytecode, signerOrOptions || (new ethers.providers.Web3Provider(web3Provider)).getSigner())
-  }
+  console.log('ethers.remixContractArtefactsPath: ', ethers.remixContractArtefactsPath)
+  return new ethers.ContractFactory(contractNameOrABI, bytecode, signerOrOptions || (new ethers.providers.Web3Provider(web3Provider)).getSigner())
 }
 
 const getContractAt = async (contractNameOrABI, address, signer = null) => {

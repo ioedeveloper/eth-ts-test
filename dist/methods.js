@@ -167,26 +167,9 @@ var getContractFactory = function (contractNameOrABI, bytecode, signerOrOptions)
     if (bytecode === void 0) { bytecode = null; }
     if (signerOrOptions === void 0) { signerOrOptions = null; }
     return __awaiter(void 0, void 0, void 0, function () {
-        var result, e_1;
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    if (!(typeof contractNameOrABI === 'string')) return [3 /*break*/, 6];
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 4, , 5]);
-                    return [4 /*yield*/, window.remix.call('compilerArtefacts', 'getArtefactsByContractName', contractNameOrABI)];
-                case 2:
-                    result = _a.sent();
-                    return [4 /*yield*/, getContractFactoryFromArtifact(resultToArtifact(result), signerOrOptions)];
-                case 3: return [2 /*return*/, _a.sent()];
-                case 4:
-                    e_1 = _a.sent();
-                    throw e_1;
-                case 5: return [3 /*break*/, 7];
-                case 6: return [2 /*return*/, new ethers.ContractFactory(contractNameOrABI, bytecode, signerOrOptions || (new ethers.providers.Web3Provider(web3Provider)).getSigner())];
-                case 7: return [2 /*return*/];
-            }
+            console.log('ethers.remixContractArtefactsPath: ', ethers.remixContractArtefactsPath);
+            return [2 /*return*/, new ethers.ContractFactory(contractNameOrABI, bytecode, signerOrOptions || (new ethers.providers.Web3Provider(web3Provider)).getSigner())];
         });
     });
 };
@@ -194,7 +177,7 @@ exports.getContractFactory = getContractFactory;
 var getContractAt = function (contractNameOrABI, address, signer) {
     if (signer === void 0) { signer = null; }
     return __awaiter(void 0, void 0, void 0, function () {
-        var result, e_2;
+        var result, e_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -207,8 +190,8 @@ var getContractAt = function (contractNameOrABI, address, signer) {
                     result = _a.sent();
                     return [2 /*return*/, new ethers.Contract(address, result.artefact.abi, signer || (new ethers.providers.Web3Provider(web3Provider)).getSigner())];
                 case 3:
-                    e_2 = _a.sent();
-                    throw e_2;
+                    e_1 = _a.sent();
+                    throw e_1;
                 case 4: return [3 /*break*/, 6];
                 case 5: return [2 /*return*/, new ethers.Contract(address, contractNameOrABI, signer || (new ethers.providers.Web3Provider(web3Provider)).getSigner())];
                 case 6: return [2 /*return*/];

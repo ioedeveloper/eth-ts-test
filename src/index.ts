@@ -57,7 +57,7 @@ async function execute () {
           await fs.cp('dist/' + file, testPath + '/remix_deps/' + file)
         })
         for (const testFile of testFiles) {
-          await main(`${testPath}/${testFile}`)
+          await main(`${testPath}/${testFile}`, contractPath)
         }
       }
     } else {
@@ -131,7 +131,7 @@ async function compileContract (contractPath: string, settings: CompileSettings)
 }
 
 // Transpile and execute test files
-async function main (filePath: string): Promise<void> {
+async function main (filePath: string, contractPath: string): Promise<void> {
   try {
     // TODO: replace regex globally
     let testFileContent = await fs.readFile(filePath, 'utf8')
@@ -139,22 +139,29 @@ async function main (filePath: string): Promise<void> {
     const hardhatEthersRequireRegex = /const\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|let\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|const\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers|let\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers/g
     const hardhatImportIndex = testFileContent.search(hardhatEthersImportRegex)
     const hardhatRequireIndex = testFileContent.search(hardhatEthersRequireRegex)
+    const describeIndex = testFileContent.search('describe')
+    
     console.log('hardhatImportIndex', hardhatImportIndex)
     console.log('hardhatRequireIndex', hardhatRequireIndex)
+    console.log('describeIndex', describeIndex)
+    if (describeIndex === -1) {
+      throw new Error(`No describe function found in ${filePath}. Please wrap your tests in a describe function.`)
+    } else {
+      testFileContent = `${testFileContent.slice(0, describeIndex)}\n ethers.remixContractArtefactsPath = ${contractPath}; \n${testFileContent.slice(describeIndex)}`
+      if (hardhatImportIndex > -1) {
+        testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'import { ethers } from \'./remix_deps/ethers\'')
+        console.log('testFileContent', testFileContent)
+      } else if (hardhatRequireIndex > -1) {
+        testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'const { ethers } = require(\'./remix_deps/ethers\')')
+        console.log('testFileContent', testFileContent)
+      }
+      const testFile = transpileScript(testFileContent)
 
-    if (hardhatImportIndex > -1) {
-      testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'import { ethers } from \'./remix_deps/ethers\'')
-      console.log('testFileContent', testFileContent)
-    } else if (hardhatRequireIndex > -1) {
-      testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'const { ethers } = require(\'./remix_deps/ethers\')')
-      console.log('testFileContent', testFileContent)
+      filePath = filePath.replace('.ts', '.js')
+      await fs.writeFile(filePath, testFile.outputText)
+      await setupRunEnv()
+      runTest(filePath)
     }
-    const testFile = transpileScript(testFileContent)
-
-    filePath = filePath.replace('.ts', '.js')
-    await fs.writeFile(filePath, testFile.outputText)
-    await setupRunEnv()
-    runTest(filePath)
   } catch (error) {
     core.setFailed(error.message)
   }
