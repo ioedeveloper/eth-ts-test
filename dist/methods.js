@@ -168,7 +168,7 @@ var getContractFactory = function (contractNameOrABI, bytecode, signerOrOptions)
     if (signerOrOptions === void 0) { signerOrOptions = null; }
     return __awaiter(void 0, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            console.log('ethers.remixContractArtefactsPath: ', ethers.remixContractArtefactsPath);
+            console.log('global.remixContractArtefactsPath: ', remixContractArtefactsPath);
             return [2 /*return*/, new ethers.ContractFactory(contractNameOrABI, bytecode, signerOrOptions || (new ethers.providers.Web3Provider(web3Provider)).getSigner())];
         });
     });

@@ -149,7 +149,7 @@ const resultToArtifact = (result) => {
 }
 
 const getContractFactory = async (contractNameOrABI, bytecode=null, signerOrOptions = null) => {
-  console.log('ethers.remixContractArtefactsPath: ', ethers.remixContractArtefactsPath)
+  console.log('global.remixContractArtefactsPath: ', remixContractArtefactsPath)
   return new ethers.ContractFactory(contractNameOrABI, bytecode, signerOrOptions || (new ethers.providers.Web3Provider(web3Provider)).getSigner())
 }
 
