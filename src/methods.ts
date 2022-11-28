@@ -159,8 +159,9 @@ const getContractFactory = async (contractNameOrABI, bytecode=null, signerOrOpti
   for (const artefactFile of contractArtefacts) {
     const artefact = await fs.readFile(path.join(global.remixContractArtefactsPath, artefactFile), 'utf-8')
     const artefactJSON = JSON.parse(artefact)
-    const contract = (Object.keys(artefactJSON.contracts)).find((contractName) => artefactJSON.contracts[contractName][contractNameOrABI])
-
+    const contractFullPath = (Object.keys(artefactJSON.contracts)).find((contractName) => artefactJSON.contracts[contractName][contractNameOrABI])
+    const contract = artefactJSON.contracts[contractFullPath!][contractNameOrABI]
+    
     if (contract) {
       console.log('contract: ', contract)
       console.log('contract.abi: ', contract.abi)

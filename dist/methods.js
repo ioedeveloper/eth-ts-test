@@ -203,14 +203,15 @@ var getContractFactory = function (contractNameOrABI, bytecode, signerOrOptions)
                 case 1:
                     contractArtefacts = _a.sent();
                     _loop_2 = function (artefactFile) {
-                        var artefact, artefactJSON, contract;
+                        var artefact, artefactJSON, contractFullPath, contract;
                         return __generator(this, function (_b) {
                             switch (_b.label) {
                                 case 0: return [4 /*yield*/, fs.readFile(path.join(global.remixContractArtefactsPath, artefactFile), 'utf-8')];
                                 case 1:
                                     artefact = _b.sent();
                                     artefactJSON = JSON.parse(artefact);
-                                    contract = (Object.keys(artefactJSON.contracts)).find(function (contractName) { return artefactJSON.contracts[contractName][contractNameOrABI]; });
+                                    contractFullPath = (Object.keys(artefactJSON.contracts)).find(function (contractName) { return artefactJSON.contracts[contractName][contractNameOrABI]; });
+                                    contract = artefactJSON.contracts[contractFullPath][contractNameOrABI];
                                     if (contract) {
                                         console.log('contract: ', contract);
                                         console.log('contract.abi: ', contract.abi);
