@@ -4,7 +4,9 @@ import * as hhEtherMethods from './methods'
 
 const remixSimulatorProvider = new Provider({ fork: null })
 
-remixSimulatorProvider.init()
+remixSimulatorProvider.init().then(() => {
+    remixSimulatorProvider.Accounts.resetAccounts()
+})
 // ethers.provider = new ethers.providers.Web3Provider(remixSimulatorProvider)
 for(const method in hhEtherMethods) Object.defineProperty(ethers, method, { value: hhEtherMethods[method]})
 global.remixProvider = remixSimulatorProvider

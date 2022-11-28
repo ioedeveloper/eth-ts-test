@@ -29,7 +29,9 @@ Object.defineProperty(exports, "ethers", { enumerable: true, get: function () { 
 var remix_simulator_1 = require("@remix-project/remix-simulator");
 var hhEtherMethods = __importStar(require("./methods"));
 var remixSimulatorProvider = new remix_simulator_1.Provider({ fork: null });
-remixSimulatorProvider.init();
+remixSimulatorProvider.init().then(function () {
+    remixSimulatorProvider.Accounts.resetAccounts();
+});
 // ethers.provider = new ethers.providers.Web3Provider(remixSimulatorProvider)
 for (var method in hhEtherMethods)
     Object.defineProperty(ethers_1.ethers, method, { value: hhEtherMethods[method] });
