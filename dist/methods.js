@@ -71,6 +71,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getContractFactory = exports.getContractAt = exports.getSigner = exports.getSigners = exports.getContractFactoryFromArtifact = exports.getContractAtFromArtifact = void 0;
 var fs = __importStar(require("fs/promises"));
 var path = __importStar(require("path"));
+var remix_simulator_1 = require("@remix-project/remix-simulator");
 var ethers_1 = require("ethers");
 var signer_1 = require("./signer");
 var isFactoryOptions = function (signerOrOptions) {
@@ -213,7 +214,7 @@ var getContractFactory = function (contractNameOrABI, bytecode, signerOrOptions)
                                     contractFullPath = (Object.keys(artefactJSON.contracts)).find(function (contractName) { return artefactJSON.contracts[contractName][contractNameOrABI]; });
                                     contract = artefactJSON.contracts[contractFullPath][contractNameOrABI];
                                     if (contract) {
-                                        return [2 /*return*/, { value: new ethers_1.ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers_1.ethers.providers.Web3Provider(web3Provider)).getSigner()) }];
+                                        return [2 /*return*/, { value: new ethers_1.ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers_1.ethers.providers.Web3Provider(new remix_simulator_1.Provider())).getSigner()) }];
                                     }
                                     return [2 /*return*/];
                             }

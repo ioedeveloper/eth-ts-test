@@ -1,5 +1,6 @@
 import * as fs from 'fs/promises'
 import * as path from 'path'
+import { Provider } from '@remix-project/remix-simulator'
 import { ethers } from "ethers"
 import { SignerWithAddress } from './signer'
 
@@ -163,7 +164,7 @@ const getContractFactory = async (contractNameOrABI, bytecode=null, signerOrOpti
     const contract = artefactJSON.contracts[contractFullPath!][contractNameOrABI]
 
     if (contract) {
-      return new ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers.providers.Web3Provider(web3Provider)).getSigner())
+      return new ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers.providers.Web3Provider(new Provider())).getSigner())
     }
   }
   throw new Error('Contract artefact not found')
