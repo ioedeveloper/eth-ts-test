@@ -191,7 +191,6 @@ var resultToArtifact = function (result) {
     };
 };
 var getContractFactory = function (contractNameOrABI, bytecode, signerOrOptions) {
-    if (bytecode === void 0) { bytecode = null; }
     if (signerOrOptions === void 0) { signerOrOptions = null; }
     return __awaiter(void 0, void 0, void 0, function () {
         var contractArtefacts, _loop_2, _i, contractArtefacts_1, artefactFile, state_1;
@@ -234,7 +233,7 @@ var getContractFactory = function (contractNameOrABI, bytecode, signerOrOptions)
                 case 4:
                     _i++;
                     return [3 /*break*/, 2];
-                case 5: throw new Error('Contract artefact not found');
+                case 5: throw new Error('Contract artefacts not found');
             }
         });
     });
