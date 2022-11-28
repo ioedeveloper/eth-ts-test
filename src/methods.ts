@@ -163,10 +163,7 @@ const getContractFactory = async (contractNameOrABI, bytecode=null, signerOrOpti
     const contract = artefactJSON.contracts[contractFullPath!][contractNameOrABI]
 
     if (contract) {
-      console.log('contract: ', contract)
-      console.log('contract.abi: ', contract.abi)
-      console.log('contract.bytecode: ', contract.evm.bytecode.object)
-      return new ethers.ContractFactory(contract.abi, contract.bytecode.object, signerOrOptions || (new ethers.providers.Web3Provider(web3Provider)).getSigner())
+      return new ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers.providers.Web3Provider(web3Provider)).getSigner())
     }
   }
   throw new Error('Contract artefact not found')
