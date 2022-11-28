@@ -147,7 +147,7 @@ async function main (filePath: string, contractPath: string): Promise<void> {
     if (describeIndex === -1) {
       throw new Error(`No describe function found in ${filePath}. Please wrap your tests in a describe function.`)
     } else {
-      testFileContent = `${testFileContent.slice(0, describeIndex)}\n ethers.remixContractArtefactsPath = ${contractPath}; \n${testFileContent.slice(describeIndex)}`
+      testFileContent = `${testFileContent.slice(0, describeIndex)}\nethers.remixContractArtefactsPath = "${contractPath}/artifacts"; \n${testFileContent.slice(describeIndex)}`
       if (hardhatImportIndex > -1) {
         testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'import { ethers } from \'./remix_deps/ethers\'')
         console.log('testFileContent', testFileContent)

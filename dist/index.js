@@ -310,7 +310,7 @@ function main(filePath, contractPath) {
                     if (!(describeIndex === -1)) return [3 /*break*/, 2];
                     throw new Error("No describe function found in ".concat(filePath, ". Please wrap your tests in a describe function."));
                 case 2:
-                    testFileContent = "".concat(testFileContent.slice(0, describeIndex), "\n ethers.remixContractArtefactsPath = ").concat(contractPath, "; \n").concat(testFileContent.slice(describeIndex));
+                    testFileContent = "".concat(testFileContent.slice(0, describeIndex), "\nethers.remixContractArtefactsPath = \"").concat(contractPath, "/artifacts\"; \n").concat(testFileContent.slice(describeIndex));
                     if (hardhatImportIndex > -1) {
                         testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'import { ethers } from \'./remix_deps/ethers\'');
                         console.log('testFileContent', testFileContent);
