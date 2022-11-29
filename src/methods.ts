@@ -175,29 +175,37 @@ const getContractFactory = async (contractNameOrABI: ethers.ContractInterface, b
 
 const getContractAt = async (contractNameOrABI: ethers.ContractInterface, address: string, signer = null) => {
   if (!global.remixProvider.Transactions.txRunnerInstance) await remixProvider.init()
+  const provider = new ethers.providers.Web3Provider(remixProvider)
+
   if(typeof contractNameOrABI === 'string') {
     try {
       const result = await getArtefactsByContractName(contractNameOrABI)
       
       if (result) {
-        return new ethers.Contract(address, result.abi, signer || (new ethers.providers.Web3Provider(remixProvider)).getSigner())
+        return new ethers.Contract(address, result.abi, signer || provider.getSigner())
       } else {
               throw new Error('Contract artefacts not found')
       }
     } catch(e) { throw e }
   } else {
-    return new ethers.Contract(address, contractNameOrABI, signer || (new ethers.providers.Web3Provider(remixProvider)).getSigner())
+    return new ethers.Contract(address, contractNameOrABI, signer || provider.getSigner())
   }
 }
 
-const getSigner = async (address) => {
-  const signer = window.hardhat.ethers.provider.getSigner(address)
+const getSigner = async (address: string) => {
+  if (!global.remixProvider.Transactions.txRunnerInstance) await remixProvider.init()
+  const provider = new ethers.providers.Web3Provider(remixProvider)
+  const signer = provider.getSigner(address)
+
   return SignerWithAddress.create(signer)
 }
 
 const getSigners = async () => {
+  if (!global.remixProvider.Transactions.txRunnerInstance) await remixProvider.init()
   try {
-    const accounts = await window.hardhat.ethers.provider.listAccounts()
+    const provider = new ethers.providers.Web3Provider(remixProvider)
+    const accounts = await provider.listAccounts()
+
     return await Promise.all( accounts.map((account) => getSigner(account)))
   } catch(err) { throw err }
 }

@@ -202,7 +202,7 @@ exports.getContractFactory = getContractFactory;
 var getContractAt = function (contractNameOrABI, address, signer) {
     if (signer === void 0) { signer = null; }
     return __awaiter(void 0, void 0, void 0, function () {
-        var result, e_1;
+        var provider, result, e_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -212,6 +212,7 @@ var getContractAt = function (contractNameOrABI, address, signer) {
                     _a.sent();
                     _a.label = 2;
                 case 2:
+                    provider = new ethers_1.ethers.providers.Web3Provider(remixProvider);
                     if (!(typeof contractNameOrABI === 'string')) return [3 /*break*/, 7];
                     _a.label = 3;
                 case 3:
@@ -220,7 +221,7 @@ var getContractAt = function (contractNameOrABI, address, signer) {
                 case 4:
                     result = _a.sent();
                     if (result) {
-                        return [2 /*return*/, new ethers_1.ethers.Contract(address, result.abi, signer || (new ethers_1.ethers.providers.Web3Provider(remixProvider)).getSigner())];
+                        return [2 /*return*/, new ethers_1.ethers.Contract(address, result.abi, signer || provider.getSigner())];
                     }
                     else {
                         throw new Error('Contract artefacts not found');
@@ -230,7 +231,7 @@ var getContractAt = function (contractNameOrABI, address, signer) {
                     e_1 = _a.sent();
                     throw e_1;
                 case 6: return [3 /*break*/, 8];
-                case 7: return [2 /*return*/, new ethers_1.ethers.Contract(address, contractNameOrABI, signer || (new ethers_1.ethers.providers.Web3Provider(remixProvider)).getSigner())];
+                case 7: return [2 /*return*/, new ethers_1.ethers.Contract(address, contractNameOrABI, signer || provider.getSigner())];
                 case 8: return [2 /*return*/];
             }
         });
@@ -238,28 +239,45 @@ var getContractAt = function (contractNameOrABI, address, signer) {
 };
 exports.getContractAt = getContractAt;
 var getSigner = function (address) { return __awaiter(void 0, void 0, void 0, function () {
-    var signer;
+    var provider, signer;
     return __generator(this, function (_a) {
-        signer = window.hardhat.ethers.provider.getSigner(address);
-        return [2 /*return*/, signer_1.SignerWithAddress.create(signer)];
+        switch (_a.label) {
+            case 0:
+                if (!!global.remixProvider.Transactions.txRunnerInstance) return [3 /*break*/, 2];
+                return [4 /*yield*/, remixProvider.init()];
+            case 1:
+                _a.sent();
+                _a.label = 2;
+            case 2:
+                provider = new ethers_1.ethers.providers.Web3Provider(remixProvider);
+                signer = provider.getSigner(address);
+                return [2 /*return*/, signer_1.SignerWithAddress.create(signer)];
+        }
     });
 }); };
 exports.getSigner = getSigner;
 var getSigners = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var accounts, err_1;
+    var provider, accounts, err_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 3, , 4]);
-                return [4 /*yield*/, window.hardhat.ethers.provider.listAccounts()];
+                if (!!global.remixProvider.Transactions.txRunnerInstance) return [3 /*break*/, 2];
+                return [4 /*yield*/, remixProvider.init()];
             case 1:
+                _a.sent();
+                _a.label = 2;
+            case 2:
+                _a.trys.push([2, 5, , 6]);
+                provider = new ethers_1.ethers.providers.Web3Provider(remixProvider);
+                return [4 /*yield*/, provider.listAccounts()];
+            case 3:
                 accounts = _a.sent();
                 return [4 /*yield*/, Promise.all(accounts.map(function (account) { return getSigner(account); }))];
-            case 2: return [2 /*return*/, _a.sent()];
-            case 3:
+            case 4: return [2 /*return*/, _a.sent()];
+            case 5:
                 err_1 = _a.sent();
                 throw err_1;
-            case 4: return [2 /*return*/];
+            case 6: return [2 /*return*/];
         }
     });
 }); };
