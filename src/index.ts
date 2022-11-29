@@ -53,7 +53,7 @@ async function execute () {
       const testFiles = await fs.readdir(testPath)
 
       if (testFiles.length > 0) {
-        (['ethers.js', 'methods.js', 'signer.js']).forEach(async (file: string) => {
+        (['ethers.js', 'methods.js', 'signer.js', 'artefacts-helper.js']).forEach(async (file: string) => {
           await fs.cp('dist/' + file, testPath + '/remix_deps/' + file)
         })
         for (const testFile of testFiles) {
