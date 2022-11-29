@@ -1,4 +1,12 @@
+import { Provider } from '@remix-project/remix-simulator'
+import { ethers } from "ethers"
+import { getArtefactsByContractName } from './artefacts-helper';
 import { SignerWithAddress } from './signer'
+
+  // global.remixContractArtefactsPath is injected into the global scope during test files build. It save the path to the artefacts folder.
+declare global {
+  var remixProvider: Provider
+}
 
 const isFactoryOptions = (signerOrOptions) => {
   if (!signerOrOptions || signerOrOptions === undefined || signerOrOptions instanceof ethers.Signer) return false
@@ -148,25 +156,37 @@ const resultToArtifact = (result) => {
   }
 }
 
-const getContractFactory = async (contractNameOrABI, bytecode=null, signerOrOptions = null) => {
-  if(typeof contractNameOrABI === 'string') {
-    try {
-      const result = await window.remix.call('compilerArtefacts', 'getArtefactsByContractName', contractNameOrABI)
-      return await getContractFactoryFromArtifact(resultToArtifact(result), signerOrOptions)
-    } catch(e) { throw e }
+const getContractFactory = async (contractNameOrABI: ethers.ContractInterface, bytecode?: string, signerOrOptions = null) => {
+  if (!global.remixProvider.Transactions.txRunnerInstance) await remixProvider.init()
+  if (bytecode && contractNameOrABI) {
+    return new ethers.ContractFactory(contractNameOrABI, bytecode, signerOrOptions || (new ethers.providers.Web3Provider(remixProvider)).getSigner())
+  } else if (typeof contractNameOrABI === 'string') {
+    const contract = await getArtefactsByContractName(contractNameOrABI)
+
+    if (contract) {
+      return new ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers.providers.Web3Provider(remixProvider)).getSigner())
+    } else {
+      throw new Error('Contract artefacts not found')
+    }
   } else {
-    return new ethers.ContractFactory(contractNameOrABI, bytecode, signerOrOptions || (new ethers.providers.Web3Provider(web3Provider)).getSigner())
+    throw new Error('Invalid contract name or ABI provided')
   }
 }
 
-const getContractAt = async (contractNameOrABI, address, signer = null) => {
+const getContractAt = async (contractNameOrABI: ethers.ContractInterface, address: string, signer = null) => {
+  if (!global.remixProvider.Transactions.txRunnerInstance) await remixProvider.init()
   if(typeof contractNameOrABI === 'string') {
     try {
-      const result = await window.remix.call('compilerArtefacts', 'getArtefactsByContractName', contractNameOrABI)
-      return new ethers.Contract(address, result.artefact.abi, signer || (new ethers.providers.Web3Provider(web3Provider)).getSigner())
+      const result = await getArtefactsByContractName(contractNameOrABI)
+      
+      if (result) {
+        return new ethers.Contract(address, result.abi, signer || (new ethers.providers.Web3Provider(remixProvider)).getSigner())
+      } else {
+              throw new Error('Contract artefacts not found')
+      }
     } catch(e) { throw e }
   } else {
-    return new ethers.Contract(address, contractNameOrABI, signer || (new ethers.providers.Web3Provider(web3Provider)).getSigner())
+    return new ethers.Contract(address, contractNameOrABI, signer || (new ethers.providers.Web3Provider(remixProvider)).getSigner())
   }
 }
 

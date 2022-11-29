@@ -58,6 +58,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var core = __importStar(require("@actions/core"));
 var fs = __importStar(require("fs/promises"));
@@ -65,18 +68,79 @@ var fs_1 = require("fs");
 var path = __importStar(require("path"));
 var cli = __importStar(require("@actions/exec"));
 var ts = __importStar(require("typescript"));
+var remix_solidity_1 = require("@remix-project/remix-solidity");
+var remix_url_resolver_1 = require("@remix-project/remix-url-resolver");
+var axios_1 = __importDefault(require("axios"));
 function execute() {
     return __awaiter(this, void 0, void 0, function () {
-        var testPath, artifactPath, isTestPathDirectory;
+        var testPath, contractPath, compilerVersion, isTestPathDirectory, isContractPathDirectory, compileSettings;
         var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     testPath = core.getInput('test-path');
-                    artifactPath = core.getInput('artifact-path');
+                    contractPath = core.getInput('contract-path');
+                    compilerVersion = core.getInput('compiler-version');
                     return [4 /*yield*/, fs.stat(testPath)];
                 case 1:
                     isTestPathDirectory = (_a.sent()).isDirectory();
+                    return [4 /*yield*/, fs.stat(contractPath)];
+                case 2:
+                    isContractPathDirectory = (_a.sent()).isDirectory();
+                    compileSettings = {
+                        optimize: true,
+                        evmVersion: null,
+                        runs: 200,
+                        version: compilerVersion
+                    };
+                    // compile smart contracts to run tests on.
+                    return [4 /*yield*/, core.group("Compile contracts", function () { return __awaiter(_this, void 0, void 0, function () {
+                            var contractFiles, _i, contractFiles_1, file;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        if (!isContractPathDirectory) return [3 /*break*/, 10];
+                                        return [4 /*yield*/, fs.readdir(contractPath)];
+                                    case 1:
+                                        contractFiles = _a.sent();
+                                        if (!(contractFiles.length > 0)) return [3 /*break*/, 8];
+                                        _i = 0, contractFiles_1 = contractFiles;
+                                        _a.label = 2;
+                                    case 2:
+                                        if (!(_i < contractFiles_1.length)) return [3 /*break*/, 5];
+                                        file = contractFiles_1[_i];
+                                        return [4 /*yield*/, compileContract("".concat(contractPath, "/").concat(file), compileSettings)];
+                                    case 3:
+                                        _a.sent();
+                                        _a.label = 4;
+                                    case 4:
+                                        _i++;
+                                        return [3 /*break*/, 2];
+                                    case 5: return [4 /*yield*/, cli.exec('ls', [contractPath])];
+                                    case 6:
+                                        _a.sent();
+                                        return [4 /*yield*/, cli.exec('ls', ["".concat(contractPath, "/artifacts")])];
+                                    case 7:
+                                        _a.sent();
+                                        return [3 /*break*/, 9];
+                                    case 8:
+                                        core.setFailed('No contract files found');
+                                        _a.label = 9;
+                                    case 9: return [3 /*break*/, 12];
+                                    case 10: return [4 /*yield*/, compileContract(contractPath, compileSettings)];
+                                    case 11:
+                                        _a.sent();
+                                        _a.label = 12;
+                                    case 12: return [2 /*return*/];
+                                }
+                            });
+                        }); })
+                        // Move remix dependencies to test folder and transpile test files. Then run tests.
+                    ];
+                case 3:
+                    // compile smart contracts to run tests on.
+                    _a.sent();
+                    // Move remix dependencies to test folder and transpile test files. Then run tests.
                     return [4 /*yield*/, core.group("Run tests", function () { return __awaiter(_this, void 0, void 0, function () {
                             var testFiles, _i, testFiles_1, testFile;
                             var _this = this;
@@ -88,10 +152,10 @@ function execute() {
                                     case 1:
                                         testFiles = _a.sent();
                                         if (!(testFiles.length > 0)) return [3 /*break*/, 5];
-                                        (['ethers.js', 'methods.js', 'signer.js']).forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
+                                        (['ethers.js', 'methods.js', 'signer.js', 'artefacts-helper.js']).forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
                                             return __generator(this, function (_a) {
                                                 switch (_a.label) {
-                                                    case 0: return [4 /*yield*/, fs.cp(path.resolve('dist/' + file), path.resolve(testPath + '/remix_deps/' + file))];
+                                                    case 0: return [4 /*yield*/, fs.cp('dist/' + file, testPath + '/remix_deps/' + file)];
                                                     case 1:
                                                         _a.sent();
                                                         return [2 /*return*/];
@@ -103,7 +167,7 @@ function execute() {
                                     case 2:
                                         if (!(_i < testFiles_1.length)) return [3 /*break*/, 5];
                                         testFile = testFiles_1[_i];
-                                        return [4 /*yield*/, main("".concat(testPath, "/").concat(testFile))];
+                                        return [4 /*yield*/, main("".concat(testPath, "/").concat(testFile), contractPath)];
                                     case 3:
                                         _a.sent();
                                         _a.label = 4;
@@ -111,7 +175,7 @@ function execute() {
                                         _i++;
                                         return [3 /*break*/, 2];
                                     case 5: return [3 /*break*/, 8];
-                                    case 6: return [4 /*yield*/, main(testPath)];
+                                    case 6: return [4 /*yield*/, main(testPath, contractPath)];
                                     case 7:
                                         _a.sent();
                                         _a.label = 8;
@@ -119,16 +183,114 @@ function execute() {
                                 }
                             });
                         }); })];
-                case 2:
+                case 4:
+                    // Move remix dependencies to test folder and transpile test files. Then run tests.
                     _a.sent();
                     return [2 /*return*/];
             }
         });
     });
 }
-function main(filePath) {
+// Compile single smart contract
+function compileContract(contractPath, settings) {
     return __awaiter(this, void 0, void 0, function () {
-        var testFileContent, importIndex, testFile, error_1;
+        var contract, compilationTargets, remixCompiler, compilerList, releases, compilerUrl_1;
+        var _a;
+        var _this = this;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, fs.readFile(contractPath, 'utf8')];
+                case 1:
+                    contract = _b.sent();
+                    compilationTargets = (_a = {}, _a[contractPath] = { content: contract }, _a);
+                    remixCompiler = new remix_solidity_1.Compiler(function (url, cb) { return __awaiter(_this, void 0, void 0, function () {
+                        var importContent, resolver, result, e_1;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    _a.trys.push([0, 6, , 7]);
+                                    return [4 /*yield*/, (0, fs_1.existsSync)(url)];
+                                case 1:
+                                    if (!_a.sent()) return [3 /*break*/, 3];
+                                    return [4 /*yield*/, fs.readFile(url, 'utf8')];
+                                case 2:
+                                    importContent = _a.sent();
+                                    cb(null, importContent);
+                                    return [3 /*break*/, 5];
+                                case 3:
+                                    resolver = new remix_url_resolver_1.RemixURLResolver();
+                                    return [4 /*yield*/, resolver.resolve(url)];
+                                case 4:
+                                    result = _a.sent();
+                                    cb(null, result.content);
+                                    _a.label = 5;
+                                case 5: return [3 /*break*/, 7];
+                                case 6:
+                                    e_1 = _a.sent();
+                                    cb(e_1.message);
+                                    return [3 /*break*/, 7];
+                                case 7: return [2 /*return*/];
+                            }
+                        });
+                    }); });
+                    return [4 /*yield*/, axios_1.default.get('https://raw.githubusercontent.com/ethereum/solc-bin/gh-pages/bin/list.json')];
+                case 2:
+                    compilerList = _b.sent();
+                    releases = compilerList.data.releases;
+                    if (releases[settings.version]) {
+                        compilerUrl_1 = releases[settings.version].replace('soljson-', '').replace('.js', '');
+                        remixCompiler.set('evmVersion', settings.evmVersion);
+                        remixCompiler.set('optimize', settings.optimize);
+                        remixCompiler.set('runs', 200);
+                        return [2 /*return*/, new Promise(function (resolve, reject) {
+                                var intervalId;
+                                remixCompiler.loadRemoteVersion(compilerUrl_1);
+                                remixCompiler.event.register('compilerLoaded', function () {
+                                    remixCompiler.compile(compilationTargets, contractPath);
+                                    // use setInterval to keep gh-action process alive in other for compilation to finish
+                                    process.stdout.write('Compiling');
+                                    intervalId = setInterval(function () {
+                                        process.stdout.write('.');
+                                    }, 1000);
+                                });
+                                remixCompiler.event.register('compilationFinished', function (success, data, source) { return __awaiter(_this, void 0, void 0, function () {
+                                    var contractName, artifactsPath;
+                                    return __generator(this, function (_a) {
+                                        switch (_a.label) {
+                                            case 0:
+                                                if (!success) return [3 /*break*/, 4];
+                                                contractName = path.basename(contractPath, '.sol');
+                                                artifactsPath = "".concat(path.dirname(contractPath), "/artifacts");
+                                                if (!!(0, fs_1.existsSync)(artifactsPath)) return [3 /*break*/, 2];
+                                                return [4 /*yield*/, fs.mkdir(artifactsPath)];
+                                            case 1:
+                                                _a.sent();
+                                                _a.label = 2;
+                                            case 2: return [4 /*yield*/, fs.writeFile("".concat(artifactsPath, "/").concat(contractName, ".json"), JSON.stringify(data, null, 2))];
+                                            case 3:
+                                                _a.sent();
+                                                clearInterval(intervalId);
+                                                return [2 /*return*/, resolve()];
+                                            case 4:
+                                                clearInterval(intervalId);
+                                                return [2 /*return*/, reject('Compilation failed')];
+                                        }
+                                    });
+                                }); });
+                            })];
+                    }
+                    else {
+                        throw new Error('Compiler version not found');
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+// Transpile and execute test files
+function main(filePath, contractPath) {
+    return __awaiter(this, void 0, void 0, function () {
+        var testFileContent, hardhatEthersImportRegex, hardhatEthersRequireRegex, hardhatImportIndex, hardhatRequireIndex, describeIndex, testFile, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -136,12 +298,21 @@ function main(filePath) {
                     return [4 /*yield*/, fs.readFile(filePath, 'utf8')];
                 case 1:
                     testFileContent = _a.sent();
-                    testFileContent = "import { ethersRemix } from './remix_deps/ethers' \n".concat(testFileContent);
-                    importIndex = testFileContent.search('describe');
-                    if (!(importIndex === -1)) return [3 /*break*/, 2];
+                    hardhatEthersImportRegex = /import\s+{ ethers }\s+from\s+['"]hardhat['"]|import { * as ethers } from 'hardhat\/ethers'|import\s+ethers\s+from\s+['"]hardhat\/ethers['"]/;
+                    hardhatEthersRequireRegex = /const\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|let\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|const\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers|let\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers/g;
+                    hardhatImportIndex = testFileContent.search(hardhatEthersImportRegex);
+                    hardhatRequireIndex = testFileContent.search(hardhatEthersRequireRegex);
+                    describeIndex = testFileContent.search('describe');
+                    if (!(describeIndex === -1)) return [3 /*break*/, 2];
                     throw new Error("No describe function found in ".concat(filePath, ". Please wrap your tests in a describe function."));
                 case 2:
-                    testFileContent = "".concat(testFileContent.slice(0, importIndex), "\n ethers = ethersRemix; \n").concat(testFileContent.slice(importIndex));
+                    testFileContent = "".concat(testFileContent.slice(0, describeIndex), "\nglobal.remixContractArtefactsPath = \"").concat(contractPath, "/artifacts\"; \n").concat(testFileContent.slice(describeIndex));
+                    if (hardhatImportIndex > -1) {
+                        testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'import { ethers } from \'./remix_deps/ethers\'');
+                    }
+                    else if (hardhatRequireIndex > -1) {
+                        testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'const { ethers } = require(\'./remix_deps/ethers\')');
+                    }
                     testFile = transpileScript(testFileContent);
                     filePath = filePath.replace('.ts', '.js');
                     return [4 /*yield*/, fs.writeFile(filePath, testFile.outputText)];
@@ -162,6 +333,7 @@ function main(filePath) {
         });
     });
 }
+// Setup environment for running tests
 function setupRunEnv() {
     return __awaiter(this, void 0, void 0, function () {
         var workingDirectory, yarnLock, isYarnRepo, packageLock, isNPMrepo;
@@ -198,6 +370,7 @@ function setupRunEnv() {
         });
     });
 }
+// Run tests
 function runTest(filePath) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -210,6 +383,7 @@ function runTest(filePath) {
         });
     });
 }
+// Transpile test scripts
 function transpileScript(script) {
     var output = ts.transpileModule(script, { compilerOptions: {
             target: ts.ScriptTarget.ES2015,
