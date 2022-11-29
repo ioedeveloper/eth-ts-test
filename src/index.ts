@@ -61,7 +61,7 @@ async function execute () {
         }
       }
     } else {
-      await main(testPath)
+      await main(testPath, contractPath)
     }
   })
 }

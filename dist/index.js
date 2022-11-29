@@ -175,7 +175,7 @@ function execute() {
                                         _i++;
                                         return [3 /*break*/, 2];
                                     case 5: return [3 /*break*/, 8];
-                                    case 6: return [4 /*yield*/, main(testPath)];
+                                    case 6: return [4 /*yield*/, main(testPath, contractPath)];
                                     case 7:
                                         _a.sent();
                                         _a.label = 8;

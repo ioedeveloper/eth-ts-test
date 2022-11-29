@@ -1,27 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -69,9 +46,8 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getContractFactory = exports.getContractAt = exports.getSigner = exports.getSigners = exports.getContractFactoryFromArtifact = exports.getContractAtFromArtifact = void 0;
-var fs = __importStar(require("fs/promises"));
-var path = __importStar(require("path"));
 var ethers_1 = require("ethers");
+var artefacts_helper_1 = require("./artefacts-helper");
 var signer_1 = require("./signer");
 var isFactoryOptions = function (signerOrOptions) {
     if (!signerOrOptions || signerOrOptions === undefined || signerOrOptions instanceof ethers_1.ethers.Signer)
@@ -192,7 +168,7 @@ var resultToArtifact = function (result) {
 var getContractFactory = function (contractNameOrABI, bytecode, signerOrOptions) {
     if (signerOrOptions === void 0) { signerOrOptions = null; }
     return __awaiter(void 0, void 0, void 0, function () {
-        var contractArtefacts, _loop_2, _i, contractArtefacts_1, artefactFile, state_1;
+        var contract;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -202,47 +178,22 @@ var getContractFactory = function (contractNameOrABI, bytecode, signerOrOptions)
                     _a.sent();
                     _a.label = 2;
                 case 2:
-                    if (!bytecode) return [3 /*break*/, 3];
+                    if (!(bytecode && contractNameOrABI)) return [3 /*break*/, 3];
                     return [2 /*return*/, new ethers_1.ethers.ContractFactory(contractNameOrABI, bytecode, signerOrOptions || (new ethers_1.ethers.providers.Web3Provider(remixProvider)).getSigner())];
                 case 3:
-                    if (!(typeof contractNameOrABI === 'string')) return [3 /*break*/, 9];
-                    return [4 /*yield*/, fs.readdir(global.remixContractArtefactsPath)];
+                    if (!(typeof contractNameOrABI === 'string')) return [3 /*break*/, 5];
+                    return [4 /*yield*/, (0, artefacts_helper_1.getArtefactsByContractName)(contractNameOrABI)];
                 case 4:
-                    contractArtefacts = _a.sent();
-                    _loop_2 = function (artefactFile) {
-                        var artefact, artefactJSON, contractFullPath, contract;
-                        return __generator(this, function (_b) {
-                            switch (_b.label) {
-                                case 0: return [4 /*yield*/, fs.readFile(path.join(global.remixContractArtefactsPath, artefactFile), 'utf-8')];
-                                case 1:
-                                    artefact = _b.sent();
-                                    artefactJSON = JSON.parse(artefact);
-                                    contractFullPath = (Object.keys(artefactJSON.contracts)).find(function (contractName) { return artefactJSON.contracts[contractName][contractNameOrABI]; });
-                                    contract = artefactJSON.contracts[contractFullPath][contractNameOrABI];
-                                    if (contract) {
-                                        return [2 /*return*/, { value: new ethers_1.ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers_1.ethers.providers.Web3Provider(remixProvider)).getSigner()) }];
-                                    }
-                                    return [2 /*return*/];
-                            }
-                        });
-                    };
-                    _i = 0, contractArtefacts_1 = contractArtefacts;
-                    _a.label = 5;
-                case 5:
-                    if (!(_i < contractArtefacts_1.length)) return [3 /*break*/, 8];
-                    artefactFile = contractArtefacts_1[_i];
-                    return [5 /*yield**/, _loop_2(artefactFile)];
-                case 6:
-                    state_1 = _a.sent();
-                    if (typeof state_1 === "object")
-                        return [2 /*return*/, state_1.value];
-                    _a.label = 7;
-                case 7:
-                    _i++;
-                    return [3 /*break*/, 5];
-                case 8: return [3 /*break*/, 10];
-                case 9: throw new Error('Invalid contract name or ABI provided');
-                case 10: return [2 /*return*/];
+                    contract = _a.sent();
+                    if (contract) {
+                        return [2 /*return*/, new ethers_1.ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers_1.ethers.providers.Web3Provider(remixProvider)).getSigner())];
+                    }
+                    else {
+                        throw new Error('Contract artefacts not found');
+                    }
+                    return [3 /*break*/, 6];
+                case 5: throw new Error('Invalid contract name or ABI provided');
+                case 6: return [2 /*return*/];
             }
         });
     });
@@ -255,20 +206,32 @@ var getContractAt = function (contractNameOrABI, address, signer) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!(typeof contractNameOrABI === 'string')) return [3 /*break*/, 5];
-                    _a.label = 1;
+                    if (!!global.remixProvider.Transactions.txRunnerInstance) return [3 /*break*/, 2];
+                    return [4 /*yield*/, remixProvider.init()];
                 case 1:
-                    _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, window.remix.call('compilerArtefacts', 'getArtefactsByContractName', contractNameOrABI)];
+                    _a.sent();
+                    _a.label = 2;
                 case 2:
-                    result = _a.sent();
-                    return [2 /*return*/, new ethers_1.ethers.Contract(address, result.artefact.abi, signer || (new ethers_1.ethers.providers.Web3Provider(web3Provider)).getSigner())];
+                    if (!(typeof contractNameOrABI === 'string')) return [3 /*break*/, 7];
+                    _a.label = 3;
                 case 3:
+                    _a.trys.push([3, 5, , 6]);
+                    return [4 /*yield*/, (0, artefacts_helper_1.getArtefactsByContractName)(contractNameOrABI)];
+                case 4:
+                    result = _a.sent();
+                    if (result) {
+                        return [2 /*return*/, new ethers_1.ethers.Contract(address, result.abi, signer || (new ethers_1.ethers.providers.Web3Provider(remixProvider)).getSigner())];
+                    }
+                    else {
+                        throw new Error('Contract artefacts not found');
+                    }
+                    return [3 /*break*/, 6];
+                case 5:
                     e_1 = _a.sent();
                     throw e_1;
-                case 4: return [3 /*break*/, 6];
-                case 5: return [2 /*return*/, new ethers_1.ethers.Contract(address, contractNameOrABI, signer || (new ethers_1.ethers.providers.Web3Provider(web3Provider)).getSigner())];
-                case 6: return [2 /*return*/];
+                case 6: return [3 /*break*/, 8];
+                case 7: return [2 /*return*/, new ethers_1.ethers.Contract(address, contractNameOrABI, signer || (new ethers_1.ethers.providers.Web3Provider(remixProvider)).getSigner())];
+                case 8: return [2 /*return*/];
             }
         });
     });
