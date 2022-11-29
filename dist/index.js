@@ -295,11 +295,13 @@ function main(filePath, contractPath) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 6, , 7]);
-                    return [4 /*yield*/, fs.readFile(filePath, 'utf8')];
+                    return [4 /*yield*/, fs.readFile(filePath, 'utf8')
+                        // regex for const ethers = require('ethers').ethers
+                    ];
                 case 1:
                     testFileContent = _a.sent();
-                    hardhatEthersImportRegex = /import\s+{ ethers }\s+from\s+['"]hardhat['"]|import { * as ethers } from 'hardhat\/ethers'|import\s+ethers\s+from\s+['"]hardhat\/ethers['"]/;
-                    hardhatEthersRequireRegex = /const\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|let\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|const\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers|let\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers/g;
+                    hardhatEthersImportRegex = /import\s*{ \s*ethers \s*}\s*from\s*['"]hardhat['"]|import\s*{\s*\*\s*as\s*ethers\s*} from 'hardhat\/ethers'|import\s+ethers\s+from\s*['"]hardhat\/ethers['"]|import\s*{\s*ethers\s*\}\s*from\s*['"]ethers['"]|import\s*\{\s*\*\s*as\s*ethers\s*\}\sfrom\s+['"]ethers['"]|import\s+ethers\s+from\s+['"]ethers['"]/g;
+                    hardhatEthersRequireRegex = /const\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|let\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|const\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers|let\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers|const\s*\{\sethers\s\}\s=\srequire\(['"]ethers['"]\)|let\s*\{\s?ethers\s?\}\s?=\s?require\(['"]ethers['"]\)|const ethers = require\(['"]ethers['"]\)\.ethers|let ethers = require\(['"]ethers['"]\)\.ethers/g;
                     hardhatImportIndex = testFileContent.search(hardhatEthersImportRegex);
                     hardhatRequireIndex = testFileContent.search(hardhatEthersRequireRegex);
                     describeIndex = testFileContent.search('describe');

@@ -1,4 +1,4 @@
-import * as core from '@actions/core'
+import * as core from'@actions/core'
 import * as fs from 'fs/promises'
 import { existsSync } from 'fs'
 import * as path from 'path'
@@ -134,8 +134,9 @@ async function main (filePath: string, contractPath: string): Promise<void> {
   try {
     // TODO: replace regex globally
     let testFileContent = await fs.readFile(filePath, 'utf8')
-    const hardhatEthersImportRegex = /import\s+{ ethers }\s+from\s+['"]hardhat['"]|import { * as ethers } from 'hardhat\/ethers'|import\s+ethers\s+from\s+['"]hardhat\/ethers['"]/
-    const hardhatEthersRequireRegex = /const\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|let\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|const\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers|let\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers/g
+    // regex for const ethers = require('ethers').ethers
+    const hardhatEthersImportRegex = /import\s*{ \s*ethers \s*}\s*from\s*['"]hardhat['"]|import\s*{\s*\*\s*as\s*ethers\s*} from 'hardhat\/ethers'|import\s+ethers\s+from\s*['"]hardhat\/ethers['"]|import\s*{\s*ethers\s*\}\s*from\s*['"]ethers['"]|import\s*\{\s*\*\s*as\s*ethers\s*\}\sfrom\s+['"]ethers['"]|import\s+ethers\s+from\s+['"]ethers['"]/g
+    const hardhatEthersRequireRegex = /const\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|let\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|const\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers|let\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers|const\s*\{\sethers\s\}\s=\srequire\(['"]ethers['"]\)|let\s*\{\s?ethers\s?\}\s?=\s?require\(['"]ethers['"]\)|const ethers = require\(['"]ethers['"]\)\.ethers|let ethers = require\(['"]ethers['"]\)\.ethers/g
     const hardhatImportIndex = testFileContent.search(hardhatEthersImportRegex)
     const hardhatRequireIndex = testFileContent.search(hardhatEthersRequireRegex)
     const describeIndex = testFileContent.search('describe')
