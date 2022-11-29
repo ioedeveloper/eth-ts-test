@@ -78,8 +78,8 @@ function getArtefactsByContractName(contractIdentifier) {
                                 case 1:
                                     artefact = _b.sent();
                                     artefactJSON = JSON.parse(artefact);
-                                    contractFullPath = (Object.keys(artefactJSON.contracts)).find(function (contractName) { return artefactJSON.contracts[contractName][contractIdentifier]; });
-                                    contract = artefactJSON.contracts[contractFullPath][contractIdentifier];
+                                    contractFullPath = (Object.keys(artefactJSON.contracts)).find(function (contractName) { return artefactJSON.contracts[contractName] && artefactJSON.contracts[contractName][contractIdentifier]; });
+                                    contract = contractFullPath ? artefactJSON.contracts[contractFullPath][contractIdentifier] : undefined;
                                     return [2 /*return*/, { value: contract }];
                             }
                         });
