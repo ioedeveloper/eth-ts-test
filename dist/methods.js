@@ -196,10 +196,18 @@ var getContractFactory = function (contractNameOrABI, bytecode, signerOrOptions)
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    // global.remixContractArtefactsPath is injected into the global scope during test files build. It save the path to the artefacts folder.
-                    console.log('global.remixContractArtefactsPath: ', global.remixContractArtefactsPath);
-                    return [4 /*yield*/, fs.readdir(global.remixContractArtefactsPath)];
+                    if (!!global.remixProvider.Transactions.txRunnerInstance) return [3 /*break*/, 2];
+                    return [4 /*yield*/, remixProvider.init()];
                 case 1:
+                    _a.sent();
+                    _a.label = 2;
+                case 2:
+                    if (!bytecode) return [3 /*break*/, 3];
+                    return [2 /*return*/, new ethers_1.ethers.ContractFactory(contractNameOrABI, bytecode, signerOrOptions || (new ethers_1.ethers.providers.Web3Provider(remixProvider)).getSigner())];
+                case 3:
+                    if (!(typeof contractNameOrABI === 'string')) return [3 /*break*/, 9];
+                    return [4 /*yield*/, fs.readdir(global.remixContractArtefactsPath)];
+                case 4:
                     contractArtefacts = _a.sent();
                     _loop_2 = function (artefactFile) {
                         var artefact, artefactJSON, contractFullPath, contract;
@@ -212,27 +220,29 @@ var getContractFactory = function (contractNameOrABI, bytecode, signerOrOptions)
                                     contractFullPath = (Object.keys(artefactJSON.contracts)).find(function (contractName) { return artefactJSON.contracts[contractName][contractNameOrABI]; });
                                     contract = artefactJSON.contracts[contractFullPath][contractNameOrABI];
                                     if (contract) {
-                                        return [2 /*return*/, { value: new ethers_1.ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers_1.ethers.providers.Web3Provider(global.remixProvider)).getSigner()) }];
+                                        return [2 /*return*/, { value: new ethers_1.ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers_1.ethers.providers.Web3Provider(remixProvider)).getSigner()) }];
                                     }
                                     return [2 /*return*/];
                             }
                         });
                     };
                     _i = 0, contractArtefacts_1 = contractArtefacts;
-                    _a.label = 2;
-                case 2:
-                    if (!(_i < contractArtefacts_1.length)) return [3 /*break*/, 5];
+                    _a.label = 5;
+                case 5:
+                    if (!(_i < contractArtefacts_1.length)) return [3 /*break*/, 8];
                     artefactFile = contractArtefacts_1[_i];
                     return [5 /*yield**/, _loop_2(artefactFile)];
-                case 3:
+                case 6:
                     state_1 = _a.sent();
                     if (typeof state_1 === "object")
                         return [2 /*return*/, state_1.value];
-                    _a.label = 4;
-                case 4:
+                    _a.label = 7;
+                case 7:
                     _i++;
-                    return [3 /*break*/, 2];
-                case 5: throw new Error('Contract artefacts not found');
+                    return [3 /*break*/, 5];
+                case 8: return [3 /*break*/, 10];
+                case 9: throw new Error('Invalid contract name or ABI provided');
+                case 10: return [2 /*return*/];
             }
         });
     });

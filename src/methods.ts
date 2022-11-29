@@ -4,6 +4,7 @@ import { Provider } from '@remix-project/remix-simulator'
 import { ethers } from "ethers"
 import { SignerWithAddress } from './signer'
 
+  // global.remixContractArtefactsPath is injected into the global scope during test files build. It save the path to the artefacts folder.
 declare global {
   var remixContractArtefactsPath: string;
   var remixProvider: Provider
@@ -158,21 +159,25 @@ const resultToArtifact = (result) => {
 }
 
 const getContractFactory = async (contractNameOrABI: string, bytecode?: string, signerOrOptions = null) => {
-  // global.remixContractArtefactsPath is injected into the global scope during test files build. It save the path to the artefacts folder.
-  console.log('global.remixContractArtefactsPath: ', global.remixContractArtefactsPath)
-  const contractArtefacts = await fs.readdir(global.remixContractArtefactsPath)
+  if (!global.remixProvider.Transactions.txRunnerInstance) await remixProvider.init()
+  if (bytecode) {
+    return new ethers.ContractFactory(contractNameOrABI, bytecode, signerOrOptions || (new ethers.providers.Web3Provider(remixProvider)).getSigner())
+  } else if (typeof contractNameOrABI === 'string') {
+    const contractArtefacts = await fs.readdir(global.remixContractArtefactsPath)
 
-  for (const artefactFile of contractArtefacts) {
-    const artefact = await fs.readFile(path.join(global.remixContractArtefactsPath, artefactFile), 'utf-8')
-    const artefactJSON = JSON.parse(artefact)
-    const contractFullPath = (Object.keys(artefactJSON.contracts)).find((contractName) => artefactJSON.contracts[contractName][contractNameOrABI])
-    const contract = artefactJSON.contracts[contractFullPath!][contractNameOrABI]
+    for (const artefactFile of contractArtefacts) {
+      const artefact = await fs.readFile(path.join(global.remixContractArtefactsPath, artefactFile), 'utf-8')
+      const artefactJSON = JSON.parse(artefact)
+      const contractFullPath = (Object.keys(artefactJSON.contracts)).find((contractName) => artefactJSON.contracts[contractName][contractNameOrABI])
+      const contract = artefactJSON.contracts[contractFullPath!][contractNameOrABI]
 
-    if (contract) {
-      return new ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers.providers.Web3Provider(global.remixProvider)).getSigner())
+      if (contract) {
+        return new ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers.providers.Web3Provider(remixProvider)).getSigner())
+      }
     }
+  } else {
+    throw new Error('Invalid contract name or ABI provided')
   }
-  throw new Error('Contract artefacts not found')
 }
 
 const getContractAt = async (contractNameOrABI, address, signer = null) => {
