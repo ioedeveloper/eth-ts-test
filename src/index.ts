@@ -32,18 +32,24 @@ async function execute () {
   await core.group ("Compile contracts", async () => {
     if (isContractPathDirectory) {
       const contractFiles = await fs.readdir(contractPath)
+      const compilationTargets: Record<string, Record<'content', string>> = {}
 
       if (contractFiles.length > 0)  {
         for (const file of contractFiles) {
-          await compileContract(`${contractPath}/${file}`, compileSettings)
+            const contract = await fs.readFile(`${contractPath}/${file}`, 'utf8')
+
+            compilationTargets[`${contractPath}/${file}`] = { content: contract }
         }
+        await compileContract(compilationTargets, contractPath, compileSettings)
         await cli.exec('ls', [contractPath])
         await cli.exec('ls', [`${contractPath}/artifacts`])
       } else {
         core.setFailed('No contract files found')
       }
     } else {
-      await compileContract(contractPath, compileSettings)
+      const contract = await fs.readFile(contractPath, 'utf8')
+
+      await compileContract({ [contractPath]: { content: contract }}, path.resolve(contractPath, '..'), compileSettings)
     }
   })
 
@@ -79,9 +85,7 @@ async function execute () {
 }
 
 // Compile single smart contract
-async function compileContract (contractPath: string, settings: CompileSettings): Promise<void> {
-  const contract = await fs.readFile(contractPath, 'utf8')
-  const compilationTargets = { [contractPath]: { content: contract } }
+async function compileContract (compilationTargets: Record<string, Record<'content', string>>, contractPath: string, settings: CompileSettings): Promise<void> {
   const remixCompiler = new RemixCompiler(async (url: string, cb: (error: string | null, result?: string) => void) => {
     try {
       if(await existsSync(url)) {
@@ -121,8 +125,8 @@ async function compileContract (contractPath: string, settings: CompileSettings)
       })
       remixCompiler.event.register('compilationFinished', async (success: boolean, data: any, source: string) => {
         if (success) {
-          const contractName = path.basename(contractPath, '.sol')
-          const artifactsPath = `${path.dirname(contractPath)}/artifacts`
+          const contractName = path.basename(source, '.sol')
+          const artifactsPath = `${contractPath}/artifacts`
 
           if (!existsSync(artifactsPath)) await fs.mkdir(artifactsPath)
           await fs.writeFile(`${artifactsPath}/${contractName}.json`, JSON.stringify(data, null, 2))
