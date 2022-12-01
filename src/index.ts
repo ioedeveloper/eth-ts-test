@@ -60,11 +60,11 @@ async function execute () {
         for (const testFile of testFiles) {
           const filePath = await main(`${testPath}/${testFile}`, contractPath)
 
-          filesPaths.push(filePath)
+          if (filePath) filesPaths.push(filePath)
         }
         if (filesPaths.length > 0) {
           await setupRunEnv()
-          await runTest(filesPaths.join(' '))
+          await runTest(filesPaths)
         }
       }
     } else {
@@ -192,8 +192,12 @@ async function setupRunEnv (): Promise<void> {
 }
 
 // Run tests
-async function runTest (filePath: string): Promise<void> {
-  await cli.exec('npx', ['mocha', filePath, '--timeout', '10000'])
+async function runTest (filePath: string | string[]): Promise<void> {
+  if (Array.isArray(filePath)) {
+      await cli.exec('npx', ['mocha', ...filePath, '--timeout', '10000'])
+  } else {
+      await cli.exec('npx', ['mocha', filePath, '--timeout', '10000'])
+  }
 }
 
 // Transpile test scripts

@@ -58,6 +58,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -171,7 +180,8 @@ function execute() {
                                         return [4 /*yield*/, main("".concat(testPath, "/").concat(testFile), contractPath)];
                                     case 3:
                                         filePath = _a.sent();
-                                        filesPaths.push(filePath);
+                                        if (filePath)
+                                            filesPaths.push(filePath);
                                         _a.label = 4;
                                     case 4:
                                         _i++;
@@ -181,7 +191,7 @@ function execute() {
                                         return [4 /*yield*/, setupRunEnv()];
                                     case 6:
                                         _a.sent();
-                                        return [4 /*yield*/, runTest(filesPaths.join(' '))];
+                                        return [4 /*yield*/, runTest(filesPaths)];
                                     case 7:
                                         _a.sent();
                                         _a.label = 8;
@@ -395,10 +405,17 @@ function runTest(filePath) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, cli.exec('npx', ['mocha', filePath, '--timeout', '10000'])];
+                case 0:
+                    if (!Array.isArray(filePath)) return [3 /*break*/, 2];
+                    return [4 /*yield*/, cli.exec('npx', __spreadArray(__spreadArray(['mocha'], filePath, true), ['--timeout', '10000'], false))];
                 case 1:
                     _a.sent();
-                    return [2 /*return*/];
+                    return [3 /*break*/, 4];
+                case 2: return [4 /*yield*/, cli.exec('npx', ['mocha', filePath, '--timeout', '10000'])];
+                case 3:
+                    _a.sent();
+                    _a.label = 4;
+                case 4: return [2 /*return*/];
             }
         });
     });
