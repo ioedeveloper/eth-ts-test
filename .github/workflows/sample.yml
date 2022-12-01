@@ -7,8 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     name: A job to run solidity tests in js
     steps:
-        env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
       - name: Checkout
         uses: actions/checkout@v2
       - name: Environment Setup
@@ -21,3 +19,5 @@ jobs:
           test-path: 'sample/tests'
           contract-path: 'sample/contracts'
           compiler-version: '0.8.7'
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
