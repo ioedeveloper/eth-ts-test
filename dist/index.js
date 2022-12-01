@@ -152,7 +152,7 @@ function execute() {
                                     case 1:
                                         testFiles = _a.sent();
                                         if (!(testFiles.length > 0)) return [3 /*break*/, 5];
-                                        (['ethers.js', 'methods.js', 'signer.js', 'artefacts-helper.js']).forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
+                                        (['ethers.js', 'methods.js', 'signer.js', 'artefacts-helper.js', 'chai.js']).forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
                                             return __generator(this, function (_a) {
                                                 switch (_a.label) {
                                                     case 0: return [4 /*yield*/, fs.cp('dist/' + file, testPath + '/remix_deps/' + file)];
@@ -290,7 +290,7 @@ function compileContract(contractPath, settings) {
 // Transpile and execute test files
 function main(filePath, contractPath) {
     return __awaiter(this, void 0, void 0, function () {
-        var testFileContent, hardhatEthersImportRegex, hardhatEthersRequireRegex, hardhatImportIndex, hardhatRequireIndex, describeIndex, testFile, error_1;
+        var testFileContent, hardhatEthersImportRegex, hardhatEthersRequireRegex, chaiImportRegex, chaiRequireRegex, hardhatImportIndex, hardhatRequireIndex, chaiImportIndex, chaiRequireIndex, describeIndex, testFile, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -298,22 +298,27 @@ function main(filePath, contractPath) {
                     return [4 /*yield*/, fs.readFile(filePath, 'utf8')];
                 case 1:
                     testFileContent = _a.sent();
-                    hardhatEthersImportRegex = /import\s*{ \s*ethers \s*}\s*from\s*['"]hardhat['"]|import\s*{\s*\*\s*as\s*ethers\s*} from 'hardhat\/ethers'|import\s+ethers\s+from\s*['"]hardhat\/ethers['"]|import\s*{\s*ethers\s*\}\s*from\s*['"]ethers['"]|import\s*\{\s*\*\s*as\s*ethers\s*\}\sfrom\s+['"]ethers['"]|import\s+ethers\s+from\s+['"]ethers['"]/g;
-                    hardhatEthersRequireRegex = /const\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|let\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|const\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers|let\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers|const\s*\{\sethers\s\}\s=\srequire\(['"]ethers['"]\)|let\s*\{\s?ethers\s?\}\s?=\s?require\(['"]ethers['"]\)|const ethers = require\(['"]ethers['"]\)\.ethers|let ethers = require\(['"]ethers['"]\)\.ethers/g;
+                    hardhatEthersImportRegex = /from\s*['"]hardhat['"]|from\s*['"]hardhat\/ethers['"]|from\s*['"]ethers['"]|from\s*['"]ethers\/ethers['"]/g;
+                    hardhatEthersRequireRegex = /require\(['"]hardhat\/ethers['"]\)|require\(['"]hardhat['"]\)|require\(['"]ethers\/ethers['"]\)|require\(['"]ethers['"]\)/g;
+                    chaiImportRegex = /from\s*['"]chai['"]/g;
+                    chaiRequireRegex = /require\(['"]chai['"]\)/g;
                     hardhatImportIndex = testFileContent.search(hardhatEthersImportRegex);
                     hardhatRequireIndex = testFileContent.search(hardhatEthersRequireRegex);
+                    chaiImportIndex = testFileContent.search(chaiImportRegex);
+                    chaiRequireIndex = testFileContent.search(chaiRequireRegex);
                     describeIndex = testFileContent.search(/describe\s*\(/);
                     if (!(describeIndex === -1)) return [3 /*break*/, 2];
                     throw new Error("No describe function found in ".concat(filePath, ". Please wrap your tests in a describe function."));
                 case 2:
-                    testFileContent = "\n        ".concat(testFileContent.slice(0, describeIndex), "\n        if (chai && !waffleChai) chai.use(require(\"@ethereum-waffle/chai\").waffleChai);\n        global.remixContractArtefactsPath = \"").concat(contractPath, "/artifacts\";\n        ").concat(testFileContent.slice(describeIndex), "\n      ");
-                    if (hardhatImportIndex > -1) {
-                        testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'import { ethers } from \'./remix_deps/ethers\'');
-                    }
-                    else if (hardhatRequireIndex > -1) {
-                        testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'const { ethers } = require(\'./remix_deps/ethers\')');
-                    }
-                    console.log('testFileContent: ', testFileContent);
+                    testFileContent = "".concat(testFileContent.slice(0, describeIndex), "\nglobal.remixContractArtefactsPath = \"").concat(contractPath, "/artifacts\"; \n").concat(testFileContent.slice(describeIndex));
+                    if (hardhatImportIndex > -1)
+                        testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'from \'./remix_deps/ethers\'');
+                    if (hardhatRequireIndex > -1)
+                        testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'require(\'./remix_deps/ethers\')');
+                    if (chaiImportIndex)
+                        testFileContent = testFileContent.replace(chaiImportRegex, 'from \'./remix_deps/chai\'');
+                    if (chaiRequireIndex)
+                        testFileContent = testFileContent.replace(chaiRequireRegex, 'require(\'./remix_deps/chai\')');
                     testFile = transpileScript(testFileContent);
                     filePath = filePath.replace('.ts', '.js');
                     return [4 /*yield*/, fs.writeFile(filePath, testFile.outputText)];
