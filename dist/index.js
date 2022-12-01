@@ -104,52 +104,43 @@ function execute() {
                     };
                     // compile smart contracts to run tests on.
                     return [4 /*yield*/, core.group("Compile contracts", function () { return __awaiter(_this, void 0, void 0, function () {
-                            var contractFiles, compilationTargets, _i, contractFiles_1, file, contract, contract;
-                            var _a;
-                            return __generator(this, function (_b) {
-                                switch (_b.label) {
+                            var contractFiles, _i, contractFiles_1, file;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
                                     case 0:
-                                        if (!isContractPathDirectory) return [3 /*break*/, 11];
+                                        if (!isContractPathDirectory) return [3 /*break*/, 10];
                                         return [4 /*yield*/, fs.readdir(contractPath)];
                                     case 1:
-                                        contractFiles = _b.sent();
-                                        compilationTargets = {};
-                                        if (!(contractFiles.length > 0)) return [3 /*break*/, 9];
+                                        contractFiles = _a.sent();
+                                        if (!(contractFiles.length > 0)) return [3 /*break*/, 8];
                                         _i = 0, contractFiles_1 = contractFiles;
-                                        _b.label = 2;
+                                        _a.label = 2;
                                     case 2:
                                         if (!(_i < contractFiles_1.length)) return [3 /*break*/, 5];
                                         file = contractFiles_1[_i];
-                                        return [4 /*yield*/, fs.readFile("".concat(contractPath, "/").concat(file), 'utf8')];
+                                        return [4 /*yield*/, compileContract("".concat(contractPath, "/").concat(file), compileSettings)];
                                     case 3:
-                                        contract = _b.sent();
-                                        compilationTargets["".concat(contractPath, "/").concat(file)] = { content: contract };
-                                        _b.label = 4;
+                                        _a.sent();
+                                        _a.label = 4;
                                     case 4:
                                         _i++;
                                         return [3 /*break*/, 2];
-                                    case 5: return [4 /*yield*/, compileContract(compilationTargets, contractPath, compileSettings)];
+                                    case 5: return [4 /*yield*/, cli.exec('ls', [contractPath])];
                                     case 6:
-                                        _b.sent();
-                                        return [4 /*yield*/, cli.exec('ls', [contractPath])];
-                                    case 7:
-                                        _b.sent();
+                                        _a.sent();
                                         return [4 /*yield*/, cli.exec('ls', ["".concat(contractPath, "/artifacts")])];
+                                    case 7:
+                                        _a.sent();
+                                        return [3 /*break*/, 9];
                                     case 8:
-                                        _b.sent();
-                                        return [3 /*break*/, 10];
-                                    case 9:
                                         core.setFailed('No contract files found');
-                                        _b.label = 10;
-                                    case 10: return [3 /*break*/, 14];
-                                    case 11: return [4 /*yield*/, fs.readFile(contractPath, 'utf8')];
-                                    case 12:
-                                        contract = _b.sent();
-                                        return [4 /*yield*/, compileContract((_a = {}, _a[contractPath] = { content: contract }, _a), path.resolve(contractPath, '..'), compileSettings)];
-                                    case 13:
-                                        _b.sent();
-                                        _b.label = 14;
-                                    case 14: return [2 /*return*/];
+                                        _a.label = 9;
+                                    case 9: return [3 /*break*/, 12];
+                                    case 10: return [4 /*yield*/, compileContract(contractPath, compileSettings)];
+                                    case 11:
+                                        _a.sent();
+                                        _a.label = 12;
+                                    case 12: return [2 /*return*/];
                                 }
                             });
                         }); })
@@ -229,13 +220,17 @@ function execute() {
     });
 }
 // Compile single smart contract
-function compileContract(compilationTargets, contractPath, settings) {
+function compileContract(contractPath, settings) {
     return __awaiter(this, void 0, void 0, function () {
-        var remixCompiler, compilerList, releases, compilerUrl_1;
+        var contract, compilationTargets, remixCompiler, compilerList, releases, compilerUrl_1;
+        var _a;
         var _this = this;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, fs.readFile(contractPath, 'utf8')];
+                case 1:
+                    contract = _b.sent();
+                    compilationTargets = (_a = {}, _a[contractPath] = { content: contract }, _a);
                     remixCompiler = new remix_solidity_1.Compiler(function (url, cb) { return __awaiter(_this, void 0, void 0, function () {
                         var importContent, resolver, result, e_1;
                         return __generator(this, function (_a) {
@@ -267,8 +262,8 @@ function compileContract(compilationTargets, contractPath, settings) {
                         });
                     }); });
                     return [4 /*yield*/, axios_1.default.get('https://raw.githubusercontent.com/ethereum/solc-bin/gh-pages/bin/list.json')];
-                case 1:
-                    compilerList = _a.sent();
+                case 2:
+                    compilerList = _b.sent();
                     releases = compilerList.data.releases;
                     if (releases[settings.version]) {
                         compilerUrl_1 = releases[settings.version].replace('soljson-', '').replace('.js', '');
@@ -287,36 +282,24 @@ function compileContract(compilationTargets, contractPath, settings) {
                                     }, 1000);
                                 });
                                 remixCompiler.event.register('compilationFinished', function (success, data, source) { return __awaiter(_this, void 0, void 0, function () {
-                                    var contractSources, contractsPaths, _i, contractsPaths_1, contractPath_1, contractName, artifactsPath;
+                                    var contractName, artifactsPath;
                                     return __generator(this, function (_a) {
                                         switch (_a.label) {
                                             case 0:
-                                                if (!success) return [3 /*break*/, 7];
-                                                contractSources = source.sources;
-                                                contractsPaths = Object.keys(contractSources);
-                                                _i = 0, contractsPaths_1 = contractsPaths;
-                                                _a.label = 1;
-                                            case 1:
-                                                if (!(_i < contractsPaths_1.length)) return [3 /*break*/, 6];
-                                                contractPath_1 = contractsPaths_1[_i];
-                                                contractName = path.basename(contractPath_1, '.sol');
-                                                artifactsPath = "".concat(path.dirname(contractPath_1), "/artifacts");
-                                                if (!!(0, fs_1.existsSync)(artifactsPath)) return [3 /*break*/, 3];
+                                                if (!success) return [3 /*break*/, 4];
+                                                contractName = path.basename(contractPath, '.sol');
+                                                artifactsPath = "".concat(path.dirname(contractPath), "/artifacts");
+                                                if (!!(0, fs_1.existsSync)(artifactsPath)) return [3 /*break*/, 2];
                                                 return [4 /*yield*/, fs.mkdir(artifactsPath)];
-                                            case 2:
+                                            case 1:
                                                 _a.sent();
-                                                _a.label = 3;
-                                            case 3: return [4 /*yield*/, fs.writeFile("".concat(artifactsPath, "/").concat(contractName, ".json"), JSON.stringify(data, null, 2))];
-                                            case 4:
+                                                _a.label = 2;
+                                            case 2: return [4 /*yield*/, fs.writeFile("".concat(artifactsPath, "/").concat(contractName, ".json"), JSON.stringify(data, null, 2))];
+                                            case 3:
                                                 _a.sent();
-                                                _a.label = 5;
-                                            case 5:
-                                                _i++;
-                                                return [3 /*break*/, 1];
-                                            case 6:
                                                 clearInterval(intervalId);
                                                 return [2 /*return*/, resolve()];
-                                            case 7:
+                                            case 4:
                                                 clearInterval(intervalId);
                                                 return [2 /*return*/, reject('Compilation failed')];
                                         }
