@@ -102,6 +102,22 @@ function execute() {
                         runs: 200,
                         version: compilerVersion
                     };
+                    // load environment and depeondencies
+                    return [4 /*yield*/, core.group("Setup environment", function () { return __awaiter(_this, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0: return [4 /*yield*/, setupRunEnv()];
+                                    case 1:
+                                        _a.sent();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); })
+                        // compile smart contracts to run tests on.
+                    ];
+                case 3:
+                    // load environment and depeondencies
+                    _a.sent();
                     // compile smart contracts to run tests on.
                     return [4 /*yield*/, core.group("Compile contracts", function () { return __awaiter(_this, void 0, void 0, function () {
                             var contractFiles, _i, contractFiles_1, file;
@@ -146,7 +162,7 @@ function execute() {
                         }); })
                         // Move remix dependencies to test folder and transpile test files. Then run tests.
                     ];
-                case 3:
+                case 4:
                     // compile smart contracts to run tests on.
                     _a.sent();
                     // Move remix dependencies to test folder and transpile test files. Then run tests.
@@ -156,12 +172,12 @@ function execute() {
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
-                                        if (!isTestPathDirectory) return [3 /*break*/, 9];
+                                        if (!isTestPathDirectory) return [3 /*break*/, 8];
                                         return [4 /*yield*/, fs.readdir(testPath)];
                                     case 1:
                                         testFiles = _a.sent();
                                         filesPaths = [];
-                                        if (!(testFiles.length > 0)) return [3 /*break*/, 8];
+                                        if (!(testFiles.length > 0)) return [3 /*break*/, 7];
                                         (['ethers.js', 'methods.js', 'signer.js', 'artefacts-helper.js', 'chai.js']).forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
                                             return __generator(this, function (_a) {
                                                 switch (_a.label) {
@@ -187,31 +203,25 @@ function execute() {
                                         _i++;
                                         return [3 /*break*/, 2];
                                     case 5:
-                                        if (!(filesPaths.length > 0)) return [3 /*break*/, 8];
-                                        return [4 /*yield*/, setupRunEnv()];
+                                        if (!(filesPaths.length > 0)) return [3 /*break*/, 7];
+                                        return [4 /*yield*/, runTest(filesPaths)];
                                     case 6:
                                         _a.sent();
-                                        return [4 /*yield*/, runTest(filesPaths)];
-                                    case 7:
-                                        _a.sent();
-                                        _a.label = 8;
-                                    case 8: return [3 /*break*/, 13];
-                                    case 9: return [4 /*yield*/, main(testPath, contractPath)];
-                                    case 10:
+                                        _a.label = 7;
+                                    case 7: return [3 /*break*/, 11];
+                                    case 8: return [4 /*yield*/, main(testPath, contractPath)];
+                                    case 9:
                                         filePath = _a.sent();
-                                        if (!filePath) return [3 /*break*/, 13];
-                                        return [4 /*yield*/, setupRunEnv()];
-                                    case 11:
-                                        _a.sent();
+                                        if (!filePath) return [3 /*break*/, 11];
                                         return [4 /*yield*/, runTest(filePath)];
-                                    case 12:
+                                    case 10:
                                         _a.sent();
-                                        _a.label = 13;
-                                    case 13: return [2 /*return*/];
+                                        _a.label = 11;
+                                    case 11: return [2 /*return*/];
                                 }
                             });
                         }); })];
-                case 4:
+                case 5:
                     // Move remix dependencies to test folder and transpile test files. Then run tests.
                     _a.sent();
                     return [2 /*return*/];
@@ -407,11 +417,11 @@ function runTest(filePath) {
             switch (_a.label) {
                 case 0:
                     if (!Array.isArray(filePath)) return [3 /*break*/, 2];
-                    return [4 /*yield*/, cli.exec('npx', __spreadArray(__spreadArray(['mocha'], filePath, true), ['--timeout', '20000'], false))];
+                    return [4 /*yield*/, cli.exec('npx', __spreadArray(__spreadArray(['mocha'], filePath, true), ['--timeout', '60000'], false))];
                 case 1:
                     _a.sent();
                     return [3 /*break*/, 4];
-                case 2: return [4 /*yield*/, cli.exec('npx', ['mocha', filePath, '--timeout', '20000'])];
+                case 2: return [4 /*yield*/, cli.exec('npx', ['mocha', filePath, '--timeout', '60000'])];
                 case 3:
                     _a.sent();
                     _a.label = 4;

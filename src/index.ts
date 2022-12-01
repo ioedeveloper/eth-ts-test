@@ -28,8 +28,13 @@ async function execute () {
     version: compilerVersion
   }
 
+  // load environment and depeondencies
+  await core.group("Setup environment", async () => {
+    await setupRunEnv()
+  })
+
   // compile smart contracts to run tests on.
-  await core.group ("Compile contracts", async () => {
+  await core.group("Compile contracts", async () => {
     if (isContractPathDirectory) {
       const contractFiles = await fs.readdir(contractPath)
 
@@ -63,7 +68,6 @@ async function execute () {
           if (filePath) filesPaths.push(filePath)
         }
         if (filesPaths.length > 0) {
-          await setupRunEnv()
           await runTest(filesPaths)
         }
       }
@@ -71,7 +75,6 @@ async function execute () {
       const filePath = await main(testPath, contractPath)
 
       if (filePath) {
-        await setupRunEnv()
         await runTest(filePath)
       }
     }
@@ -194,9 +197,9 @@ async function setupRunEnv (): Promise<void> {
 // Run tests
 async function runTest (filePath: string | string[]): Promise<void> {
   if (Array.isArray(filePath)) {
-      await cli.exec('npx', ['mocha', ...filePath, '--timeout', '20000'])
+      await cli.exec('npx', ['mocha', ...filePath, '--timeout', '60000'])
   } else {
-      await cli.exec('npx', ['mocha', filePath, '--timeout', '20000'])
+      await cli.exec('npx', ['mocha', filePath, '--timeout', '60000'])
   }
 }
 
