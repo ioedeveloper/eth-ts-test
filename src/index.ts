@@ -154,6 +154,7 @@ async function main (filePath: string, contractPath: string): Promise<void> {
       } else if (hardhatRequireIndex > -1) {
         testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'const { ethers } = require(\'./remix_deps/ethers\')')
       }
+      console.log('testFileContent: ', testFileContent)
       const testFile = transpileScript(testFileContent)
 
       filePath = filePath.replace('.ts', '.js')

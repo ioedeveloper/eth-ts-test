@@ -313,6 +313,7 @@ function main(filePath, contractPath) {
                     else if (hardhatRequireIndex > -1) {
                         testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'const { ethers } = require(\'./remix_deps/ethers\')');
                     }
+                    console.log('testFileContent: ', testFileContent);
                     testFile = transpileScript(testFileContent);
                     filePath = filePath.replace('.ts', '.js');
                     return [4 /*yield*/, fs.writeFile(filePath, testFile.outputText)];
