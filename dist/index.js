@@ -294,21 +294,19 @@ function main(filePath, contractPath) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 6, , 7]);
-                    return [4 /*yield*/, fs.readFile(filePath, 'utf8')
-                        // regex for const ethers = require('ethers').ethers
-                    ];
+                    _a.trys.push([0, 7, , 8]);
+                    return [4 /*yield*/, fs.readFile(filePath, 'utf8')];
                 case 1:
                     testFileContent = _a.sent();
                     hardhatEthersImportRegex = /import\s*{ \s*ethers \s*}\s*from\s*['"]hardhat['"]|import\s*{\s*\*\s*as\s*ethers\s*} from 'hardhat\/ethers'|import\s+ethers\s+from\s*['"]hardhat\/ethers['"]|import\s*{\s*ethers\s*\}\s*from\s*['"]ethers['"]|import\s*\{\s*\*\s*as\s*ethers\s*\}\sfrom\s+['"]ethers['"]|import\s+ethers\s+from\s+['"]ethers['"]/g;
                     hardhatEthersRequireRegex = /const\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|let\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|const\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers|let\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers|const\s*\{\sethers\s\}\s=\srequire\(['"]ethers['"]\)|let\s*\{\s?ethers\s?\}\s?=\s?require\(['"]ethers['"]\)|const ethers = require\(['"]ethers['"]\)\.ethers|let ethers = require\(['"]ethers['"]\)\.ethers/g;
                     hardhatImportIndex = testFileContent.search(hardhatEthersImportRegex);
                     hardhatRequireIndex = testFileContent.search(hardhatEthersRequireRegex);
-                    describeIndex = testFileContent.search('describe');
+                    describeIndex = testFileContent.search(/describe\s*\(/);
                     if (!(describeIndex === -1)) return [3 /*break*/, 2];
                     throw new Error("No describe function found in ".concat(filePath, ". Please wrap your tests in a describe function."));
                 case 2:
-                    testFileContent = "".concat(testFileContent.slice(0, describeIndex), "\nglobal.remixContractArtefactsPath = \"").concat(contractPath, "/artifacts\"; \n").concat(testFileContent.slice(describeIndex));
+                    testFileContent = "\n        ".concat(testFileContent.slice(0, describeIndex), "\n        if (chai && !waffleChai) chai.use(require(\"@ethereum-waffle/chai\").waffleChai);\n        global.remixContractArtefactsPath = \"").concat(contractPath, "/artifacts\";\n        ").concat(testFileContent.slice(describeIndex), "\n      ");
                     if (hardhatImportIndex > -1) {
                         testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'import { ethers } from \'./remix_deps/ethers\'');
                     }
@@ -323,14 +321,16 @@ function main(filePath, contractPath) {
                     return [4 /*yield*/, setupRunEnv()];
                 case 4:
                     _a.sent();
-                    runTest(filePath);
-                    _a.label = 5;
-                case 5: return [3 /*break*/, 7];
-                case 6:
+                    return [4 /*yield*/, runTest(filePath)];
+                case 5:
+                    _a.sent();
+                    _a.label = 6;
+                case 6: return [3 /*break*/, 8];
+                case 7:
                     error_1 = _a.sent();
                     core.setFailed(error_1.message);
-                    return [3 /*break*/, 7];
-                case 7: return [2 /*return*/];
+                    return [3 /*break*/, 8];
+                case 8: return [2 /*return*/];
             }
         });
     });
@@ -350,20 +350,20 @@ function setupRunEnv() {
                     packageLock = path.join(workingDirectory, 'package-lock.json');
                     isNPMrepo = (0, fs_1.existsSync)(packageLock);
                     if (!isYarnRepo) return [3 /*break*/, 3];
-                    return [4 /*yield*/, cli.exec('yarn', ['add', 'chai', 'mocha', '--dev'])];
+                    return [4 /*yield*/, cli.exec('yarn', ['add', 'chai', 'mocha', '@ethereum-waffle/chai', '--dev'])];
                 case 2:
                     _a.sent();
                     return [3 /*break*/, 8];
                 case 3:
                     if (!isNPMrepo) return [3 /*break*/, 5];
-                    return [4 /*yield*/, cli.exec('npm', ['install', 'chai', 'mocha', '--save-dev'])];
+                    return [4 /*yield*/, cli.exec('npm', ['install', 'chai', 'mocha', '@ethereum-waffle/chai', '--save-dev'])];
                 case 4:
                     _a.sent();
                     return [3 /*break*/, 8];
                 case 5: return [4 /*yield*/, cli.exec('npm', ['init', '-y'])];
                 case 6:
                     _a.sent();
-                    return [4 /*yield*/, cli.exec('npm', ['install', 'chai', 'mocha', '--save-dev'])];
+                    return [4 /*yield*/, cli.exec('npm', ['install', 'chai', 'mocha', '@ethereum-waffle/chai', '--save-dev'])];
                 case 7:
                     _a.sent();
                     _a.label = 8;

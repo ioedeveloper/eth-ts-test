@@ -134,17 +134,21 @@ async function main (filePath: string, contractPath: string): Promise<void> {
   try {
     // TODO: replace regex globally
     let testFileContent = await fs.readFile(filePath, 'utf8')
-    // regex for const ethers = require('ethers').ethers
     const hardhatEthersImportRegex = /import\s*{ \s*ethers \s*}\s*from\s*['"]hardhat['"]|import\s*{\s*\*\s*as\s*ethers\s*} from 'hardhat\/ethers'|import\s+ethers\s+from\s*['"]hardhat\/ethers['"]|import\s*{\s*ethers\s*\}\s*from\s*['"]ethers['"]|import\s*\{\s*\*\s*as\s*ethers\s*\}\sfrom\s+['"]ethers['"]|import\s+ethers\s+from\s+['"]ethers['"]/g
     const hardhatEthersRequireRegex = /const\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|let\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|const\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers|let\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers|const\s*\{\sethers\s\}\s=\srequire\(['"]ethers['"]\)|let\s*\{\s?ethers\s?\}\s?=\s?require\(['"]ethers['"]\)|const ethers = require\(['"]ethers['"]\)\.ethers|let ethers = require\(['"]ethers['"]\)\.ethers/g
     const hardhatImportIndex = testFileContent.search(hardhatEthersImportRegex)
     const hardhatRequireIndex = testFileContent.search(hardhatEthersRequireRegex)
-    const describeIndex = testFileContent.search('describe')
+    const describeIndex = testFileContent.search(/describe\s*\(/)
     
     if (describeIndex === -1) {
       throw new Error(`No describe function found in ${filePath}. Please wrap your tests in a describe function.`)
     } else {
-      testFileContent = `${testFileContent.slice(0, describeIndex)}\nglobal.remixContractArtefactsPath = "${contractPath}/artifacts"; \n${testFileContent.slice(describeIndex)}`
+      testFileContent = `
+        ${testFileContent.slice(0, describeIndex)}
+        if (chai && !waffleChai) chai.use(require("@ethereum-waffle/chai").waffleChai);
+        global.remixContractArtefactsPath = "${contractPath}/artifacts";
+        ${testFileContent.slice(describeIndex)}
+      `
       if (hardhatImportIndex > -1) {
         testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'import { ethers } from \'./remix_deps/ethers\'')
       } else if (hardhatRequireIndex > -1) {
@@ -155,7 +159,7 @@ async function main (filePath: string, contractPath: string): Promise<void> {
       filePath = filePath.replace('.ts', '.js')
       await fs.writeFile(filePath, testFile.outputText)
       await setupRunEnv()
-      runTest(filePath)
+      await runTest(filePath)
     }
   } catch (error) {
     core.setFailed(error.message)
@@ -171,12 +175,12 @@ async function setupRunEnv (): Promise<void> {
   const isNPMrepo = existsSync(packageLock)
 
   if (isYarnRepo) {
-    await cli.exec('yarn', ['add', 'chai', 'mocha', '--dev'])
+    await cli.exec('yarn', ['add', 'chai', 'mocha', '@ethereum-waffle/chai', '--dev'])
   } else if (isNPMrepo) {
-    await cli.exec('npm', ['install', 'chai', 'mocha', '--save-dev'])
+    await cli.exec('npm', ['install', 'chai', 'mocha', '@ethereum-waffle/chai', '--save-dev'])
   } else {
     await cli.exec('npm', ['init', '-y'])
-    await cli.exec('npm', ['install', 'chai', 'mocha', '--save-dev'])
+    await cli.exec('npm', ['install', 'chai', 'mocha', '@ethereum-waffle/chai', '--save-dev'])
   }
 }
 
