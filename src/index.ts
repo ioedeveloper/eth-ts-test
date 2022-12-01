@@ -184,7 +184,7 @@ async function setupRunEnv (): Promise<void> {
 
 // Run tests
 async function runTest (filePath: string): Promise<void> {
-  await cli.exec('npx', ['mocha', filePath])
+  await cli.exec('npx', ['mocha', filePath, '--timeout', '10000'])
 }
 
 // Transpile test scripts

@@ -114,7 +114,7 @@ describe("Basic remix reward deploy", function () {
     await expect(remix.connect(betatester2).publishChallenge(proof1[0], invalidInput)).to.be.revertedWith("the provided proof isn't valid")
   });
 
-  it("Should accept a challenge", async function () {   
+  it("Should accept a challenge", async function () {
     const [owner, betatester, user, betatester2] = await ethers.getSigners();
 
     const publishChallengeTx = await remix.connect(betatester2).publishChallenge(proof1[0], proof1[1])
