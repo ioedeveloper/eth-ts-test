@@ -124,6 +124,7 @@ async function compileContract (compilationTargets: Record<string, Record<'conte
         }, 1000)
       })
       remixCompiler.event.register('compilationFinished', async (success: boolean, data: any, source: string) => {
+        console.log('source: ', JSON.stringify(source))
         if (success) {
           const contractName = path.basename(source, '.sol')
           const artifactsPath = `${contractPath}/artifacts`

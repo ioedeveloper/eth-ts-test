@@ -291,6 +291,7 @@ function compileContract(compilationTargets, contractPath, settings) {
                                     return __generator(this, function (_a) {
                                         switch (_a.label) {
                                             case 0:
+                                                console.log('source: ', JSON.stringify(source));
                                                 if (!success) return [3 /*break*/, 4];
                                                 contractName = path.basename(source, '.sol');
                                                 artifactsPath = "".concat(contractPath, "/artifacts");
