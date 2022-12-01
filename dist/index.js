@@ -287,25 +287,36 @@ function compileContract(compilationTargets, contractPath, settings) {
                                     }, 1000);
                                 });
                                 remixCompiler.event.register('compilationFinished', function (success, data, source) { return __awaiter(_this, void 0, void 0, function () {
-                                    var contractName, artifactsPath;
+                                    var contractSources, contractsPaths, _i, contractsPaths_1, contractPath_1, contractName, artifactsPath;
                                     return __generator(this, function (_a) {
                                         switch (_a.label) {
                                             case 0:
-                                                console.log('source: ', JSON.stringify(source));
-                                                if (!success) return [3 /*break*/, 4];
-                                                contractName = path.basename(source, '.sol');
-                                                artifactsPath = "".concat(contractPath, "/artifacts");
-                                                if (!!(0, fs_1.existsSync)(artifactsPath)) return [3 /*break*/, 2];
-                                                return [4 /*yield*/, fs.mkdir(artifactsPath)];
+                                                if (!success) return [3 /*break*/, 7];
+                                                contractSources = source.sources;
+                                                contractsPaths = Object.keys(contractSources);
+                                                _i = 0, contractsPaths_1 = contractsPaths;
+                                                _a.label = 1;
                                             case 1:
+                                                if (!(_i < contractsPaths_1.length)) return [3 /*break*/, 6];
+                                                contractPath_1 = contractsPaths_1[_i];
+                                                contractName = path.basename(contractPath_1, '.sol');
+                                                artifactsPath = "".concat(path.dirname(contractPath_1), "/artifacts");
+                                                if (!!(0, fs_1.existsSync)(artifactsPath)) return [3 /*break*/, 3];
+                                                return [4 /*yield*/, fs.mkdir(artifactsPath)];
+                                            case 2:
                                                 _a.sent();
-                                                _a.label = 2;
-                                            case 2: return [4 /*yield*/, fs.writeFile("".concat(artifactsPath, "/").concat(contractName, ".json"), JSON.stringify(data, null, 2))];
-                                            case 3:
+                                                _a.label = 3;
+                                            case 3: return [4 /*yield*/, fs.writeFile("".concat(artifactsPath, "/").concat(contractName, ".json"), JSON.stringify(data, null, 2))];
+                                            case 4:
                                                 _a.sent();
+                                                _a.label = 5;
+                                            case 5:
+                                                _i++;
+                                                return [3 /*break*/, 1];
+                                            case 6:
                                                 clearInterval(intervalId);
                                                 return [2 /*return*/, resolve()];
-                                            case 4:
+                                            case 7:
                                                 clearInterval(intervalId);
                                                 return [2 /*return*/, reject('Compilation failed')];
                                         }

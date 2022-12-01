@@ -123,14 +123,18 @@ async function compileContract (compilationTargets: Record<string, Record<'conte
           process.stdout.write('.')
         }, 1000)
       })
-      remixCompiler.event.register('compilationFinished', async (success: boolean, data: any, source: string) => {
-        console.log('source: ', JSON.stringify(source))
+      remixCompiler.event.register('compilationFinished', async (success: boolean, data: any, source: Record<'sources', Record<'content', string>>) => {
         if (success) {
-          const contractName = path.basename(source, '.sol')
-          const artifactsPath = `${contractPath}/artifacts`
+          const contractSources = source.sources
+          const contractsPaths = Object.keys(contractSources)
 
-          if (!existsSync(artifactsPath)) await fs.mkdir(artifactsPath)
-          await fs.writeFile(`${artifactsPath}/${contractName}.json`, JSON.stringify(data, null, 2))
+          for (const contractPath of contractsPaths) {
+            const contractName = path.basename(contractPath, '.sol')
+            const artifactsPath = `${path.dirname(contractPath)}/artifacts`
+
+            if (!existsSync(artifactsPath)) await fs.mkdir(artifactsPath)
+            await fs.writeFile(`${artifactsPath}/${contractName}.json`, JSON.stringify(data, null, 2))
+          }
           clearInterval(intervalId)
           return resolve()
         } else {
