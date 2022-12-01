@@ -7,4 +7,5 @@ const remixSimulatorProvider = new Provider({ fork: null })
 global.remixProvider = remixSimulatorProvider
 for(const method in hhEtherMethods) Object.defineProperty(ethers, method, { value: hhEtherMethods[method]})
 
+export * from 'ethers'
 export { ethers }

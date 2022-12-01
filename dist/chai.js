@@ -22,9 +22,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.chai = void 0;
 var chai = __importStar(require("chai"));
 exports.chai = chai;
 var chai_1 = require("@ethereum-waffle/chai");
 chai.use(chai_1.waffleChai);
+__exportStar(require("chai"), exports);
