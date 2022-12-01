@@ -51,17 +51,29 @@ async function execute () {
   await core.group("Run tests", async () => {
     if (isTestPathDirectory) {
       const testFiles = await fs.readdir(testPath)
+      const filesPaths = []
 
       if (testFiles.length > 0) {
         (['ethers.js', 'methods.js', 'signer.js', 'artefacts-helper.js', 'chai.js']).forEach(async (file: string) => {
           await fs.cp('dist/' + file, testPath + '/remix_deps/' + file)
         })
         for (const testFile of testFiles) {
-          await main(`${testPath}/${testFile}`, contractPath)
+          const filePath = await main(`${testPath}/${testFile}`, contractPath)
+
+          filesPaths.push(filePath)
+        }
+        if (filesPaths.length > 0) {
+          await setupRunEnv()
+          await runTest(filesPaths.join(' '))
         }
       }
     } else {
-      await main(testPath, contractPath)
+      const filePath = await main(testPath, contractPath)
+
+      if (filePath) {
+        await setupRunEnv()
+        await runTest(filePath)
+      }
     }
   })
 }
@@ -112,9 +124,7 @@ async function compileContract (contractPath: string, settings: CompileSettings)
           const contractName = path.basename(contractPath, '.sol')
           const artifactsPath = `${path.dirname(contractPath)}/artifacts`
 
-          if (!existsSync(artifactsPath)) {
-            await fs.mkdir(artifactsPath)
-          }
+          if (!existsSync(artifactsPath)) await fs.mkdir(artifactsPath)
           await fs.writeFile(`${artifactsPath}/${contractName}.json`, JSON.stringify(data, null, 2))
           clearInterval(intervalId)
           return resolve()
@@ -130,7 +140,7 @@ async function compileContract (contractPath: string, settings: CompileSettings)
 }
 
 // Transpile and execute test files
-async function main (filePath: string, contractPath: string): Promise<void> {
+async function main (filePath: string, contractPath: string): Promise<string | undefined> {
   try {
     // TODO: replace regex globally
     let testFileContent = await fs.readFile(filePath, 'utf8')
@@ -156,8 +166,7 @@ async function main (filePath: string, contractPath: string): Promise<void> {
 
       filePath = filePath.replace('.ts', '.js')
       await fs.writeFile(filePath, testFile.outputText)
-      await setupRunEnv()
-      await runTest(filePath)
+      return filePath
     }
   } catch (error) {
     core.setFailed(error.message)

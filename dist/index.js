@@ -142,16 +142,17 @@ function execute() {
                     _a.sent();
                     // Move remix dependencies to test folder and transpile test files. Then run tests.
                     return [4 /*yield*/, core.group("Run tests", function () { return __awaiter(_this, void 0, void 0, function () {
-                            var testFiles, _i, testFiles_1, testFile;
+                            var testFiles, filesPaths, _i, testFiles_1, testFile, filePath, filePath;
                             var _this = this;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
-                                        if (!isTestPathDirectory) return [3 /*break*/, 6];
+                                        if (!isTestPathDirectory) return [3 /*break*/, 9];
                                         return [4 /*yield*/, fs.readdir(testPath)];
                                     case 1:
                                         testFiles = _a.sent();
-                                        if (!(testFiles.length > 0)) return [3 /*break*/, 5];
+                                        filesPaths = [];
+                                        if (!(testFiles.length > 0)) return [3 /*break*/, 8];
                                         (['ethers.js', 'methods.js', 'signer.js', 'artefacts-helper.js', 'chai.js']).forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
                                             return __generator(this, function (_a) {
                                                 switch (_a.label) {
@@ -169,17 +170,34 @@ function execute() {
                                         testFile = testFiles_1[_i];
                                         return [4 /*yield*/, main("".concat(testPath, "/").concat(testFile), contractPath)];
                                     case 3:
-                                        _a.sent();
+                                        filePath = _a.sent();
+                                        filesPaths.push(filePath);
                                         _a.label = 4;
                                     case 4:
                                         _i++;
                                         return [3 /*break*/, 2];
-                                    case 5: return [3 /*break*/, 8];
-                                    case 6: return [4 /*yield*/, main(testPath, contractPath)];
+                                    case 5:
+                                        if (!(filesPaths.length > 0)) return [3 /*break*/, 8];
+                                        return [4 /*yield*/, setupRunEnv()];
+                                    case 6:
+                                        _a.sent();
+                                        return [4 /*yield*/, runTest(filesPaths.join(' '))];
                                     case 7:
                                         _a.sent();
                                         _a.label = 8;
-                                    case 8: return [2 /*return*/];
+                                    case 8: return [3 /*break*/, 13];
+                                    case 9: return [4 /*yield*/, main(testPath, contractPath)];
+                                    case 10:
+                                        filePath = _a.sent();
+                                        if (!filePath) return [3 /*break*/, 13];
+                                        return [4 /*yield*/, setupRunEnv()];
+                                    case 11:
+                                        _a.sent();
+                                        return [4 /*yield*/, runTest(filePath)];
+                                    case 12:
+                                        _a.sent();
+                                        _a.label = 13;
+                                    case 13: return [2 /*return*/];
                                 }
                             });
                         }); })];
@@ -294,7 +312,7 @@ function main(filePath, contractPath) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 7, , 8]);
+                    _a.trys.push([0, 5, , 6]);
                     return [4 /*yield*/, fs.readFile(filePath, 'utf8')];
                 case 1:
                     testFileContent = _a.sent();
@@ -324,19 +342,13 @@ function main(filePath, contractPath) {
                     return [4 /*yield*/, fs.writeFile(filePath, testFile.outputText)];
                 case 3:
                     _a.sent();
-                    return [4 /*yield*/, setupRunEnv()];
-                case 4:
-                    _a.sent();
-                    return [4 /*yield*/, runTest(filePath)];
+                    return [2 /*return*/, filePath];
+                case 4: return [3 /*break*/, 6];
                 case 5:
-                    _a.sent();
-                    _a.label = 6;
-                case 6: return [3 /*break*/, 8];
-                case 7:
                     error_1 = _a.sent();
                     core.setFailed(error_1.message);
-                    return [3 /*break*/, 8];
-                case 8: return [2 /*return*/];
+                    return [3 /*break*/, 6];
+                case 6: return [2 /*return*/];
             }
         });
     });
