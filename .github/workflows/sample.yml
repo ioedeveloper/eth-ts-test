@@ -7,6 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     name: A job to run solidity tests in js
     steps:
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
       - name: Checkout
         uses: actions/checkout@v2
       - name: Environment Setup
@@ -14,7 +16,7 @@ jobs:
         with:
           node-version: 14.17.6
       - name: Run SUT Action
-        uses: ioedeveloper/eth-ts-test@v0.10.29-dev
+        uses: ioedeveloper/eth-ts-test@v0.10.30-dev
         with:
           test-path: 'sample/tests'
           contract-path: 'sample/contracts'

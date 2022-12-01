@@ -184,7 +184,6 @@ async function setupRunEnv (): Promise<void> {
 
 // Run tests
 async function runTest (filePath: string): Promise<void> {
-  await cli.exec('export', ['NODE_OPTIONS="--max_old_space_size=4096"'])
   await cli.exec('npx', ['mocha', filePath])
 }
 
