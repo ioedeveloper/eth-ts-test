@@ -1,4 +1,4 @@
-import * as core from '@actions/core'
+import * as core from'@actions/core'
 import * as fs from 'fs/promises'
 import { existsSync } from 'fs'
 import * as path from 'path'
@@ -28,8 +28,13 @@ async function execute () {
     version: compilerVersion
   }
 
+  // load environment and depeondencies
+  await core.group("Setup environment", async () => {
+    await setupRunEnv()
+  })
+
   // compile smart contracts to run tests on.
-  await core.group ("Compile contracts", async () => {
+  await core.group("Compile contracts", async () => {
     if (isContractPathDirectory) {
       const contractFiles = await fs.readdir(contractPath)
 
@@ -51,17 +56,27 @@ async function execute () {
   await core.group("Run tests", async () => {
     if (isTestPathDirectory) {
       const testFiles = await fs.readdir(testPath)
+      const filesPaths = []
 
       if (testFiles.length > 0) {
-        (['ethers.js', 'methods.js', 'signer.js', 'artefacts-helper.js']).forEach(async (file: string) => {
+        (['ethers.js', 'methods.js', 'signer.js', 'artefacts-helper.js', 'chai.js']).forEach(async (file: string) => {
           await fs.cp('dist/' + file, testPath + '/remix_deps/' + file)
         })
         for (const testFile of testFiles) {
-          await main(`${testPath}/${testFile}`, contractPath)
+          const filePath = await main(`${testPath}/${testFile}`, contractPath)
+
+          if (filePath) filesPaths.push(filePath)
+        }
+        if (filesPaths.length > 0) {
+          await runTest(filesPaths)
         }
       }
     } else {
-      await main(testPath, contractPath)
+      const filePath = await main(testPath, contractPath)
+
+      if (filePath) {
+        await runTest(filePath)
+      }
     }
   })
 }
@@ -102,7 +117,7 @@ async function compileContract (contractPath: string, settings: CompileSettings)
       remixCompiler.event.register('compilerLoaded', () => {
         remixCompiler.compile(compilationTargets, contractPath)
         // use setInterval to keep gh-action process alive in other for compilation to finish
-        process.stdout.write('Compiling')
+        process.stdout.write('\nCompiling')
         intervalId = setInterval(() => {
           process.stdout.write('.')
         }, 1000)
@@ -112,9 +127,7 @@ async function compileContract (contractPath: string, settings: CompileSettings)
           const contractName = path.basename(contractPath, '.sol')
           const artifactsPath = `${path.dirname(contractPath)}/artifacts`
 
-          if (!existsSync(artifactsPath)) {
-            await fs.mkdir(artifactsPath)
-          }
+          if (!existsSync(artifactsPath)) await fs.mkdir(artifactsPath)
           await fs.writeFile(`${artifactsPath}/${contractName}.json`, JSON.stringify(data, null, 2))
           clearInterval(intervalId)
           return resolve()
@@ -130,31 +143,33 @@ async function compileContract (contractPath: string, settings: CompileSettings)
 }
 
 // Transpile and execute test files
-async function main (filePath: string, contractPath: string): Promise<void> {
+async function main (filePath: string, contractPath: string): Promise<string | undefined> {
   try {
     // TODO: replace regex globally
     let testFileContent = await fs.readFile(filePath, 'utf8')
-    const hardhatEthersImportRegex = /import\s+{ ethers }\s+from\s+['"]hardhat['"]|import { * as ethers } from 'hardhat\/ethers'|import\s+ethers\s+from\s+['"]hardhat\/ethers['"]/
-    const hardhatEthersRequireRegex = /const\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|let\s*{\s*ethers\s*}\s*=\s*require\(['"]hardhat['"]\)|const\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers|let\s+ethers\s+=\s+require\(['"]hardhat['"]\)\.ethers/g
+    const hardhatEthersImportRegex = /from\s*['"]hardhat['"]|from\s*['"]hardhat\/ethers['"]|from\s*['"]ethers['"]|from\s*['"]ethers\/ethers['"]/g
+    const hardhatEthersRequireRegex = /require\(['"]hardhat\/ethers['"]\)|require\(['"]hardhat['"]\)|require\(['"]ethers\/ethers['"]\)|require\(['"]ethers['"]\)/g
+    const chaiImportRegex = /from\s*['"]chai['"]/g
+    const chaiRequireRegex = /require\(['"]chai['"]\)/g
     const hardhatImportIndex = testFileContent.search(hardhatEthersImportRegex)
     const hardhatRequireIndex = testFileContent.search(hardhatEthersRequireRegex)
-    const describeIndex = testFileContent.search('describe')
+    const chaiImportIndex = testFileContent.search(chaiImportRegex)
+    const chaiRequireIndex = testFileContent.search(chaiRequireRegex)
+    const describeIndex = testFileContent.search(/describe\s*\(/)
     
     if (describeIndex === -1) {
       throw new Error(`No describe function found in ${filePath}. Please wrap your tests in a describe function.`)
     } else {
       testFileContent = `${testFileContent.slice(0, describeIndex)}\nglobal.remixContractArtefactsPath = "${contractPath}/artifacts"; \n${testFileContent.slice(describeIndex)}`
-      if (hardhatImportIndex > -1) {
-        testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'import { ethers } from \'./remix_deps/ethers\'')
-      } else if (hardhatRequireIndex > -1) {
-        testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'const { ethers } = require(\'./remix_deps/ethers\')')
-      }
+      if (hardhatImportIndex > -1) testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'from \'./remix_deps/ethers\'')
+      if (hardhatRequireIndex > -1) testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'require(\'./remix_deps/ethers\')')
+      if (chaiImportIndex) testFileContent = testFileContent.replace(chaiImportRegex, 'from \'./remix_deps/chai\'')
+      if (chaiRequireIndex) testFileContent = testFileContent.replace(chaiRequireRegex, 'require(\'./remix_deps/chai\')')
       const testFile = transpileScript(testFileContent)
 
       filePath = filePath.replace('.ts', '.js')
       await fs.writeFile(filePath, testFile.outputText)
-      await setupRunEnv()
-      runTest(filePath)
+      return filePath
     }
   } catch (error) {
     core.setFailed(error.message)
@@ -170,18 +185,22 @@ async function setupRunEnv (): Promise<void> {
   const isNPMrepo = existsSync(packageLock)
 
   if (isYarnRepo) {
-    await cli.exec('yarn', ['add', 'chai', 'mocha', '--dev'])
+    await cli.exec('yarn', ['add', 'chai', 'mocha', '@ethereum-waffle/chai', '--dev'])
   } else if (isNPMrepo) {
-    await cli.exec('npm', ['install', 'chai', 'mocha', '--save-dev'])
+    await cli.exec('npm', ['install', 'chai', 'mocha', '@ethereum-waffle/chai', '--save-dev'])
   } else {
     await cli.exec('npm', ['init', '-y'])
-    await cli.exec('npm', ['install', 'chai', 'mocha', '--save-dev'])
+    await cli.exec('npm', ['install', 'chai', 'mocha', '@ethereum-waffle/chai', '--save-dev'])
   }
 }
 
 // Run tests
-async function runTest (filePath: string): Promise<void> {
-  await cli.exec('npx', ['mocha', filePath])
+async function runTest (filePath: string | string[]): Promise<void> {
+  if (Array.isArray(filePath)) {
+      await cli.exec('npx', ['mocha', ...filePath, '--timeout', '60000'])
+  } else {
+      await cli.exec('npx', ['mocha', filePath, '--timeout', '60000'])
+  }
 }
 
 // Transpile test scripts

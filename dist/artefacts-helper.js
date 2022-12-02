@@ -64,23 +64,25 @@ var fs = __importStar(require("fs/promises"));
 var path = __importStar(require("path"));
 function getArtefactsByContractName(contractIdentifier) {
     return __awaiter(this, void 0, void 0, function () {
-        var contractArtefacts, _loop_1, _i, contractArtefacts_1, artefactFile, state_1;
+        var contractArtefacts, contract, _loop_1, _i, contractArtefacts_1, artefactFile, state_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, fs.readdir(global.remixContractArtefactsPath)];
                 case 1:
                     contractArtefacts = _a.sent();
                     _loop_1 = function (artefactFile) {
-                        var artefact, artefactJSON, contractFullPath, contract;
+                        var artefact, artefactJSON, contractFullPath;
                         return __generator(this, function (_b) {
                             switch (_b.label) {
                                 case 0: return [4 /*yield*/, fs.readFile(path.join(global.remixContractArtefactsPath, artefactFile), 'utf-8')];
                                 case 1:
                                     artefact = _b.sent();
                                     artefactJSON = JSON.parse(artefact);
-                                    contractFullPath = (Object.keys(artefactJSON.contracts)).find(function (contractName) { return artefactJSON.contracts[contractName][contractIdentifier]; });
-                                    contract = artefactJSON.contracts[contractFullPath][contractIdentifier];
-                                    return [2 /*return*/, { value: contract }];
+                                    contractFullPath = (Object.keys(artefactJSON.contracts)).find(function (contractName) { return artefactJSON.contracts[contractName] && artefactJSON.contracts[contractName][contractIdentifier]; });
+                                    contract = contractFullPath ? artefactJSON.contracts[contractFullPath][contractIdentifier] : undefined;
+                                    if (contract)
+                                        return [2 /*return*/, "break"];
+                                    return [2 /*return*/];
                             }
                         });
                     };
@@ -92,13 +94,13 @@ function getArtefactsByContractName(contractIdentifier) {
                     return [5 /*yield**/, _loop_1(artefactFile)];
                 case 3:
                     state_1 = _a.sent();
-                    if (typeof state_1 === "object")
-                        return [2 /*return*/, state_1.value];
+                    if (state_1 === "break")
+                        return [3 /*break*/, 5];
                     _a.label = 4;
                 case 4:
                     _i++;
                     return [3 /*break*/, 2];
-                case 5: return [2 /*return*/];
+                case 5: return [2 /*return*/, contract];
             }
         });
     });

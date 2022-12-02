@@ -14,8 +14,10 @@ jobs:
         with:
           node-version: 14.17.6
       - name: Run SUT Action
-        uses: ioedeveloper/eth-ts-test@v0.10.18-dev
+        uses: ioedeveloper/eth-ts-test@v0.11.9-dev
         with:
           test-path: 'sample/tests'
           contract-path: 'sample/contracts'
           compiler-version: '0.8.7'
+        env:
+          NODE_OPTIONS: "--max_old_space_size=8192"

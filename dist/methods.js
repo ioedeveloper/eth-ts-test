@@ -46,6 +46,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getContractFactory = exports.getContractAt = exports.getSigner = exports.getSigners = exports.getContractFactoryFromArtifact = exports.getContractAtFromArtifact = void 0;
+// import { Provider } from '@remix-project/remix-simulator'
 var ethers_1 = require("ethers");
 var artefacts_helper_1 = require("./artefacts-helper");
 var signer_1 = require("./signer");
@@ -172,18 +173,12 @@ var getContractFactory = function (contractNameOrABI, bytecode, signerOrOptions)
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!!global.remixProvider.Transactions.txRunnerInstance) return [3 /*break*/, 2];
-                    return [4 /*yield*/, remixProvider.init()];
-                case 1:
-                    _a.sent();
-                    _a.label = 2;
-                case 2:
-                    if (!(bytecode && contractNameOrABI)) return [3 /*break*/, 3];
+                    if (!(bytecode && contractNameOrABI)) return [3 /*break*/, 1];
                     return [2 /*return*/, new ethers_1.ethers.ContractFactory(contractNameOrABI, bytecode, signerOrOptions || (new ethers_1.ethers.providers.Web3Provider(remixProvider)).getSigner())];
-                case 3:
-                    if (!(typeof contractNameOrABI === 'string')) return [3 /*break*/, 5];
+                case 1:
+                    if (!(typeof contractNameOrABI === 'string')) return [3 /*break*/, 3];
                     return [4 /*yield*/, (0, artefacts_helper_1.getArtefactsByContractName)(contractNameOrABI)];
-                case 4:
+                case 2:
                     contract = _a.sent();
                     if (contract) {
                         return [2 /*return*/, new ethers_1.ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers_1.ethers.providers.Web3Provider(remixProvider)).getSigner())];
@@ -191,9 +186,9 @@ var getContractFactory = function (contractNameOrABI, bytecode, signerOrOptions)
                     else {
                         throw new Error('Contract artefacts not found');
                     }
-                    return [3 /*break*/, 6];
-                case 5: throw new Error('Invalid contract name or ABI provided');
-                case 6: return [2 /*return*/];
+                    return [3 /*break*/, 4];
+                case 3: throw new Error('Invalid contract name or ABI provided');
+                case 4: return [2 /*return*/];
             }
         });
     });
@@ -202,56 +197,53 @@ exports.getContractFactory = getContractFactory;
 var getContractAt = function (contractNameOrABI, address, signer) {
     if (signer === void 0) { signer = null; }
     return __awaiter(void 0, void 0, void 0, function () {
-        var result, e_1;
+        var provider, result, e_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!!global.remixProvider.Transactions.txRunnerInstance) return [3 /*break*/, 2];
-                    return [4 /*yield*/, remixProvider.init()];
+                    provider = new ethers_1.ethers.providers.Web3Provider(remixProvider);
+                    if (!(typeof contractNameOrABI === 'string')) return [3 /*break*/, 5];
+                    _a.label = 1;
                 case 1:
-                    _a.sent();
-                    _a.label = 2;
-                case 2:
-                    if (!(typeof contractNameOrABI === 'string')) return [3 /*break*/, 7];
-                    _a.label = 3;
-                case 3:
-                    _a.trys.push([3, 5, , 6]);
+                    _a.trys.push([1, 3, , 4]);
                     return [4 /*yield*/, (0, artefacts_helper_1.getArtefactsByContractName)(contractNameOrABI)];
-                case 4:
+                case 2:
                     result = _a.sent();
                     if (result) {
-                        return [2 /*return*/, new ethers_1.ethers.Contract(address, result.abi, signer || (new ethers_1.ethers.providers.Web3Provider(remixProvider)).getSigner())];
+                        return [2 /*return*/, new ethers_1.ethers.Contract(address, result.abi, signer || provider.getSigner())];
                     }
                     else {
                         throw new Error('Contract artefacts not found');
                     }
-                    return [3 /*break*/, 6];
-                case 5:
+                    return [3 /*break*/, 4];
+                case 3:
                     e_1 = _a.sent();
                     throw e_1;
-                case 6: return [3 /*break*/, 8];
-                case 7: return [2 /*return*/, new ethers_1.ethers.Contract(address, contractNameOrABI, signer || (new ethers_1.ethers.providers.Web3Provider(remixProvider)).getSigner())];
-                case 8: return [2 /*return*/];
+                case 4: return [3 /*break*/, 6];
+                case 5: return [2 /*return*/, new ethers_1.ethers.Contract(address, contractNameOrABI, signer || provider.getSigner())];
+                case 6: return [2 /*return*/];
             }
         });
     });
 };
 exports.getContractAt = getContractAt;
 var getSigner = function (address) { return __awaiter(void 0, void 0, void 0, function () {
-    var signer;
+    var provider, signer;
     return __generator(this, function (_a) {
-        signer = window.hardhat.ethers.provider.getSigner(address);
+        provider = new ethers_1.ethers.providers.Web3Provider(remixProvider);
+        signer = provider.getSigner(address);
         return [2 /*return*/, signer_1.SignerWithAddress.create(signer)];
     });
 }); };
 exports.getSigner = getSigner;
 var getSigners = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var accounts, err_1;
+    var provider, accounts, err_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 3, , 4]);
-                return [4 /*yield*/, window.hardhat.ethers.provider.listAccounts()];
+                provider = new ethers_1.ethers.providers.Web3Provider(remixProvider);
+                return [4 /*yield*/, provider.listAccounts()];
             case 1:
                 accounts = _a.sent();
                 return [4 /*yield*/, Promise.all(accounts.map(function (account) { return getSigner(account); }))];
