@@ -16,15 +16,8 @@ interface CompileSettings {
 }
 
 async function execute () {
-  let testPath = core.getInput('test-path')
-  let contractPath = core.getInput('contract-path')
-
-  if (!testPath) throw new Error('Test path is required')
-  if (!contractPath) throw new Error('Contract path is required')
-  contractPath = path.resolve(contractPath)
-  testPath = path.resolve(testPath)
-  console.log('testPath: ', testPath)
-  console.log('contractPath: ', contractPath)
+  const testPath = core.getInput('test-path')
+  const contractPath = core.getInput('contract-path')
   const compilerVersion = core.getInput('compiler-version')
   const isTestPathDirectory = (await fs.stat(testPath)).isDirectory()
   const isContractPathDirectory = (await fs.stat(contractPath)).isDirectory()
@@ -47,6 +40,8 @@ async function execute () {
 
       if (contractFiles.length > 0)  {
         for (const file of contractFiles) {
+          if ((await fs.stat(contractPath)).isDirectory()) continue
+
           await compileContract(`${contractPath}/${file}`, compileSettings)
         }
         await cli.exec('ls', [contractPath])
@@ -70,6 +65,7 @@ async function execute () {
           await fs.cp('dist/' + file, testPath + '/remix_deps/' + file)
         })
         for (const testFile of testFiles) {
+          if ((await fs.stat(testPath)).isDirectory()) continue
           const filePath = await main(`${testPath}/${testFile}`, contractPath)
 
           if (filePath) filesPaths.push(filePath)

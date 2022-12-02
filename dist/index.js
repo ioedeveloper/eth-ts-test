@@ -89,14 +89,6 @@ function execute() {
                 case 0:
                     testPath = core.getInput('test-path');
                     contractPath = core.getInput('contract-path');
-                    if (!testPath)
-                        throw new Error('Test path is required');
-                    if (!contractPath)
-                        throw new Error('Contract path is required');
-                    contractPath = path.resolve(contractPath);
-                    testPath = path.resolve(testPath);
-                    console.log('testPath: ', testPath);
-                    console.log('contractPath: ', contractPath);
                     compilerVersion = core.getInput('compiler-version');
                     return [4 /*yield*/, fs.stat(testPath)];
                 case 1:
@@ -120,39 +112,43 @@ function execute() {
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
-                                        if (!isContractPathDirectory) return [3 /*break*/, 10];
+                                        if (!isContractPathDirectory) return [3 /*break*/, 11];
                                         return [4 /*yield*/, fs.readdir(path.resolve(contractPath))];
                                     case 1:
                                         contractFiles = _a.sent();
-                                        if (!(contractFiles.length > 0)) return [3 /*break*/, 8];
+                                        if (!(contractFiles.length > 0)) return [3 /*break*/, 9];
                                         _i = 0, contractFiles_1 = contractFiles;
                                         _a.label = 2;
                                     case 2:
-                                        if (!(_i < contractFiles_1.length)) return [3 /*break*/, 5];
+                                        if (!(_i < contractFiles_1.length)) return [3 /*break*/, 6];
                                         file = contractFiles_1[_i];
-                                        return [4 /*yield*/, compileContract("".concat(contractPath, "/").concat(file), compileSettings)];
+                                        return [4 /*yield*/, fs.stat(contractPath)];
                                     case 3:
-                                        _a.sent();
-                                        _a.label = 4;
+                                        if ((_a.sent()).isDirectory())
+                                            return [3 /*break*/, 5];
+                                        return [4 /*yield*/, compileContract("".concat(contractPath, "/").concat(file), compileSettings)];
                                     case 4:
+                                        _a.sent();
+                                        _a.label = 5;
+                                    case 5:
                                         _i++;
                                         return [3 /*break*/, 2];
-                                    case 5: return [4 /*yield*/, cli.exec('ls', [contractPath])];
-                                    case 6:
-                                        _a.sent();
-                                        return [4 /*yield*/, cli.exec('ls', ["".concat(contractPath, "/artifacts")])];
+                                    case 6: return [4 /*yield*/, cli.exec('ls', [contractPath])];
                                     case 7:
                                         _a.sent();
-                                        return [3 /*break*/, 9];
+                                        return [4 /*yield*/, cli.exec('ls', ["".concat(contractPath, "/artifacts")])];
                                     case 8:
-                                        core.setFailed('No contract files found');
-                                        _a.label = 9;
-                                    case 9: return [3 /*break*/, 12];
-                                    case 10: return [4 /*yield*/, compileContract(contractPath, compileSettings)];
-                                    case 11:
                                         _a.sent();
-                                        _a.label = 12;
-                                    case 12: return [2 /*return*/];
+                                        return [3 /*break*/, 10];
+                                    case 9:
+                                        core.setFailed('No contract files found');
+                                        _a.label = 10;
+                                    case 10: return [3 /*break*/, 13];
+                                    case 11: return [4 /*yield*/, compileContract(contractPath, compileSettings)];
+                                    case 12:
+                                        _a.sent();
+                                        _a.label = 13;
+                                    case 13: return [2 /*return*/];
                                 }
                             });
                         }); })
@@ -172,12 +168,12 @@ function execute() {
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
-                                        if (!isTestPathDirectory) return [3 /*break*/, 8];
+                                        if (!isTestPathDirectory) return [3 /*break*/, 9];
                                         return [4 /*yield*/, fs.readdir(testPath)];
                                     case 1:
                                         testFiles = _a.sent();
                                         filesPaths = [];
-                                        if (!(testFiles.length > 0)) return [3 /*break*/, 7];
+                                        if (!(testFiles.length > 0)) return [3 /*break*/, 8];
                                         (['ethers.js', 'methods.js', 'signer.js', 'artefacts-helper.js', 'chai.js']).forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
                                             return __generator(this, function (_a) {
                                                 switch (_a.label) {
@@ -191,33 +187,37 @@ function execute() {
                                         _i = 0, testFiles_1 = testFiles;
                                         _a.label = 2;
                                     case 2:
-                                        if (!(_i < testFiles_1.length)) return [3 /*break*/, 5];
+                                        if (!(_i < testFiles_1.length)) return [3 /*break*/, 6];
                                         testFile = testFiles_1[_i];
-                                        return [4 /*yield*/, main("".concat(testPath, "/").concat(testFile), contractPath)];
+                                        return [4 /*yield*/, fs.stat(testPath)];
                                     case 3:
+                                        if ((_a.sent()).isDirectory())
+                                            return [3 /*break*/, 5];
+                                        return [4 /*yield*/, main("".concat(testPath, "/").concat(testFile), contractPath)];
+                                    case 4:
                                         filePath = _a.sent();
                                         if (filePath)
                                             filesPaths.push(filePath);
-                                        _a.label = 4;
-                                    case 4:
+                                        _a.label = 5;
+                                    case 5:
                                         _i++;
                                         return [3 /*break*/, 2];
-                                    case 5:
-                                        if (!(filesPaths.length > 0)) return [3 /*break*/, 7];
-                                        return [4 /*yield*/, runTest(filesPaths)];
                                     case 6:
+                                        if (!(filesPaths.length > 0)) return [3 /*break*/, 8];
+                                        return [4 /*yield*/, runTest(filesPaths)];
+                                    case 7:
                                         _a.sent();
-                                        _a.label = 7;
-                                    case 7: return [3 /*break*/, 11];
-                                    case 8: return [4 /*yield*/, main(testPath, contractPath)];
-                                    case 9:
-                                        filePath = _a.sent();
-                                        if (!filePath) return [3 /*break*/, 11];
-                                        return [4 /*yield*/, runTest(filePath)];
+                                        _a.label = 8;
+                                    case 8: return [3 /*break*/, 12];
+                                    case 9: return [4 /*yield*/, main(testPath, contractPath)];
                                     case 10:
+                                        filePath = _a.sent();
+                                        if (!filePath) return [3 /*break*/, 12];
+                                        return [4 /*yield*/, runTest(filePath)];
+                                    case 11:
                                         _a.sent();
-                                        _a.label = 11;
-                                    case 11: return [2 /*return*/];
+                                        _a.label = 12;
+                                    case 12: return [2 /*return*/];
                                 }
                             });
                         }); })];
