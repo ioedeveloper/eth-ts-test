@@ -23,6 +23,8 @@ async function execute () {
   if (!contractPath) throw new Error('Contract path is required')
   contractPath = path.resolve(contractPath)
   testPath = path.resolve(testPath)
+  console.log('testPath: ', testPath)
+  console.log('contractPath: ', contractPath)
   const compilerVersion = core.getInput('compiler-version')
   const isTestPathDirectory = (await fs.stat(testPath)).isDirectory()
   const isContractPathDirectory = (await fs.stat(contractPath)).isDirectory()

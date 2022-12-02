@@ -95,6 +95,8 @@ function execute() {
                         throw new Error('Contract path is required');
                     contractPath = path.resolve(contractPath);
                     testPath = path.resolve(testPath);
+                    console.log('testPath: ', testPath);
+                    console.log('contractPath: ', contractPath);
                     compilerVersion = core.getInput('compiler-version');
                     return [4 /*yield*/, fs.stat(testPath)];
                 case 1:
