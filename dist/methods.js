@@ -46,7 +46,6 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getContractFactory = exports.getContractAt = exports.getSigner = exports.getSigners = exports.getContractFactoryFromArtifact = exports.getContractAtFromArtifact = void 0;
-// import { Provider } from '@remix-project/remix-simulator'
 var ethers_1 = require("ethers");
 var artefacts_helper_1 = require("./artefacts-helper");
 var signer_1 = require("./signer");
@@ -174,14 +173,14 @@ var getContractFactory = function (contractNameOrABI, bytecode, signerOrOptions)
             switch (_a.label) {
                 case 0:
                     if (!(bytecode && contractNameOrABI)) return [3 /*break*/, 1];
-                    return [2 /*return*/, new ethers_1.ethers.ContractFactory(contractNameOrABI, bytecode, signerOrOptions || (new ethers_1.ethers.providers.Web3Provider(remixProvider)).getSigner())];
+                    return [2 /*return*/, new ethers_1.ethers.ContractFactory(contractNameOrABI, bytecode, signerOrOptions || (new ethers_1.ethers.providers.Web3Provider(ganacheProvider)).getSigner())];
                 case 1:
                     if (!(typeof contractNameOrABI === 'string')) return [3 /*break*/, 3];
                     return [4 /*yield*/, (0, artefacts_helper_1.getArtefactsByContractName)(contractNameOrABI)];
                 case 2:
                     contract = _a.sent();
                     if (contract) {
-                        return [2 /*return*/, new ethers_1.ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers_1.ethers.providers.Web3Provider(remixProvider)).getSigner())];
+                        return [2 /*return*/, new ethers_1.ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers_1.ethers.providers.Web3Provider(ganacheProvider)).getSigner())];
                     }
                     else {
                         throw new Error('Contract artefacts not found');
@@ -201,7 +200,7 @@ var getContractAt = function (contractNameOrABI, address, signer) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    provider = new ethers_1.ethers.providers.Web3Provider(remixProvider);
+                    provider = new ethers_1.ethers.providers.Web3Provider(ganacheProvider);
                     if (!(typeof contractNameOrABI === 'string')) return [3 /*break*/, 5];
                     _a.label = 1;
                 case 1:
@@ -230,7 +229,7 @@ exports.getContractAt = getContractAt;
 var getSigner = function (address) { return __awaiter(void 0, void 0, void 0, function () {
     var provider, signer;
     return __generator(this, function (_a) {
-        provider = new ethers_1.ethers.providers.Web3Provider(remixProvider);
+        provider = new ethers_1.ethers.providers.Web3Provider(ganacheProvider);
         signer = provider.getSigner(address);
         return [2 /*return*/, signer_1.SignerWithAddress.create(signer)];
     });
@@ -242,7 +241,7 @@ var getSigners = function () { return __awaiter(void 0, void 0, void 0, function
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 3, , 4]);
-                provider = new ethers_1.ethers.providers.Web3Provider(remixProvider);
+                provider = new ethers_1.ethers.providers.Web3Provider(ganacheProvider);
                 return [4 /*yield*/, provider.listAccounts()];
             case 1:
                 accounts = _a.sent();

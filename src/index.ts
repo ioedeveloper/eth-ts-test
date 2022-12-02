@@ -29,9 +29,9 @@ async function execute () {
   }
 
   // load environment and depeondencies
-  await core.group("Setup environment", async () => {
-    await setupRunEnv()
-  })
+  // await core.group("Setup environment", async () => {
+  //   await setupRunEnv()
+  // })
 
   // compile smart contracts to run tests on.
   await core.group("Compile contracts", async () => {

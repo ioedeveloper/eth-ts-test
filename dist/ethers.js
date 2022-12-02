@@ -30,9 +30,8 @@ exports.ethers = void 0;
 var ethers_1 = require("ethers");
 Object.defineProperty(exports, "ethers", { enumerable: true, get: function () { return ethers_1.ethers; } });
 var ganache = __importStar(require("ganache"));
-// import { Provider } from '@remix-project/remix-simulator'
 var hhEtherMethods = __importStar(require("./methods"));
-global.remixProvider = ganache.provider({ logging: { quiet: true } });
+global.ganacheProvider = ganache.provider({ logging: { quiet: true } });
 for (var method in hhEtherMethods)
     Object.defineProperty(ethers_1.ethers, method, { value: hhEtherMethods[method] });
 __exportStar(require("ethers"), exports);

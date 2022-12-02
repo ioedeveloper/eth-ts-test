@@ -103,21 +103,9 @@ function execute() {
                         version: compilerVersion
                     };
                     // load environment and depeondencies
-                    return [4 /*yield*/, core.group("Setup environment", function () { return __awaiter(_this, void 0, void 0, function () {
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0: return [4 /*yield*/, setupRunEnv()];
-                                    case 1:
-                                        _a.sent();
-                                        return [2 /*return*/];
-                                }
-                            });
-                        }); })
-                        // compile smart contracts to run tests on.
-                    ];
-                case 3:
-                    // load environment and depeondencies
-                    _a.sent();
+                    // await core.group("Setup environment", async () => {
+                    //   await setupRunEnv()
+                    // })
                     // compile smart contracts to run tests on.
                     return [4 /*yield*/, core.group("Compile contracts", function () { return __awaiter(_this, void 0, void 0, function () {
                             var contractFiles, _i, contractFiles_1, file;
@@ -162,7 +150,11 @@ function execute() {
                         }); })
                         // Move remix dependencies to test folder and transpile test files. Then run tests.
                     ];
-                case 4:
+                case 3:
+                    // load environment and depeondencies
+                    // await core.group("Setup environment", async () => {
+                    //   await setupRunEnv()
+                    // })
                     // compile smart contracts to run tests on.
                     _a.sent();
                     // Move remix dependencies to test folder and transpile test files. Then run tests.
@@ -221,7 +213,7 @@ function execute() {
                                 }
                             });
                         }); })];
-                case 5:
+                case 4:
                     // Move remix dependencies to test folder and transpile test files. Then run tests.
                     _a.sent();
                     return [2 /*return*/];

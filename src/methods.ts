@@ -1,12 +1,8 @@
-// import { Provider } from '@remix-project/remix-simulator'
 import { ethers } from "ethers"
-import * as ganache from "ganache";
 import { getArtefactsByContractName } from './artefacts-helper';
 import { SignerWithAddress } from './signer'
-
-  // global.remixContractArtefactsPath is injected into the global scope during test files build. It save the path to the artefacts folder.
 declare global {
-  var remixProvider: ganache.EthereumProvider
+  var ganacheProvider: any
 }
 
 const isFactoryOptions = (signerOrOptions) => {
@@ -158,14 +154,13 @@ const resultToArtifact = (result) => {
 }
 
 const getContractFactory = async (contractNameOrABI: ethers.ContractInterface, bytecode?: string, signerOrOptions = null) => {
-  // if (!global.remixProvider.Transactions.txRunnerInstance) await remixProvider.init()
   if (bytecode && contractNameOrABI) {
-    return new ethers.ContractFactory(contractNameOrABI, bytecode, signerOrOptions || (new ethers.providers.Web3Provider(remixProvider)).getSigner())
+    return new ethers.ContractFactory(contractNameOrABI, bytecode, signerOrOptions || (new ethers.providers.Web3Provider(ganacheProvider)).getSigner())
   } else if (typeof contractNameOrABI === 'string') {
     const contract = await getArtefactsByContractName(contractNameOrABI)
 
     if (contract) {
-      return new ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers.providers.Web3Provider(remixProvider)).getSigner())
+      return new ethers.ContractFactory(contract.abi, contract.evm.bytecode.object, signerOrOptions || (new ethers.providers.Web3Provider(ganacheProvider)).getSigner())
     } else {
       throw new Error('Contract artefacts not found')
     }
@@ -175,8 +170,7 @@ const getContractFactory = async (contractNameOrABI: ethers.ContractInterface, b
 }
 
 const getContractAt = async (contractNameOrABI: ethers.ContractInterface, address: string, signer = null) => {
-  // if (!global.remixProvider.Transactions.txRunnerInstance) await remixProvider.init()
-  const provider = new ethers.providers.Web3Provider(remixProvider)
+  const provider = new ethers.providers.Web3Provider(ganacheProvider)
 
   if(typeof contractNameOrABI === 'string') {
     try {
@@ -194,17 +188,15 @@ const getContractAt = async (contractNameOrABI: ethers.ContractInterface, addres
 }
 
 const getSigner = async (address: string) => {
-  // if (!global.remixProvider.Transactions.txRunnerInstance) await remixProvider.init()
-  const provider = new ethers.providers.Web3Provider(remixProvider)
+  const provider = new ethers.providers.Web3Provider(ganacheProvider)
   const signer = provider.getSigner(address)
 
   return SignerWithAddress.create(signer)
 }
 
 const getSigners = async () => {
-  // if (!global.remixProvider.Transactions.txRunnerInstance) await remixProvider.init()
   try {
-    const provider = new ethers.providers.Web3Provider(remixProvider)
+    const provider = new ethers.providers.Web3Provider(ganacheProvider)
     const accounts = await provider.listAccounts()
 
     return await Promise.all( accounts.map((account) => getSigner(account)))
