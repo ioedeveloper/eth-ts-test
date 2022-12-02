@@ -27,6 +27,7 @@ async function execute () {
     runs: 200,
     version: compilerVersion
   }
+  await cli.exec('ls')
 
   // load environment and depeondencies
   // await core.group("Setup environment", async () => {
@@ -44,8 +45,6 @@ async function execute () {
 
           await compileContract(`${contractPath}/${file}`, compileSettings)
         }
-        await cli.exec('ls', [contractPath])
-        await cli.exec('ls', [`${contractPath}/artifacts`])
       } else {
         core.setFailed('No contract files found')
       }
@@ -62,7 +61,7 @@ async function execute () {
 
       if (testFiles.length > 0) {
         (['ethers.js', 'methods.js', 'signer.js', 'artefacts-helper.js', 'chai.js']).forEach(async (file: string) => {
-          await fs.cp('./' + file, testPath + '/remix_deps/' + file)
+          await fs.cp('dist/' + file, testPath + '/remix_deps/' + file)
         })
         for (const testFile of testFiles) {
           if ((await fs.stat(`${testPath}/${testFile}`)).isDirectory()) continue

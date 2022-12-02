@@ -102,6 +102,15 @@ function execute() {
                         runs: 200,
                         version: compilerVersion
                     };
+                    return [4 /*yield*/, cli.exec('ls')
+                        // load environment and depeondencies
+                        // await core.group("Setup environment", async () => {
+                        //   await setupRunEnv()
+                        // })
+                        // compile smart contracts to run tests on.
+                    ];
+                case 3:
+                    _a.sent();
                     // load environment and depeondencies
                     // await core.group("Setup environment", async () => {
                     //   await setupRunEnv()
@@ -112,11 +121,11 @@ function execute() {
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
-                                        if (!isContractPathDirectory) return [3 /*break*/, 11];
+                                        if (!isContractPathDirectory) return [3 /*break*/, 9];
                                         return [4 /*yield*/, fs.readdir(path.resolve(contractPath))];
                                     case 1:
                                         contractFiles = _a.sent();
-                                        if (!(contractFiles.length > 0)) return [3 /*break*/, 9];
+                                        if (!(contractFiles.length > 0)) return [3 /*break*/, 7];
                                         _i = 0, contractFiles_1 = contractFiles;
                                         _a.label = 2;
                                     case 2:
@@ -133,28 +142,22 @@ function execute() {
                                     case 5:
                                         _i++;
                                         return [3 /*break*/, 2];
-                                    case 6: return [4 /*yield*/, cli.exec('ls', [contractPath])];
+                                    case 6: return [3 /*break*/, 8];
                                     case 7:
-                                        _a.sent();
-                                        return [4 /*yield*/, cli.exec('ls', ["".concat(contractPath, "/artifacts")])];
-                                    case 8:
-                                        _a.sent();
-                                        return [3 /*break*/, 10];
-                                    case 9:
                                         core.setFailed('No contract files found');
-                                        _a.label = 10;
-                                    case 10: return [3 /*break*/, 13];
-                                    case 11: return [4 /*yield*/, compileContract(contractPath, compileSettings)];
-                                    case 12:
+                                        _a.label = 8;
+                                    case 8: return [3 /*break*/, 11];
+                                    case 9: return [4 /*yield*/, compileContract(contractPath, compileSettings)];
+                                    case 10:
                                         _a.sent();
-                                        _a.label = 13;
-                                    case 13: return [2 /*return*/];
+                                        _a.label = 11;
+                                    case 11: return [2 /*return*/];
                                 }
                             });
                         }); })
                         // Move remix dependencies to test folder and transpile test files. Then run tests.
                     ];
-                case 3:
+                case 4:
                     // load environment and depeondencies
                     // await core.group("Setup environment", async () => {
                     //   await setupRunEnv()
@@ -177,7 +180,7 @@ function execute() {
                                         (['ethers.js', 'methods.js', 'signer.js', 'artefacts-helper.js', 'chai.js']).forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
                                             return __generator(this, function (_a) {
                                                 switch (_a.label) {
-                                                    case 0: return [4 /*yield*/, fs.cp('./' + file, testPath + '/remix_deps/' + file)];
+                                                    case 0: return [4 /*yield*/, fs.cp('dist/' + file, testPath + '/remix_deps/' + file)];
                                                     case 1:
                                                         _a.sent();
                                                         return [2 /*return*/];
@@ -221,7 +224,7 @@ function execute() {
                                 }
                             });
                         }); })];
-                case 4:
+                case 5:
                     // Move remix dependencies to test folder and transpile test files. Then run tests.
                     _a.sent();
                     return [2 /*return*/];
