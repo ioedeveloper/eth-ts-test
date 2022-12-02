@@ -122,7 +122,7 @@ function execute() {
                                     case 2:
                                         if (!(_i < contractFiles_1.length)) return [3 /*break*/, 6];
                                         file = contractFiles_1[_i];
-                                        return [4 /*yield*/, fs.stat(contractPath)];
+                                        return [4 /*yield*/, fs.stat("".concat(contractPath, "/").concat(file))];
                                     case 3:
                                         if ((_a.sent()).isDirectory())
                                             return [3 /*break*/, 5];
@@ -189,7 +189,7 @@ function execute() {
                                     case 2:
                                         if (!(_i < testFiles_1.length)) return [3 /*break*/, 6];
                                         testFile = testFiles_1[_i];
-                                        return [4 /*yield*/, fs.stat(testPath)];
+                                        return [4 /*yield*/, fs.stat("".concat(testPath, "/").concat(testFile))];
                                     case 3:
                                         if ((_a.sent()).isDirectory())
                                             return [3 /*break*/, 5];

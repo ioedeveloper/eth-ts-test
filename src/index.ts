@@ -40,7 +40,7 @@ async function execute () {
 
       if (contractFiles.length > 0)  {
         for (const file of contractFiles) {
-          if ((await fs.stat(contractPath)).isDirectory()) continue
+          if ((await fs.stat(`${contractPath}/${file}`)).isDirectory()) continue
 
           await compileContract(`${contractPath}/${file}`, compileSettings)
         }
@@ -65,7 +65,7 @@ async function execute () {
           await fs.cp('dist/' + file, testPath + '/remix_deps/' + file)
         })
         for (const testFile of testFiles) {
-          if ((await fs.stat(testPath)).isDirectory()) continue
+          if ((await fs.stat(`${testPath}/${testFile}`)).isDirectory()) continue
           const filePath = await main(`${testPath}/${testFile}`, contractPath)
 
           if (filePath) filesPaths.push(filePath)
