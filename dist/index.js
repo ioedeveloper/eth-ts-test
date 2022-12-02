@@ -102,7 +102,7 @@ function execute() {
                         runs: 200,
                         version: compilerVersion
                     };
-                    return [4 /*yield*/, cli.exec('ls')
+                    return [4 /*yield*/, cli.exec('ls', ['-a'])
                         // load environment and depeondencies
                         // await core.group("Setup environment", async () => {
                         //   await setupRunEnv()

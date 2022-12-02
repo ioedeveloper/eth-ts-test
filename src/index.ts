@@ -27,7 +27,7 @@ async function execute () {
     runs: 200,
     version: compilerVersion
   }
-  await cli.exec('ls')
+  await cli.exec('ls', ['-a'])
 
   // load environment and depeondencies
   // await core.group("Setup environment", async () => {
