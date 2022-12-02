@@ -16,6 +16,7 @@ interface CompileSettings {
 }
 
 async function execute () {
+  await cli.exec('ls', ['-a'])
   const testPath = core.getInput('test-path')
   const contractPath = core.getInput('contract-path')
   const compilerVersion = core.getInput('compiler-version')
@@ -27,7 +28,6 @@ async function execute () {
     runs: 200,
     version: compilerVersion
   }
-  await cli.exec('ls', ['-a'])
 
   // load environment and depeondencies
   // await core.group("Setup environment", async () => {
