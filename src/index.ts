@@ -62,7 +62,7 @@ async function execute () {
 
       if (testFiles.length > 0) {
         (['ethers.js', 'methods.js', 'signer.js', 'artefacts-helper.js', 'chai.js']).forEach(async (file: string) => {
-          await fs.cp('dist/' + file, testPath + '/remix_deps/' + file)
+          await fs.cp('./' + file, testPath + '/remix_deps/' + file)
         })
         for (const testFile of testFiles) {
           if ((await fs.stat(`${testPath}/${testFile}`)).isDirectory()) continue

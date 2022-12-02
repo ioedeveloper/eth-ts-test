@@ -177,7 +177,7 @@ function execute() {
                                         (['ethers.js', 'methods.js', 'signer.js', 'artefacts-helper.js', 'chai.js']).forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
                                             return __generator(this, function (_a) {
                                                 switch (_a.label) {
-                                                    case 0: return [4 /*yield*/, fs.cp('dist/' + file, testPath + '/remix_deps/' + file)];
+                                                    case 0: return [4 /*yield*/, fs.cp('./' + file, testPath + '/remix_deps/' + file)];
                                                     case 1:
                                                         _a.sent();
                                                         return [2 /*return*/];
