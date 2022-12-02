@@ -89,6 +89,12 @@ function execute() {
                 case 0:
                     testPath = core.getInput('test-path');
                     contractPath = core.getInput('contract-path');
+                    if (!testPath)
+                        throw new Error('Test path is required');
+                    if (!contractPath)
+                        throw new Error('Contract path is required');
+                    contractPath = path.resolve(contractPath);
+                    testPath = path.resolve(testPath);
                     compilerVersion = core.getInput('compiler-version');
                     return [4 /*yield*/, fs.stat(testPath)];
                 case 1:
@@ -113,7 +119,7 @@ function execute() {
                                 switch (_a.label) {
                                     case 0:
                                         if (!isContractPathDirectory) return [3 /*break*/, 10];
-                                        return [4 /*yield*/, fs.readdir(contractPath)];
+                                        return [4 /*yield*/, fs.readdir(path.resolve(contractPath))];
                                     case 1:
                                         contractFiles = _a.sent();
                                         if (!(contractFiles.length > 0)) return [3 /*break*/, 8];
