@@ -32,7 +32,7 @@ Object.defineProperty(exports, "ethers", { enumerable: true, get: function () { 
 var ganache = __importStar(require("ganache"));
 // import { Provider } from '@remix-project/remix-simulator'
 var hhEtherMethods = __importStar(require("./methods"));
-global.remixProvider = ganache.provider();
+global.remixProvider = ganache.provider({ logging: { quiet: true } });
 for (var method in hhEtherMethods)
     Object.defineProperty(ethers_1.ethers, method, { value: hhEtherMethods[method] });
 __exportStar(require("ethers"), exports);
