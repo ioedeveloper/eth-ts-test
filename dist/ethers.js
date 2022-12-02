@@ -29,10 +29,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ethers = void 0;
 var ethers_1 = require("ethers");
 Object.defineProperty(exports, "ethers", { enumerable: true, get: function () { return ethers_1.ethers; } });
-var remix_simulator_1 = require("@remix-project/remix-simulator");
+var ganache = __importStar(require("ganache"));
+// import { Provider } from '@remix-project/remix-simulator'
 var hhEtherMethods = __importStar(require("./methods"));
-var remixSimulatorProvider = new remix_simulator_1.Provider({ fork: null });
-global.remixProvider = remixSimulatorProvider;
+global.remixProvider = ganache.provider();
 for (var method in hhEtherMethods)
     Object.defineProperty(ethers_1.ethers, method, { value: hhEtherMethods[method] });
 __exportStar(require("ethers"), exports);
