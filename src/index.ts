@@ -159,10 +159,10 @@ async function main (filePath: string, contractPath: string): Promise<string | u
       throw new Error(`No describe function found in ${filePath}. Please wrap your tests in a describe function.`)
     } else {
       testFileContent = `${testFileContent.slice(0, describeIndex)}\nglobal.remixContractArtefactsPath = "${contractPath}/artifacts"; \n${testFileContent.slice(describeIndex)}`
-      if (hardhatImportIndex > -1) testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'from \'sol-test-helper/ethers\'')
-      if (hardhatRequireIndex > -1) testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'require(\'sol-test-helper/ethers\')')
-      if (chaiImportIndex) testFileContent = testFileContent.replace(chaiImportRegex, 'from \'sol-test-helper/chai\'')
-      if (chaiRequireIndex) testFileContent = testFileContent.replace(chaiRequireRegex, 'require(\'sol-test-helper/chai\')')
+      if (hardhatImportIndex > -1) testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'from \'sol-test-helper\'')
+      if (hardhatRequireIndex > -1) testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'require(\'sol-test-helper\')')
+      if (chaiImportIndex) testFileContent = testFileContent.replace(chaiImportRegex, 'from \'sol-test-helper\'')
+      if (chaiRequireIndex) testFileContent = testFileContent.replace(chaiRequireRegex, 'require(\'sol-test-helper\')')
       const testFile = transpileScript(testFileContent)
 
       filePath = filePath.replace('.ts', '.js')

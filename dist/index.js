@@ -341,13 +341,13 @@ function main(filePath, contractPath) {
                 case 2:
                     testFileContent = "".concat(testFileContent.slice(0, describeIndex), "\nglobal.remixContractArtefactsPath = \"").concat(contractPath, "/artifacts\"; \n").concat(testFileContent.slice(describeIndex));
                     if (hardhatImportIndex > -1)
-                        testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'from \'sol-test-helper/ethers\'');
+                        testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'from \'sol-test-helper\'');
                     if (hardhatRequireIndex > -1)
-                        testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'require(\'sol-test-helper/ethers\')');
+                        testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'require(\'sol-test-helper\')');
                     if (chaiImportIndex)
-                        testFileContent = testFileContent.replace(chaiImportRegex, 'from \'sol-test-helper/chai\'');
+                        testFileContent = testFileContent.replace(chaiImportRegex, 'from \'sol-test-helper\'');
                     if (chaiRequireIndex)
-                        testFileContent = testFileContent.replace(chaiRequireRegex, 'require(\'sol-test-helper/chai\')');
+                        testFileContent = testFileContent.replace(chaiRequireRegex, 'require(\'sol-test-helper\')');
                     testFile = transpileScript(testFileContent);
                     filePath = filePath.replace('.ts', '.js');
                     return [4 /*yield*/, fs.writeFile(filePath, testFile.outputText)];
