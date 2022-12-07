@@ -128,7 +128,7 @@ async function compileContract (contractPath: string, settings: CompileSettings)
       remixCompiler.event.register('compilationFinished', async (success: boolean, data: any, source: string) => {
         if (success) {
           const contractName = path.basename(contractPath, '.sol')
-          const artifactsPath = `${path.dirname(contractPath)}/artifacts`
+          const artifactsPath = `${path.dirname(contractPath)}/build-artifacts`
 
           if (!existsSync(artifactsPath)) await fs.mkdir(artifactsPath)
           await fs.writeFile(`${artifactsPath}/${contractName}.json`, JSON.stringify(data, null, 2))
@@ -163,7 +163,7 @@ async function main (filePath: string, contractPath: string): Promise<string | u
     if (describeIndex === -1) {
       throw new Error(`No describe function found in ${filePath}. Please wrap your tests in a describe function.`)
     } else {
-      testFileContent = `${testFileContent.slice(0, describeIndex)}\nglobal.remixContractArtefactsPath = "${contractPath}/artifacts"; \n${testFileContent.slice(describeIndex)}`
+      testFileContent = `${testFileContent.slice(0, describeIndex)}\nglobal.remixContractArtifactsPath = "${contractPath}/build-artifacts"; \n${testFileContent.slice(describeIndex)}`
       if (hardhatImportIndex > -1) testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'from \'sol-test-helper\'')
       if (hardhatRequireIndex > -1) testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'require(\'sol-test-helper\')')
       if (chaiImportIndex) testFileContent = testFileContent.replace(chaiImportRegex, 'from \'sol-test-helper\'')

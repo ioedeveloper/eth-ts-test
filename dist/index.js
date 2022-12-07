@@ -295,7 +295,7 @@ function compileContract(contractPath, settings) {
                                             case 0:
                                                 if (!success) return [3 /*break*/, 4];
                                                 contractName = path.basename(contractPath, '.sol');
-                                                artifactsPath = "".concat(path.dirname(contractPath), "/artifacts");
+                                                artifactsPath = "".concat(path.dirname(contractPath), "/build-artifacts");
                                                 if (!!(0, fs_1.existsSync)(artifactsPath)) return [3 /*break*/, 2];
                                                 return [4 /*yield*/, fs.mkdir(artifactsPath)];
                                             case 1:
@@ -345,7 +345,7 @@ function main(filePath, contractPath) {
                     if (!(describeIndex === -1)) return [3 /*break*/, 2];
                     throw new Error("No describe function found in ".concat(filePath, ". Please wrap your tests in a describe function."));
                 case 2:
-                    testFileContent = "".concat(testFileContent.slice(0, describeIndex), "\nglobal.remixContractArtefactsPath = \"").concat(contractPath, "/artifacts\"; \n").concat(testFileContent.slice(describeIndex));
+                    testFileContent = "".concat(testFileContent.slice(0, describeIndex), "\nglobal.remixContractArtifactsPath = \"").concat(contractPath, "/build-artifacts\"; \n").concat(testFileContent.slice(describeIndex));
                     if (hardhatImportIndex > -1)
                         testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'from \'sol-test-helper\'');
                     if (hardhatRequireIndex > -1)
