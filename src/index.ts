@@ -16,7 +16,6 @@ interface CompileSettings {
 }
 
 async function execute () {
-  await cli.exec('ls', ['-a'])
   const testPath = core.getInput('test-path')
   const contractPath = core.getInput('contract-path')
   const compilerVersion = core.getInput('compiler-version')
@@ -30,9 +29,9 @@ async function execute () {
   }
 
   // load environment and depeondencies
-  // await core.group("Setup environment", async () => {
-  //   await setupRunEnv()
-  // })
+  await core.group("Setup environment", async () => {
+    await setupRunEnv()
+  })
 
   // compile smart contracts to run tests on.
   await core.group("Compile contracts", async () => {
@@ -60,9 +59,6 @@ async function execute () {
       const filesPaths = []
 
       if (testFiles.length > 0) {
-        (['ethers.js', 'methods.js', 'signer.js', 'artefacts-helper.js', 'chai.js']).forEach(async (file: string) => {
-          await fs.cp('dist/' + file, testPath + '/remix_deps/' + file)
-        })
         for (const testFile of testFiles) {
           if ((await fs.stat(`${testPath}/${testFile}`)).isDirectory()) continue
           const filePath = await main(`${testPath}/${testFile}`, contractPath)
@@ -163,10 +159,10 @@ async function main (filePath: string, contractPath: string): Promise<string | u
       throw new Error(`No describe function found in ${filePath}. Please wrap your tests in a describe function.`)
     } else {
       testFileContent = `${testFileContent.slice(0, describeIndex)}\nglobal.remixContractArtefactsPath = "${contractPath}/artifacts"; \n${testFileContent.slice(describeIndex)}`
-      if (hardhatImportIndex > -1) testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'from \'./remix_deps/ethers\'')
-      if (hardhatRequireIndex > -1) testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'require(\'./remix_deps/ethers\')')
-      if (chaiImportIndex) testFileContent = testFileContent.replace(chaiImportRegex, 'from \'./remix_deps/chai\'')
-      if (chaiRequireIndex) testFileContent = testFileContent.replace(chaiRequireRegex, 'require(\'./remix_deps/chai\')')
+      if (hardhatImportIndex > -1) testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'from \'sol-test-helper/ethers\'')
+      if (hardhatRequireIndex > -1) testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'require(\'sol-test-helper/ethers\')')
+      if (chaiImportIndex) testFileContent = testFileContent.replace(chaiImportRegex, 'from \'sol-test-helper/chai\'')
+      if (chaiRequireIndex) testFileContent = testFileContent.replace(chaiRequireRegex, 'require(\'sol-test-helper/chai\')')
       const testFile = transpileScript(testFileContent)
 
       filePath = filePath.replace('.ts', '.js')
@@ -187,12 +183,12 @@ async function setupRunEnv (): Promise<void> {
   const isNPMrepo = existsSync(packageLock)
 
   if (isYarnRepo) {
-    await cli.exec('yarn', ['add', 'chai', 'mocha', '@ethereum-waffle/chai', '--dev'])
+    await cli.exec('yarn', ['add', 'mocha', 'sol-test-helper', '--dev'])
   } else if (isNPMrepo) {
-    await cli.exec('npm', ['install', 'chai', 'mocha', '@ethereum-waffle/chai', '--save-dev'])
+    await cli.exec('npm', ['install', 'mocha', 'sol-test-helper', '--save-dev'])
   } else {
     await cli.exec('npm', ['init', '-y'])
-    await cli.exec('npm', ['install', 'chai', 'mocha', '@ethereum-waffle/chai', '--save-dev'])
+    await cli.exec('npm', ['install', 'mocha', 'sol-test-helper', '--save-dev'])
   }
 }
 

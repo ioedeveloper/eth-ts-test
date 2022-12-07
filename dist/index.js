@@ -102,19 +102,22 @@ function execute() {
                         runs: 200,
                         version: compilerVersion
                     };
-                    return [4 /*yield*/, cli.exec('ls', ['-a'])
-                        // load environment and depeondencies
-                        // await core.group("Setup environment", async () => {
-                        //   await setupRunEnv()
-                        // })
+                    // load environment and depeondencies
+                    return [4 /*yield*/, core.group("Setup environment", function () { return __awaiter(_this, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0: return [4 /*yield*/, setupRunEnv()];
+                                    case 1:
+                                        _a.sent();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); })
                         // compile smart contracts to run tests on.
                     ];
                 case 3:
-                    _a.sent();
                     // load environment and depeondencies
-                    // await core.group("Setup environment", async () => {
-                    //   await setupRunEnv()
-                    // })
+                    _a.sent();
                     // compile smart contracts to run tests on.
                     return [4 /*yield*/, core.group("Compile contracts", function () { return __awaiter(_this, void 0, void 0, function () {
                             var contractFiles, _i, contractFiles_1, file;
@@ -158,16 +161,11 @@ function execute() {
                         // Move remix dependencies to test folder and transpile test files. Then run tests.
                     ];
                 case 4:
-                    // load environment and depeondencies
-                    // await core.group("Setup environment", async () => {
-                    //   await setupRunEnv()
-                    // })
                     // compile smart contracts to run tests on.
                     _a.sent();
                     // Move remix dependencies to test folder and transpile test files. Then run tests.
                     return [4 /*yield*/, core.group("Run tests", function () { return __awaiter(_this, void 0, void 0, function () {
                             var testFiles, filesPaths, _i, testFiles_1, testFile, filePath, filePath;
-                            var _this = this;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
@@ -177,16 +175,6 @@ function execute() {
                                         testFiles = _a.sent();
                                         filesPaths = [];
                                         if (!(testFiles.length > 0)) return [3 /*break*/, 8];
-                                        (['ethers.js', 'methods.js', 'signer.js', 'artefacts-helper.js', 'chai.js']).forEach(function (file) { return __awaiter(_this, void 0, void 0, function () {
-                                            return __generator(this, function (_a) {
-                                                switch (_a.label) {
-                                                    case 0: return [4 /*yield*/, fs.cp('dist/' + file, testPath + '/remix_deps/' + file)];
-                                                    case 1:
-                                                        _a.sent();
-                                                        return [2 /*return*/];
-                                                }
-                                            });
-                                        }); });
                                         _i = 0, testFiles_1 = testFiles;
                                         _a.label = 2;
                                     case 2:
@@ -353,13 +341,13 @@ function main(filePath, contractPath) {
                 case 2:
                     testFileContent = "".concat(testFileContent.slice(0, describeIndex), "\nglobal.remixContractArtefactsPath = \"").concat(contractPath, "/artifacts\"; \n").concat(testFileContent.slice(describeIndex));
                     if (hardhatImportIndex > -1)
-                        testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'from \'./remix_deps/ethers\'');
+                        testFileContent = testFileContent.replace(hardhatEthersImportRegex, 'from \'sol-test-helper/ethers\'');
                     if (hardhatRequireIndex > -1)
-                        testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'require(\'./remix_deps/ethers\')');
+                        testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'require(\'sol-test-helper/ethers\')');
                     if (chaiImportIndex)
-                        testFileContent = testFileContent.replace(chaiImportRegex, 'from \'./remix_deps/chai\'');
+                        testFileContent = testFileContent.replace(chaiImportRegex, 'from \'sol-test-helper/chai\'');
                     if (chaiRequireIndex)
-                        testFileContent = testFileContent.replace(chaiRequireRegex, 'require(\'./remix_deps/chai\')');
+                        testFileContent = testFileContent.replace(chaiRequireRegex, 'require(\'sol-test-helper/chai\')');
                     testFile = transpileScript(testFileContent);
                     filePath = filePath.replace('.ts', '.js');
                     return [4 /*yield*/, fs.writeFile(filePath, testFile.outputText)];
@@ -391,20 +379,20 @@ function setupRunEnv() {
                     packageLock = path.join(workingDirectory, 'package-lock.json');
                     isNPMrepo = (0, fs_1.existsSync)(packageLock);
                     if (!isYarnRepo) return [3 /*break*/, 3];
-                    return [4 /*yield*/, cli.exec('yarn', ['add', 'chai', 'mocha', '@ethereum-waffle/chai', '--dev'])];
+                    return [4 /*yield*/, cli.exec('yarn', ['add', 'mocha', 'sol-test-helper', '--dev'])];
                 case 2:
                     _a.sent();
                     return [3 /*break*/, 8];
                 case 3:
                     if (!isNPMrepo) return [3 /*break*/, 5];
-                    return [4 /*yield*/, cli.exec('npm', ['install', 'chai', 'mocha', '@ethereum-waffle/chai', '--save-dev'])];
+                    return [4 /*yield*/, cli.exec('npm', ['install', 'mocha', 'sol-test-helper', '--save-dev'])];
                 case 4:
                     _a.sent();
                     return [3 /*break*/, 8];
                 case 5: return [4 /*yield*/, cli.exec('npm', ['init', '-y'])];
                 case 6:
                     _a.sent();
-                    return [4 /*yield*/, cli.exec('npm', ['install', 'chai', 'mocha', '@ethereum-waffle/chai', '--save-dev'])];
+                    return [4 /*yield*/, cli.exec('npm', ['install', 'mocha', 'sol-test-helper', '--save-dev'])];
                 case 7:
                     _a.sent();
                     _a.label = 8;
