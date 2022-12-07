@@ -16,8 +16,13 @@ interface CompileSettings {
 }
 
 async function execute () {
-  const testPath = core.getInput('test-path')
-  const contractPath = core.getInput('contract-path')
+  let testPath = core.getInput('test-path')
+  let contractPath = core.getInput('contract-path')
+
+  if (!testPath) throw new Error('Test path is required')
+  if (!contractPath) throw new Error('Contract path is required')
+  contractPath = path.resolve(contractPath)
+  testPath = path.resolve(testPath)
   const compilerVersion = core.getInput('compiler-version')
   const isTestPathDirectory = (await fs.stat(testPath)).isDirectory()
   const isContractPathDirectory = (await fs.stat(contractPath)).isDirectory()
@@ -36,7 +41,7 @@ async function execute () {
   // compile smart contracts to run tests on.
   await core.group("Compile contracts", async () => {
     if (isContractPathDirectory) {
-      const contractFiles = await fs.readdir(path.resolve(contractPath))
+      const contractFiles = await fs.readdir(contractPath)
 
       if (contractFiles.length > 0)  {
         for (const file of contractFiles) {
