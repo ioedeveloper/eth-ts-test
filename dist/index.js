@@ -175,46 +175,49 @@ function execute() {
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
-                                        if (!isTestPathDirectory) return [3 /*break*/, 9];
-                                        return [4 /*yield*/, fs.readdir(testPath)];
+                                        if (!isTestPathDirectory) return [3 /*break*/, 10];
+                                        return [4 /*yield*/, cli.exec('ls', [testPath, '-a'])];
                                     case 1:
+                                        _a.sent();
+                                        return [4 /*yield*/, fs.readdir(testPath)];
+                                    case 2:
                                         testFiles = _a.sent();
                                         filesPaths = [];
-                                        if (!(testFiles.length > 0)) return [3 /*break*/, 8];
+                                        if (!(testFiles.length > 0)) return [3 /*break*/, 9];
                                         _i = 0, testFiles_1 = testFiles;
-                                        _a.label = 2;
-                                    case 2:
-                                        if (!(_i < testFiles_1.length)) return [3 /*break*/, 6];
+                                        _a.label = 3;
+                                    case 3:
+                                        if (!(_i < testFiles_1.length)) return [3 /*break*/, 7];
                                         testFile = testFiles_1[_i];
                                         return [4 /*yield*/, fs.stat("".concat(testPath, "/").concat(testFile))];
-                                    case 3:
-                                        if ((_a.sent()).isDirectory())
-                                            return [3 /*break*/, 5];
-                                        return [4 /*yield*/, main("".concat(testPath, "/").concat(testFile), contractPath)];
                                     case 4:
+                                        if ((_a.sent()).isDirectory())
+                                            return [3 /*break*/, 6];
+                                        return [4 /*yield*/, main("".concat(testPath, "/").concat(testFile), contractPath)];
+                                    case 5:
                                         filePath = _a.sent();
                                         if (filePath)
                                             filesPaths.push(filePath);
-                                        _a.label = 5;
-                                    case 5:
-                                        _i++;
-                                        return [3 /*break*/, 2];
+                                        _a.label = 6;
                                     case 6:
-                                        if (!(filesPaths.length > 0)) return [3 /*break*/, 8];
-                                        return [4 /*yield*/, runTest(filesPaths)];
+                                        _i++;
+                                        return [3 /*break*/, 3];
                                     case 7:
+                                        if (!(filesPaths.length > 0)) return [3 /*break*/, 9];
+                                        return [4 /*yield*/, runTest(filesPaths)];
+                                    case 8:
                                         _a.sent();
-                                        _a.label = 8;
-                                    case 8: return [3 /*break*/, 12];
-                                    case 9: return [4 /*yield*/, main(testPath, contractPath)];
-                                    case 10:
-                                        filePath = _a.sent();
-                                        if (!filePath) return [3 /*break*/, 12];
-                                        return [4 /*yield*/, runTest(filePath)];
+                                        _a.label = 9;
+                                    case 9: return [3 /*break*/, 13];
+                                    case 10: return [4 /*yield*/, main(testPath, contractPath)];
                                     case 11:
+                                        filePath = _a.sent();
+                                        if (!filePath) return [3 /*break*/, 13];
+                                        return [4 /*yield*/, runTest(filePath)];
+                                    case 12:
                                         _a.sent();
-                                        _a.label = 12;
-                                    case 12: return [2 /*return*/];
+                                        _a.label = 13;
+                                    case 13: return [2 /*return*/];
                                 }
                             });
                         }); })];

@@ -60,6 +60,7 @@ async function execute () {
   // Move remix dependencies to test folder and transpile test files. Then run tests.
   await core.group("Run tests", async () => {
     if (isTestPathDirectory) {
+      await cli.exec('ls', [testPath, '-a'])
       const testFiles = await fs.readdir(testPath)
       const filesPaths = []
 
