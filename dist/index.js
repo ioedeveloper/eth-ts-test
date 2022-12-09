@@ -187,7 +187,7 @@ function execute() {
                                         _i = 0, testFiles_1 = testFiles;
                                         _a.label = 3;
                                     case 3:
-                                        if (!(_i < testFiles_1.length)) return [3 /*break*/, 11];
+                                        if (!(_i < testFiles_1.length)) return [3 /*break*/, 9];
                                         testFile = testFiles_1[_i];
                                         return [4 /*yield*/, fs.stat("".concat(testPath, "/").concat(testFile))];
                                     case 4:
@@ -205,14 +205,14 @@ function execute() {
                                             filesPaths.push(filePath);
                                         _a.label = 8;
                                     case 8:
-                                        if (!(filesPaths.length > 0)) return [3 /*break*/, 10];
-                                        return [4 /*yield*/, runTest(filesPaths)];
-                                    case 9:
-                                        _a.sent();
-                                        _a.label = 10;
-                                    case 10:
                                         _i++;
                                         return [3 /*break*/, 3];
+                                    case 9:
+                                        if (!(filesPaths.length > 0)) return [3 /*break*/, 11];
+                                        return [4 /*yield*/, runTest(filesPaths)];
+                                    case 10:
+                                        _a.sent();
+                                        _a.label = 11;
                                     case 11: return [3 /*break*/, 15];
                                     case 12: return [4 /*yield*/, main(testPath, contractPath)];
                                     case 13:

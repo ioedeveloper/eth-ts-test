@@ -75,9 +75,9 @@ async function execute () {
               if (filePath) filesPaths.push(filePath)
             }
           }
-          if (filesPaths.length > 0) {
-            await runTest(filesPaths)
-          }
+        }
+        if (filesPaths.length > 0) {
+          await runTest(filesPaths)
         }
       }
     } else {
