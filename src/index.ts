@@ -66,13 +66,18 @@ async function execute () {
 
       if (testFiles.length > 0) {
         for (const testFile of testFiles) {
-          if ((await fs.stat(`${testPath}/${testFile}`)).isDirectory()) continue
-          const filePath = await main(`${testPath}/${testFile}`, contractPath)
+          // transpile dependencies
+          if ((await fs.stat(`${testPath}/${testFile}`)).isDirectory()) await transpileDirectory(`${testPath}/${testFile}`)
+          else {
+            if (testFile.endsWith('.ts') || testFile.endsWith('.js')) {
+              const filePath = await main(`${testPath}/${testFile}`, contractPath)
 
-          if (filePath) filesPaths.push(filePath)
-        }
-        if (filesPaths.length > 0) {
-          await runTest(filesPaths)
+              if (filePath) filesPaths.push(filePath)
+            }
+          }
+          if (filesPaths.length > 0) {
+            await runTest(filesPaths)
+          }
         }
       }
     } else {
@@ -169,10 +174,12 @@ async function main (filePath: string, contractPath: string): Promise<string | u
       if (hardhatRequireIndex > -1) testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'require(\'sol-test-helper\')')
       if (chaiImportIndex) testFileContent = testFileContent.replace(chaiImportRegex, 'from \'sol-test-helper\'')
       if (chaiRequireIndex) testFileContent = testFileContent.replace(chaiRequireRegex, 'require(\'sol-test-helper\')')
-      const testFile = transpileScript(testFileContent)
+      if (filePath.endsWith('.ts')) {
+        const testFile = transpileScript(testFileContent)
 
-      filePath = filePath.replace('.ts', '.js')
-      await fs.writeFile(filePath, testFile.outputText)
+        filePath = filePath.replace('.ts', '.js')
+        await fs.writeFile(filePath, testFile.outputText)
+      }
       return filePath
     }
   } catch (error) {
@@ -216,6 +223,25 @@ function transpileScript (script: string): ts.TranspileOutput {
   }})
 
   return output
+}
+
+// Transpile directories
+async function transpileDirectory (dir: string): Promise<void> {
+  const files = await fs.readdir(dir)
+
+  for (const file of files) {
+    const filePath = path.join(dir, file)
+    const stat = await fs.stat(filePath)
+
+    if (stat.isDirectory()) {
+      await transpileDirectory(filePath)
+    } else if (file.endsWith('.ts')) {
+      const testFileContent = await fs.readFile(filePath, 'utf8')
+      const testFile = transpileScript(testFileContent)
+
+      await fs.writeFile(filePath.replace('.ts', '.js'), testFile.outputText)
+    }
+  }
 }
 
 execute().catch(error => {

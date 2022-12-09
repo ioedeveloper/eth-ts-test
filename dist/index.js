@@ -175,7 +175,7 @@ function execute() {
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
-                                        if (!isTestPathDirectory) return [3 /*break*/, 10];
+                                        if (!isTestPathDirectory) return [3 /*break*/, 12];
                                         return [4 /*yield*/, cli.exec('ls', [testPath, '-a'])];
                                     case 1:
                                         _a.sent();
@@ -183,41 +183,46 @@ function execute() {
                                     case 2:
                                         testFiles = _a.sent();
                                         filesPaths = [];
-                                        if (!(testFiles.length > 0)) return [3 /*break*/, 9];
+                                        if (!(testFiles.length > 0)) return [3 /*break*/, 11];
                                         _i = 0, testFiles_1 = testFiles;
                                         _a.label = 3;
                                     case 3:
-                                        if (!(_i < testFiles_1.length)) return [3 /*break*/, 7];
+                                        if (!(_i < testFiles_1.length)) return [3 /*break*/, 11];
                                         testFile = testFiles_1[_i];
                                         return [4 /*yield*/, fs.stat("".concat(testPath, "/").concat(testFile))];
                                     case 4:
-                                        if ((_a.sent()).isDirectory())
-                                            return [3 /*break*/, 6];
-                                        return [4 /*yield*/, main("".concat(testPath, "/").concat(testFile), contractPath)];
+                                        if (!(_a.sent()).isDirectory()) return [3 /*break*/, 6];
+                                        return [4 /*yield*/, transpileDirectory("".concat(testPath, "/").concat(testFile))];
                                     case 5:
+                                        _a.sent();
+                                        return [3 /*break*/, 8];
+                                    case 6:
+                                        if (!(testFile.endsWith('.ts') || testFile.endsWith('.js'))) return [3 /*break*/, 8];
+                                        return [4 /*yield*/, main("".concat(testPath, "/").concat(testFile), contractPath)];
+                                    case 7:
                                         filePath = _a.sent();
                                         if (filePath)
                                             filesPaths.push(filePath);
-                                        _a.label = 6;
-                                    case 6:
+                                        _a.label = 8;
+                                    case 8:
+                                        if (!(filesPaths.length > 0)) return [3 /*break*/, 10];
+                                        return [4 /*yield*/, runTest(filesPaths)];
+                                    case 9:
+                                        _a.sent();
+                                        _a.label = 10;
+                                    case 10:
                                         _i++;
                                         return [3 /*break*/, 3];
-                                    case 7:
-                                        if (!(filesPaths.length > 0)) return [3 /*break*/, 9];
-                                        return [4 /*yield*/, runTest(filesPaths)];
-                                    case 8:
-                                        _a.sent();
-                                        _a.label = 9;
-                                    case 9: return [3 /*break*/, 13];
-                                    case 10: return [4 /*yield*/, main(testPath, contractPath)];
-                                    case 11:
+                                    case 11: return [3 /*break*/, 15];
+                                    case 12: return [4 /*yield*/, main(testPath, contractPath)];
+                                    case 13:
                                         filePath = _a.sent();
-                                        if (!filePath) return [3 /*break*/, 13];
+                                        if (!filePath) return [3 /*break*/, 15];
                                         return [4 /*yield*/, runTest(filePath)];
-                                    case 12:
+                                    case 14:
                                         _a.sent();
-                                        _a.label = 13;
-                                    case 13: return [2 /*return*/];
+                                        _a.label = 15;
+                                    case 15: return [2 /*return*/];
                                 }
                             });
                         }); })];
@@ -332,7 +337,7 @@ function main(filePath, contractPath) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 5, , 6]);
+                    _a.trys.push([0, 6, , 7]);
                     return [4 /*yield*/, fs.readFile(filePath, 'utf8')];
                 case 1:
                     testFileContent = _a.sent();
@@ -357,18 +362,20 @@ function main(filePath, contractPath) {
                         testFileContent = testFileContent.replace(chaiImportRegex, 'from \'sol-test-helper\'');
                     if (chaiRequireIndex)
                         testFileContent = testFileContent.replace(chaiRequireRegex, 'require(\'sol-test-helper\')');
+                    if (!filePath.endsWith('.ts')) return [3 /*break*/, 4];
                     testFile = transpileScript(testFileContent);
                     filePath = filePath.replace('.ts', '.js');
                     return [4 /*yield*/, fs.writeFile(filePath, testFile.outputText)];
                 case 3:
                     _a.sent();
-                    return [2 /*return*/, filePath];
-                case 4: return [3 /*break*/, 6];
-                case 5:
+                    _a.label = 4;
+                case 4: return [2 /*return*/, filePath];
+                case 5: return [3 /*break*/, 7];
+                case 6:
                     error_1 = _a.sent();
                     core.setFailed(error_1.message);
-                    return [3 /*break*/, 6];
-                case 6: return [2 /*return*/];
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
             }
         });
     });
@@ -438,6 +445,47 @@ function transpileScript(script) {
             esModuleInterop: true,
         } });
     return output;
+}
+// Transpile directories
+function transpileDirectory(dir) {
+    return __awaiter(this, void 0, void 0, function () {
+        var files, _i, files_1, file, filePath, stat, testFileContent, testFile;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fs.readdir(dir)];
+                case 1:
+                    files = _a.sent();
+                    _i = 0, files_1 = files;
+                    _a.label = 2;
+                case 2:
+                    if (!(_i < files_1.length)) return [3 /*break*/, 9];
+                    file = files_1[_i];
+                    filePath = path.join(dir, file);
+                    return [4 /*yield*/, fs.stat(filePath)];
+                case 3:
+                    stat = _a.sent();
+                    if (!stat.isDirectory()) return [3 /*break*/, 5];
+                    return [4 /*yield*/, transpileDirectory(filePath)];
+                case 4:
+                    _a.sent();
+                    return [3 /*break*/, 8];
+                case 5:
+                    if (!file.endsWith('.ts')) return [3 /*break*/, 8];
+                    return [4 /*yield*/, fs.readFile(filePath, 'utf8')];
+                case 6:
+                    testFileContent = _a.sent();
+                    testFile = transpileScript(testFileContent);
+                    return [4 /*yield*/, fs.writeFile(filePath.replace('.ts', '.js'), testFile.outputText)];
+                case 7:
+                    _a.sent();
+                    _a.label = 8;
+                case 8:
+                    _i++;
+                    return [3 /*break*/, 2];
+                case 9: return [2 /*return*/];
+            }
+        });
+    });
 }
 execute().catch(function (error) {
     if (typeof (error) !== 'string') {
