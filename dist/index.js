@@ -359,9 +359,9 @@ function main(filePath, contractPath) {
                         testFileContent = testFileContent.replace(chaiImportRegex, 'from \'sol-test-helper\'');
                     if (chaiRequireIndex)
                         testFileContent = testFileContent.replace(chaiRequireRegex, 'require(\'sol-test-helper\')');
-                    console.log('testFileContent: ', testFileContent);
                     if (!filePath.endsWith('.ts')) return [3 /*break*/, 4];
                     testFile = transpileScript(testFileContent);
+                    console.log('testFile: ', testFile);
                     filePath = filePath.replace('.ts', '.js');
                     return [4 /*yield*/, fs.writeFile(filePath, testFile.outputText)];
                 case 3:
