@@ -359,6 +359,7 @@ function main(filePath, contractPath) {
                         testFileContent = testFileContent.replace(chaiImportRegex, 'from \'sol-test-helper\'');
                     if (chaiRequireIndex)
                         testFileContent = testFileContent.replace(chaiRequireRegex, 'require(\'sol-test-helper\')');
+                    console.log('testFileContent: ', testFileContent);
                     if (!filePath.endsWith('.ts')) return [3 /*break*/, 4];
                     testFile = transpileScript(testFileContent);
                     filePath = filePath.replace('.ts', '.js');

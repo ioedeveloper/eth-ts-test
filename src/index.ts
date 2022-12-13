@@ -173,6 +173,7 @@ async function main (filePath: string, contractPath: string): Promise<string | u
       if (hardhatRequireIndex > -1) testFileContent = testFileContent.replace(hardhatEthersRequireRegex, 'require(\'sol-test-helper\')')
       if (chaiImportIndex) testFileContent = testFileContent.replace(chaiImportRegex, 'from \'sol-test-helper\'')
       if (chaiRequireIndex) testFileContent = testFileContent.replace(chaiRequireRegex, 'require(\'sol-test-helper\')')
+      console.log('testFileContent: ', testFileContent)
       if (filePath.endsWith('.ts')) {
         const testFile = transpileScript(testFileContent)
 
